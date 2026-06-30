@@ -4,6 +4,7 @@ import { DashboardLayout } from "../features/dashboard/layout/DashboardLayout";
 import { DashboardIndex } from "../features/dashboard/index/pages/DashboardIndex";
 import { ApplicationsPage } from "../features/dashboard/applications/pages/ApplicationsPage";
 import { AnalyticsPage } from "../features/dashboard/analytics/pages/AnalyticsPage";
+import { SettingsPage } from "../features/dashboard/settings/pages/SettingsPage";
 
 
 export function Routing() {
@@ -16,7 +17,7 @@ export function Routing() {
                 <Route index element={<DashboardIndex />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="applications" element={<ApplicationsPage />} />
-                {/* <Route path="settings" element={<SettingsPage />} /> */}
+                <Route path="settings" element={<SettingsPage />} />
             </Route>
 
 
