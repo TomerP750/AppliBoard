@@ -85,7 +85,7 @@ public class UserService implements IUserService{
 
     }
 
-    private User fetchUserEntity(UUID userId) throws NotFoundException {
+    public User fetchUserEntity(UUID userId) throws NotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
