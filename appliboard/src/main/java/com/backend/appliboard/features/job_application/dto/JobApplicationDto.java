@@ -9,8 +9,10 @@ import java.util.UUID;
 public record JobApplicationDto(
         UUID id,
         String name,
+        String city,
         Status status,
         Position position,
+        Boolean isFavorite,
         Instant appliedAt
 ) {
 }

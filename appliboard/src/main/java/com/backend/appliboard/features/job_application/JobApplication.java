@@ -28,11 +28,16 @@ public class JobApplication {
     @Column(nullable = false, length = 50)
     private String name;
 
+    @Column(length = 30)
+    private String city;
+
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Enumerated(EnumType.STRING)
     private Position position;
+
+    private Boolean isFavorite;
 
     @ManyToOne
     private User user;

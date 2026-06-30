@@ -43,6 +43,8 @@ public class JobApplicationService implements IJobApplicationService {
         JobApplication jobApplication = JobApplication.builder()
                 .name(dto.name())
                 .status(dto.status())
+                .city(dto.city())
+                .isFavorite(false)
                 .position(dto.position())
                 .user(user)
                 .build();

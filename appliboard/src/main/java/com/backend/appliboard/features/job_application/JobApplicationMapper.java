@@ -10,8 +10,10 @@ public class JobApplicationMapper {
         return new JobApplicationDto(
                 entity.getId(),
                 entity.getName(),
+                entity.getCity(),
                 entity.getStatus(),
                 entity.getPosition(),
+                entity.getIsFavorite(),
                 entity.getAppliedAt()
         );
     }
