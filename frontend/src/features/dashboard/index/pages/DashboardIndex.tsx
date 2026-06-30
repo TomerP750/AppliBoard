@@ -9,15 +9,17 @@ export function DashboardIndex() {
     const navigate = useNavigate();
 
     return (
-        <section className="min-h-screen">
+        <section className="h-screen p-6">
 
             <DashboardHeader title="Welcome User" Icon={Sparkles} />
 
-            <div className="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-10">            <ActionButton
-                title="Applications"
-                Icon={FileText}
-                onClick={() => navigate("/dashboard/applications")}
-            />
+            <div className="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-10">
+
+                <ActionButton
+                    title="Applications"
+                    Icon={FileText}
+                    onClick={() => navigate("/dashboard/applications")}
+                />
 
                 <ActionButton
                     title="Analytics"
@@ -30,6 +32,7 @@ export function DashboardIndex() {
                     Icon={Settings}
                     onClick={() => navigate("/dashboard/settings")}
                 />
+
             </div>
 
         </section>

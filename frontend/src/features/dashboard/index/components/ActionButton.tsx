@@ -7,6 +7,7 @@ type ActionButtonProps = {
 };
 
 export function ActionButton({ title, Icon, onClick }: ActionButtonProps) {
+    
     return (
         <button
             onClick={onClick}
@@ -21,6 +22,7 @@ export function ActionButton({ title, Icon, onClick }: ActionButtonProps) {
             <span className="text-xs text-gray-500 dark:text-gray-400">
                 Go to
             </span>
+
         </button>
     );
 }
