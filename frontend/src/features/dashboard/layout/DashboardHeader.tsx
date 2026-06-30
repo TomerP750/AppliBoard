@@ -1,9 +1,47 @@
+import { useEffect, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import { formatDate, formatTime } from "../../../shared/util/format_dateTime";
 
 
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+    Icon: LucideIcon;
+    title: string;
+};
+
+export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
+    const [now, setNow] = useState<Date>(new Date());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setNow(new Date());
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     return (
-        <header>
-            
+        <header className="w-full border-b border-black/10 dark:border-white/10 bg-white dark:bg-dark-background">
+            <div className="flex items-center justify-between gap-6">
+
+                {/* Left */}
+                <div className="flex items-center gap-3 min-w-0">
+                    <Icon strokeWidth={1.2} size={30} className=" text-gray-700 dark:text-gray-200 shrink-0" />
+                    <h1 className="text-3xl font-medium text-gray-900 dark:text-gray-100 truncate">
+                        {title}
+                    </h1>
+                </div>
+
+                {/* Right */}
+                <div className="flex flex-col items-end leading-tight">
+                    <span className="text-base text-gray-600 dark:text-gray-300">
+                        {formatDate(now)}
+                    </span>
+                    <span className="text-base font-mono text-gray-900 dark:text-gray-100">
+                        {formatTime(now)}
+                    </span>
+                </div>
+
+            </div>
         </header>
-    )
+    );
 }
