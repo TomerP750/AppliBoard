@@ -1,5 +1,5 @@
 import { Panel } from "./Panel";
-import { Sidebar } from "./Sidebar";
+import { Sidebar } from "./sidebar/Sidebar";
 
 
 
