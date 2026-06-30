@@ -4,7 +4,7 @@ import { navItems } from "./navItems";
 
 export function Sidebar() {
     return (
-        <aside className="hidden md:flex h-screen w-64 flex-col border-r border-white/10 bg-slate-950 text-white px-5 py-6">
+        <aside className="hidden md:flex h-screen w-64 flex-col border-r border-white/10 bg-zinc-950 text-white px-5 py-6">
 
             {/* Brand */}
             <div className="mb-8">

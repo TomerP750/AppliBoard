@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 type StatCardProps = {
     title: string;
     value: number | string;
-    color?: "default" | "blue" | "green" | "amber" | "red";
+    color?: "default" | "blue" | "green" | "amber" | "red" | "sky";
     icon?: LucideIcon;
 };
 
@@ -28,6 +28,10 @@ const colorMap = {
         text: "text-red-600 dark:text-red-400",
         icon: "text-red-500 dark:text-red-400",
     },
+    sky: {
+    text: "text-sky-600 dark:text-sky-400",
+    icon: "text-sky-500 dark:text-sky-400",
+},
 } as const;
 
 export function StatCard({title,value,color = "default",icon: Icon,}: StatCardProps) {
