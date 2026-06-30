@@ -21,18 +21,17 @@ import java.util.UUID;
 public class JwtService {
 
     @Value("${jwt.secret}")
-    private String SECRET;
+    private String jwtSecret;
 
-    @Value("${jwt.expirationMs}")
-    private long EXPIRATION_MS;
+    private long expirationMs = 1000 * 60 * 60;
 
     private SecretKey getSignInKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateToken(UUID userId, String email, Role role) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiration = new Date(now.getTime() + EXPIRATION_MS);
+        Date expiration = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .issuer("AppliBoard")
