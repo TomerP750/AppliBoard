@@ -20,7 +20,7 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
     }, []);
 
     return (
-        <header className="w-full border-b border-black/10 dark:border-white/10 bg-white dark:bg-dark-background">
+        <header className="w-full border-b border-black/10 dark:border-white/10 bg-transparent">
             <div className="flex items-center justify-between gap-6">
 
                 {/* Left */}

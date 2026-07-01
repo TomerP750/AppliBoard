@@ -30,7 +30,7 @@ export function Badge({
         "inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold",
         avatarUrl
             ? "bg-zinc-100 dark:bg-zinc-800"
-            : "bg-indigo-100 text-indigo-700 dark:bg-indigo-500 dark:text-white",
+            : "bg-indigo-500 text-white",
         sizeClasses[size],
         className,
     ]

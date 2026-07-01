@@ -7,7 +7,7 @@ import { WeeklySentChart } from "../components/WeeklySentChart";
 export function AnalyticsPage() {
 
     return (
-        <section className="min-h-screen p-6">
+        <section className="min-h-screen p-6 bg-zinc-100 dark:bg-dark-background">
 
             <DashboardHeader Icon={BarChart3} title={"Analytics"} />
 

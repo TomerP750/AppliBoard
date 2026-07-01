@@ -1,22 +1,30 @@
 import { NavLink } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LayoutDashboard, LogOut } from "lucide-react";
 import { navItems } from "./navItems";
 import { useAuth } from "../../../authentication/contexts/AuthContext";
 import { Badge } from "../../../../shared/ui/Badge";
+import { useTheme } from "../../../../shared/context/ThemeContext";
 
 export function Sidebar() {
 
     const { user, logout } = useAuth();
+    const { setTheme } = useTheme();
+
+    const handleLogout = async () => {
+        await logout();
+        setTheme("dark");
+    }
 
     return (
-        <aside className="hidden md:flex min-h-screen w-64 flex-col border-r border-white/10 bg-zinc-950 text-white px-5 py-6">
+        <aside className="hidden md:flex min-h-screen w-64 flex-col border-r border-zinc-200 bg-white px-5 py-6 text-zinc-900 dark:border-white/10 dark:bg-dark-background dark:text-white">
 
             {/* Brand */}
             <div className="mb-8">
-                <h2 className="text-xl font-semibold tracking-tight text-white">
-                    AppliBoard
+                <h2 className="inline-flex items-center gap-2 text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
+                    <LayoutDashboard size={20} strokeWidth={1.2} />
+                    <span>AppliBoard</span>
                 </h2>
-                <p className="text-xs text-white/40 mt-1">
+                <p className="mt-1 text-sm text-zinc-500 dark:text-white/40">
                     Job tracking dashboard
                 </p>
             </div>
@@ -34,8 +42,8 @@ export function Sidebar() {
                             className={({ isActive }) =>
                                 `group flex items-center gap-3 px-3 py-2 rounded-lg transition text-sm font-medium ${
                                     isActive
-                                        ? "bg-white/10 text-white"
-                                        : "text-white/60 hover:text-white hover:bg-white/5"
+                                        ? "bg-zinc-100 text-zinc-950 dark:bg-white/10 dark:text-white"
+                                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
                                 }`
                             }
                         >
@@ -47,7 +55,7 @@ export function Sidebar() {
             </nav>
 
             {/* User section */}
-            <div className="mt-6 border-t border-white/10 pt-4">
+            <div className="mt-6 border-t border-zinc-200 pt-4 dark:border-white/10">
                 <div className="flex items-center justify-between">
                     
                     {/* User badge */}
@@ -55,7 +63,7 @@ export function Sidebar() {
                         <Badge avatarUrl={user?.avatarUrl} size="sm" alt="User avatar" />
 
                         <div className="min-w-0">
-                            <p className="text-sm font-medium text-white truncate">
+                            <p className="truncate text-sm font-medium text-zinc-900 dark:text-white">
                                 {user ? `${user?.firstName} ${user?.lastName}` : "Guest"}
                             </p>
                         </div>
@@ -63,7 +71,7 @@ export function Sidebar() {
 
                     {/* Logout */}
                     <button
-                        className="cursor-pointer p-2 rounded-md text-white/60 hover:text-white transition"
+                        className="cursor-pointer rounded-md p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
                         aria-label="Logout"
                         onClick={logout}
                     >
