@@ -80,10 +80,14 @@ export function ApplicationsPage() {
             <DashboardHeader Icon={Briefcase} title={"Your Applications"} />
 
             <div className="mt-8">
-                <div className="flex flex-wrap items-center justify-end gap-2">
-                    <div className="w-full max-w-2xl flex-1 min-w-[280px]">
-                        <SearchInput placeholder="Search applications..." />
-                    </div>
+                <div className="flex flex-wrap items-center gap-2">
+
+                    <Button
+                        onClick={() => setAddModalOpen(true)}
+                        leftIcon={<Plus
+                            size={16} />}>
+                        Add Application
+                    </Button>
 
                     <div className="relative">
                         <Button
@@ -104,12 +108,9 @@ export function ApplicationsPage() {
                         )}
                     </div>
 
-                    <Button
-                        onClick={() => setAddModalOpen(true)}
-                        leftIcon={<Plus
-                            size={16} />}>
-                        Add Application
-                    </Button>
+                    <div className="w-full max-w-2xl flex-1 min-w-[280px]">
+                        <SearchInput placeholder="Search applications..." />
+                    </div>
                 </div>
 
                 <CreateModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} />
