@@ -3,6 +3,7 @@ import { ChangePasswordForm } from "../components/ChangePasswordForm";
 import { PersonalDetailsForm } from "../components/PersonalDetailsForm";
 import { DashboardHeader } from "../../layout/DashboardHeader";
 import { DeleteAccount } from "../components/DeleteAccount";
+import { DisplaySection } from "../components/DisplaySection";
 
 
 export function SettingsPage() {
@@ -17,10 +18,12 @@ export function SettingsPage() {
 
                 <ChangePasswordForm />
 
+                <DisplaySection />
+
                 <DeleteAccount />
                 
             </div>
-            
+
         </section>
     )
 }
