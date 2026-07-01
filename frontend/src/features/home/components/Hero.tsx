@@ -28,7 +28,7 @@ export function Hero() {
 
 
                     <NavLink
-                        to={"/login"}
+                        to={"/auth/login"}
                         className="text-sm md:text-base bg-white/5 py-2 px-4 rounded-lg
                         border border-white/10 backdrop-blur-md
                         hover:bg-white/10 hover:border-white/20 transition-all duration-200"
@@ -58,7 +58,7 @@ export function Hero() {
 
                         <div className="mt-7">
                             <NavLink
-                                to="/signup"
+                                to="/auth/signup"
                                 className="bg-indigo-500 hover:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-medium transition-colors text-sm md:text-base"
                             >
                                 Get Started
