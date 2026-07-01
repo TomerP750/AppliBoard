@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import userService from "../api/userService";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../../../../shared/ui/Button";
+import { TrashIcon } from "lucide-react";
 
 export function DeleteAccount() {
 
@@ -25,8 +26,9 @@ export function DeleteAccount() {
         <section className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-900/60 dark:bg-red-950/20 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 className="text-xl font-semibold text-red-700 dark:text-red-400">
-                        Delete Account
+                    <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-red-700 dark:text-red-400">
+                        <TrashIcon className="h-5 w-5" />
+                        <span>Delete Account</span>
                     </h2>
                     <p className="mt-1 text-sm text-red-600/80 dark:text-red-300/80">
                         Permanently delete your account and all related data.

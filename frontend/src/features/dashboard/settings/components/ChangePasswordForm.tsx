@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import type { ChangePasswordDto } from "../models/ChangePasswordDto";
 import userService from "../api/userService";
 import { Button } from "../../../../shared/ui/Button";
+import { LockIcon } from "lucide-react";
 
 export function ChangePasswordForm() {
     
@@ -26,8 +27,9 @@ export function ChangePasswordForm() {
     return (
         <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0b0f19] sm:p-6">
             <div className="mb-6">
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                    Change Password
+                <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                    <LockIcon className="h-5 w-5" />
+                    <span>Change Password</span>
                 </h2>
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                     Choose a strong password to keep your account secure.
