@@ -18,6 +18,7 @@ public class PrincipalUser implements UserDetails {
 
     private final UUID userId;
     private final String email;
+    private final String password;
     private final Role role;
 
     @Override
@@ -27,7 +28,7 @@ public class PrincipalUser implements UserDetails {
 
     @Override
     public @Nullable String getPassword() {
-        return "";
+        return password;
     }
 
     @Override

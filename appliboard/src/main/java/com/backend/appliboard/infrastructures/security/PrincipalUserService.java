@@ -22,12 +22,12 @@ public class PrincipalUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found"));
 
-        return new PrincipalUser(user.getId(), user.getEmail(), user.getRole());
+        return new PrincipalUser(user.getId(), user.getEmail(), user.getPassword(), user.getRole());
     }
 
     public PrincipalUser loadByUserId(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
 
-        return new PrincipalUser(user.getId(), user.getEmail(), user.getRole());
+        return new PrincipalUser(user.getId(), user.getEmail(), user.getPassword(), user.getRole());
     }
 }
