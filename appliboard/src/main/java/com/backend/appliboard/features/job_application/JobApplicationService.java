@@ -36,6 +36,7 @@ public class JobApplicationService implements IJobApplicationService {
     }
 
     @Override
+    @Transactional
     public void createJobApplication(UUID userId, CreateJobApplicationDto dto) throws NotFoundException {
 
         User user = userService.fetchUserEntity(userId);
@@ -54,6 +55,38 @@ public class JobApplicationService implements IJobApplicationService {
     }
 
     @Override
+    @Transactional
+    public void updateJobApplication(UUID userId, UUID jobApplicationId, UpdateJobApplicationDto dto) throws NotFoundException, UnauthorizedException {
+        
+        JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
+        if (!userId.equals(jobApplication.getUser().getId())) {
+            throw new UnauthorizedException("Cannot update this job application");
+        }
+
+        if (dto.name() != null) {
+            jobApplication.setName(dto.name());
+        }
+        if (dto.city() != null) {
+            jobApplication.setCity(dto.city());
+        }
+        if (dto.status() != null) {
+            jobApplication.setStatus(dto.status());
+        }
+        if (dto.position() != null) {
+            jobApplication.setPosition(dto.position());
+        }
+        if (dto.isFavorite() != null) {
+            jobApplication.setIsFavorite(dto.isFavorite());
+        }
+
+        jobApplicationRepository.save(jobApplication);
+
+        log.info("Job application updated");
+
+    }
+
+    @Override
+    @Transactional
     public void deleteJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
 
         JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
@@ -67,6 +100,7 @@ public class JobApplicationService implements IJobApplicationService {
     }
 
     @Override
+    @Transactional
     public boolean toggleJobApplicationFavorite(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
         JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
         if (!userId.equals(jobApplication.getUser().getId())) {
