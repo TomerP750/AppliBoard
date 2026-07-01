@@ -30,6 +30,8 @@ public class AuthService implements IAuthService {
     @Override
     public AuthResponseDto login(LoginRequestDto dto) {
 
+        log.info("Entering Login");
+
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
         );
@@ -37,7 +39,11 @@ public class AuthService implements IAuthService {
         PrincipalUser principal = (PrincipalUser) auth.getPrincipal();
 
         String token = jwtService.generateToken(principal.getUserId(), principal.getEmail(), principal.getRole());
+
+        log.info("Logged In Successfully");
+
         return new AuthResponseDto(token);
+
     }
 
     @Override

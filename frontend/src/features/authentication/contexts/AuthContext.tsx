@@ -2,6 +2,8 @@ import { createContext, useContext, useState } from "react";
 import type { UserDto } from "../../../shared/models/UserDto";
 import type { LoginRequestDto } from "../models/LoginRequestDto";
 import type { SignupRequestDto } from "../models/SignupRequestDto";
+import authService from "../api/authService";
+import userService from "../../dashboard/settings/api/userService";
 
 type AuthState = {
     user: UserDto | null;
@@ -24,10 +26,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<UserDto | null>(null);
 
     const login = async (dto: LoginRequestDto) => {
-
+        const response = await authService.login(dto);
+        localStorage.setItem('token', response.token);
+        const user = await userService.me();
+        setUser(user);
     }
 
-    const signup = async (dto: SignupRequestDto) => {
+    const signup = async (_dto: SignupRequestDto) => {
 
     }
 

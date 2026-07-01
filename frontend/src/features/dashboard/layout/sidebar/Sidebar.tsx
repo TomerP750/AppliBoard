@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, LogOut } from "lucide-react";
 import { navItems } from "./navItems";
 import { useAuth } from "../../../authentication/contexts/AuthContext";
@@ -9,9 +9,11 @@ export function Sidebar() {
 
     const { user, logout } = useAuth();
     const { setTheme } = useTheme();
+    const navigate = useNavigate();
 
     const handleLogout = async () => {
         await logout();
+        navigate("/auth/login");
         setTheme("dark");
     }
 

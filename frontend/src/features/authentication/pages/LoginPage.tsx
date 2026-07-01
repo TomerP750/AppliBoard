@@ -1,16 +1,32 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { LoginRequestDto } from "../models/LoginRequestDto";
 import { Input } from "../../../shared/ui/Input";
 import { Button } from "../../../shared/ui/Button";
+import { useAuth } from "../contexts/AuthContext";
+import { useMutation } from "@tanstack/react-query";
 
 export function LoginPage() {
 
+    const { login: authLogin } = useAuth();
+    const navigate = useNavigate();
+    
     const { register, handleSubmit, formState: { errors } } = useForm<LoginRequestDto>();
 
-    const handleLogin = async (dto: LoginRequestDto) => {
+    const { mutate: loginUser, isPending } = useMutation({
+        mutationFn: (dto: LoginRequestDto) => authLogin(dto),
+        onSuccess: () => {
+            navigate("/dashboard");
+        },
+        onError: (error) => {
+            console.error(error);
+        },
+    });
+
+    const handleLogin = (dto: LoginRequestDto) => {
+        loginUser(dto);
+    };
     
-    }
 
     return (
         <form
@@ -55,7 +71,7 @@ export function LoginPage() {
                     Sign up
                 </Link>
             </p>
-            <Button type="submit" className="w-full">
+            <Button type="submit" loading={isPending} className="w-full">
                 Login
             </Button>
         </form>
