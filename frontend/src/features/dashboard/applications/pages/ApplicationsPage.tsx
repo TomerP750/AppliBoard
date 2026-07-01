@@ -8,6 +8,7 @@ import { ApplicationCard } from "../components/ApplicationCard";
 import { FilterMenu, type FilterValue } from "../components/FilterMenu";
 import { Position, Status, type JobApplicationDto } from "../models/JobApplicationDto";
 import { CreateModal } from "../components/CreateModal";
+import { EmptyApplications } from "../components/EmptyApplications";
 
 const dummyApplications: JobApplicationDto[] = [
     {
@@ -49,6 +50,8 @@ const dummyApplications: JobApplicationDto[] = [
 ];
 
 export function ApplicationsPage() {
+
+    const [empty] = useState<boolean>(false);
 
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
@@ -111,11 +114,15 @@ export function ApplicationsPage() {
 
                 <CreateModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} />
 
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {dummyApplications.map((application) => (
-                        <ApplicationCard key={application.id} application={application} />
-                    ))}
-                </div>
+                {empty ? (
+                    <EmptyApplications />
+                ) : (
+                    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {dummyApplications.map((application) => (
+                            <ApplicationCard key={application.id} application={application} />
+                        ))}
+                    </div>
+                )}
             </div>
 
         </section>
