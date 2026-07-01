@@ -1,9 +1,8 @@
-
-
-import { useState } from "react"
+import { useTheme, type Theme } from "../../../../shared/context/ThemeContext";
 
 export function DisplaySection() {
-    const [theme, setTheme] = useState("system")
+
+    const { theme, setTheme } = useTheme();
 
     return (
         <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 sm:p-6">
@@ -17,12 +16,12 @@ export function DisplaySection() {
                     </span>
                     <select
                         value={theme}
-                        onChange={(event) => setTheme(event.target.value)}
+                        onChange={(event) => setTheme(event.target.value as Theme)}
                         className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-colors focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     >
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
-                        <option value="system">System</option>
+                        
                     </select>
                 </div>
             </div>
