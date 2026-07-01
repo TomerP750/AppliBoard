@@ -39,7 +39,13 @@ public class JobApplicationController {
         return jobApplicationService.oneJobApplication(userId, jobApplicationId);
     }
 
-    @PostMapping("/update")
+    @PostMapping("/create")
+    public void createJobApplication(@AuthenticationPrincipal PrincipalUser user, @Valid @RequestBody CreateJobApplicationDto dto) throws NotFoundException {
+        UUID userId = user.getUserId();
+        jobApplicationService.createJobApplication(userId, dto);
+    }
+
+    @PutMapping("/update")
     public void createJobApplication(@AuthenticationPrincipal PrincipalUser user, @Valid @RequestBody CreateJobApplicationDto dto) throws NotFoundException {
         UUID userId = user.getUserId();
         jobApplicationService.createJobApplication(userId, dto);

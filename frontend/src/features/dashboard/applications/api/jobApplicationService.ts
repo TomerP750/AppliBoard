@@ -3,6 +3,7 @@
 import type { CreateJobApplicationDto } from "../models/CreateJobApplicationDto";
 import { baseApiUrl } from "../../../../shared/util/baseApi";
 import axios from "axios";
+import type { UpdateJobApplicationDto } from "../models/UpdateJobApplicationDto";
 
 class JobApplicationService {
 
@@ -12,6 +13,10 @@ class JobApplicationService {
 
     async oneJobApplication(jobApplicationId: string) {
         return (await axios.get(`${baseApiUrl}/api/ja/${jobApplicationId}`)).data;
+    }
+
+    async updateJobApplication(jobApplicationId: string, dto: UpdateJobApplicationDto) {
+        return (await axios.put(`${baseApiUrl}/api/ja/update/${jobApplicationId}`, dto)).data;
     }
 
     async createJobApplication(dto: CreateJobApplicationDto) {

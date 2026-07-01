@@ -27,7 +27,13 @@ public class JobApplicationService implements IJobApplicationService {
 
     @Override
     public Page<JobApplicationDto> allJobApplications(UUID userId, Pageable pageable) {
+
+        log.info("Fetching Job Applications");
+
         Page<JobApplication> applications = jobApplicationRepository.findByUserId(userId, pageable);
+
+        log.info("Fetched Job Applications");
+
         return applications.map(JobApplicationMapper::toDto);
     }
 
@@ -40,6 +46,8 @@ public class JobApplicationService implements IJobApplicationService {
     @Override
     @Transactional
     public void createJobApplication(UUID userId, CreateJobApplicationDto dto) throws NotFoundException {
+
+        log.info("Creating Job Application");
 
         User user = userService.fetchUserEntity(userId);
 
@@ -54,12 +62,16 @@ public class JobApplicationService implements IJobApplicationService {
 
         jobApplicationRepository.save(jobApplication);
 
+        log.info("Created Job Application");
+
     }
 
     @Override
     @Transactional
     public void updateJobApplication(UUID userId, UUID jobApplicationId, UpdateJobApplicationDto dto) throws NotFoundException, UnauthorizedException {
-        
+
+        log.info("Updating Job Application");
+
         JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
         if (!userId.equals(jobApplication.getUser().getId())) {
             throw new UnauthorizedException("Cannot update this job application");
@@ -91,6 +103,8 @@ public class JobApplicationService implements IJobApplicationService {
     @Transactional
     public void deleteJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
 
+        log.info("Deleting Job Application");
+
         JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
 
         if (!userId.equals(jobApplication.getUser().getId())) {
@@ -99,17 +113,24 @@ public class JobApplicationService implements IJobApplicationService {
 
         jobApplicationRepository.deleteById(jobApplicationId);
 
+        log.info("Deleted Job Application");
+
     }
 
     @Override
     @Transactional
     public boolean toggleJobApplicationFavorite(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
+
+        log.info("Toggling Favorite");
+
         JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
         if (!userId.equals(jobApplication.getUser().getId())) {
             throw new UnauthorizedException("Cannot toggle favorite for this job application");
         }
         jobApplication.setIsFavorite(!jobApplication.getIsFavorite());
         jobApplicationRepository.save(jobApplication);
+
+        log.info("Toggled");
         return jobApplication.getIsFavorite();
     }
 
