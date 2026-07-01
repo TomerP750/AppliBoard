@@ -73,7 +73,7 @@ export function Sidebar() {
                     <button
                         className="cursor-pointer rounded-md p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
                         aria-label="Logout"
-                        onClick={logout}
+                        onClick={handleLogout}
                     >
                         <LogOut size={18} />
                     </button>

@@ -9,6 +9,7 @@ import { DisplaySection } from "../components/DisplaySection";
 export function SettingsPage() {
 
     return (
+        
         <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
             <DashboardHeader Icon={SettingsIcon} title={"Settings"} />
 
