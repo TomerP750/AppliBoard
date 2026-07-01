@@ -3,7 +3,9 @@ package com.backend.appliboard.features.user;
 import com.backend.appliboard.features.user.dto.ChangePasswordDto;
 import com.backend.appliboard.features.user.dto.UpdateUserDto;
 import com.backend.appliboard.features.user.dto.UserDto;
+import com.backend.appliboard.shared.FoundException;
 import com.backend.appliboard.shared.NotFoundException;
+import com.backend.appliboard.shared.InvalidInputException;
 import com.backend.appliboard.shared.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,10 +45,22 @@ public class UserService implements IUserService{
             throw new UnauthorizedException("You are not authorized to update this user");
         }
 
-        user.setFirstName(dto.firstName());
-        user.setLastName(dto.lastName());
-        user.setEmail(dto.email());
-        user.setAvatarUrl(dto.avatarUrl());
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new FoundException("Email already exists");
+        }
+
+        if (dto.firstName() != null) {
+            user.setFirstName(dto.firstName());
+        }
+        if (dto.lastName() != null) {
+            user.setLastName(dto.lastName());
+        }
+        if (dto.email() != null) {
+            user.setEmail(dto.email());
+        }
+        if (dto.avatarUrl() != null) {
+            user.setAvatarUrl(dto.avatarUrl());
+        }
 
         userRepository.save(user);
 
@@ -58,16 +72,10 @@ public class UserService implements IUserService{
     @Override
     public void deleteUser(UUID userId) throws NotFoundException, UnauthorizedException {
 
-        User user = fetchUserEntity(userId);
-
-        if (!userId.equals(user.getId())) {
-            throw new UnauthorizedException("You are not allowed to delete this user");
-        }
+        
 
         userRepository.deleteById(userId);
-
         log.info("User deleted");
-
     }
 
     @Override
@@ -75,8 +83,12 @@ public class UserService implements IUserService{
 
         User user = fetchUserEntity(userId);
 
+        if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
+            throw new InvalidInputException("Current password is incorrect");
+        }
+
         if (!dto.newPassword().equals(dto.confirmNewPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new InvalidInputException("Passwords do not match");
         }
 
         user.setPassword(passwordEncoder.encode(dto.newPassword()));
