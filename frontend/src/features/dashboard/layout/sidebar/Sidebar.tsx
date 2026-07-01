@@ -1,8 +1,13 @@
 import { NavLink } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { navItems } from "./navItems";
+import { useAuth } from "../../../authentication/contexts/AuthContext";
+import { Badge } from "../../../../shared/ui/Badge";
 
 export function Sidebar() {
+
+    const { user, logout } = useAuth();
+
     return (
         <aside className="hidden md:flex min-h-screen w-64 flex-col border-r border-white/10 bg-zinc-950 text-white px-5 py-6">
 
@@ -47,24 +52,20 @@ export function Sidebar() {
                     
                     {/* User badge */}
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold">
-                            T
-                        </div>
+                        <Badge avatarUrl={user?.avatarUrl} size="sm" alt="User avatar" />
 
                         <div className="min-w-0">
                             <p className="text-sm font-medium text-white truncate">
-                                Tomer
-                            </p>
-                            <p className="text-xs text-white/40 truncate">
-                                Pro Plan
+                                {user ? `${user?.firstName} ${user?.lastName}` : "Guest"}
                             </p>
                         </div>
                     </div>
 
                     {/* Logout */}
                     <button
-                        className="p-2 rounded-md text-white/60 hover:text-white hover:bg-white/10 transition"
+                        className="cursor-pointer p-2 rounded-md text-white/60 hover:text-white transition"
                         aria-label="Logout"
+                        onClick={logout}
                     >
                         <LogOut size={18} />
                     </button>
