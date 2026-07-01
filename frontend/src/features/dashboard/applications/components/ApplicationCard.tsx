@@ -1,5 +1,8 @@
-import { Heart, StarIcon } from "lucide-react";
+import { BriefcaseIcon, Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, StarIcon } from "lucide-react";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
+import { Button } from "../../../../shared/ui/Button";
+import { useState } from "react";
+import { RowCard } from "./RowCard";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -13,50 +16,68 @@ const statusClasses: Record<JobApplicationDto["status"], string> = {
 };
 
 export function ApplicationCard({ application }: ApplicationCardProps) {
+
+    const [isFavorite, setIsFavorite] = useState(application.isFavorite);
+
     const formattedAppliedDate = new Date(application.appliedAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
     });
 
+    const rows = [
+        { Icon: Building2Icon, text: application.name },
+        { Icon: MapPinIcon, text: application.city },
+        { Icon: BriefcaseIcon, text: application.position },
+        { Icon: CalendarIcon, text: `Applied on ${formattedAppliedDate}` },
+    ];
+
+    const handleToggleFavorite = () => {
+        setIsFavorite(prev => !prev);
+    };
+
     return (
         <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                        {application.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{application.city}</p>
-                </div>
 
-                <button
-                    type="button"
-                    aria-label="Toggle favorite"
-                    aria-pressed={application.isFavorite}
-                    className={`cursor-pointer inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition ${
-                        application.isFavorite
-                            ? "border-yellow-200 bg-yellow-100 text-yellow-700 dark:border-yellow-700/40 dark:bg-yellow-900/30 dark:text-yellow-300"
-                            : "border-zinc-200 bg-zinc-100 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                    }`}
-                >
-                    <StarIcon size={12} className={application.isFavorite ? "fill-current" : ""} />
-                    Favorite
-                </button>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                    {application.position}
-                </span>
+            <div className="border-b border-zinc-200 dark:border-zinc-700 pb-3 flex justify-between items-center gap-3">
 
                 <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusClasses[application.status]}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium ${statusClasses[application.status]}`}
                 >
+                    <FileTextIcon size={18} aria-hidden="true" />
+
                     {application.status}
                 </span>
+
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleToggleFavorite}
+                    leftIcon={<StarIcon size={12} className={isFavorite ? "fill-current" : ""} />}
+                    aria-label="Toggle favorite"
+                    aria-pressed={isFavorite}
+                    className={`cursor-pointer inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition hover:bg-transparent dark:hover:bg-transparent 
+                        ${isFavorite
+                            ? "text-yellow-400! hover:text-yellow-300 dark:text-yellow-300 dark:hover:text-yellow-200"
+                            : "text-white/60 hover:text-white/80 dark:text-white/60 dark:hover:text-white/80"
+                        } focus:outline-none! focus:ring-0!`}
+                >
+                    {isFavorite ? "Unfavorite" : "Favorite"}
+                </Button>
+
+
             </div>
 
-            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">Applied on {formattedAppliedDate}</p>
+            <div className="mt-5 flex flex-col items-start gap-3">
+
+                {rows.map(({ Icon, text }) => (
+                    <RowCard key={text} Icon={Icon} text={text} />
+                ))}
+
+            </div>
+
+
         </article>
     )
 }
+
