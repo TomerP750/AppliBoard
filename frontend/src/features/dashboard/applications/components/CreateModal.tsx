@@ -1,3 +1,4 @@
+import { BriefcaseIcon, Building2Icon, FileTextIcon, MapPinIcon } from "lucide-react";
 import { Button } from "../../../../shared/ui/Button";
 import { Input } from "../../../../shared/ui/Input";
 import { Modal } from "../../../../shared/ui/Modal";
@@ -11,6 +12,7 @@ interface CreateModalProps {
 }
 
 export function CreateModal({ isOpen, onClose }: CreateModalProps) {
+    
     if (!isOpen) {
         return null;
     }
@@ -28,11 +30,27 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                    <Input label="Company Name" placeholder="Acme Inc." />
-                    <Input label="City" placeholder="Tel Aviv" />
+                    <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        <span className="inline-flex items-center gap-2">
+                            <Building2Icon size={16} className="text-zinc-400 dark:text-zinc-500" />
+                            Company Name
+                        </span>
+                        <Input placeholder="Acme Inc." />
+                    </label>
 
                     <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Status
+                        <span className="inline-flex items-center gap-2">
+                            <MapPinIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
+                            City
+                        </span>
+                        <Input placeholder="Tel Aviv" />
+                    </label>
+
+                    <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        <span className="inline-flex items-center gap-2">
+                            <FileTextIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
+                            Status
+                        </span>
                         <select
                             defaultValue=""
                             className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
@@ -49,7 +67,10 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                     </label>
 
                     <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Position
+                        <span className="inline-flex items-center gap-2">
+                            <BriefcaseIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
+                            Position
+                        </span>
                         <select
                             defaultValue=""
                             className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
