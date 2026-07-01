@@ -3,6 +3,8 @@ package com.backend.appliboard.features.user;
 import com.backend.appliboard.features.user.dto.ChangePasswordDto;
 import com.backend.appliboard.features.user.dto.UpdateUserDto;
 import com.backend.appliboard.features.user.dto.UserDto;
+import com.backend.appliboard.shared.FoundException;
+import com.backend.appliboard.shared.InvalidInputException;
 import com.backend.appliboard.shared.NotFoundException;
 import com.backend.appliboard.shared.UnauthorizedException;
 import org.springframework.data.domain.Page;
@@ -16,10 +18,10 @@ public interface IUserService {
 
     UserDto me(UUID userId) throws NotFoundException;
 
-    void updateUser(UUID userId ,UpdateUserDto dto) throws NotFoundException, UnauthorizedException;
+    void updateUser(UUID userId ,UpdateUserDto dto) throws NotFoundException, UnauthorizedException, FoundException;
 
     void deleteUser(UUID userId) throws NotFoundException, UnauthorizedException;
 
-    void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException;
+    void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException;
 
 }

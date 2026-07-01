@@ -37,7 +37,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public void updateUser(UUID userId, UpdateUserDto dto) throws NotFoundException, UnauthorizedException {
+    public void updateUser(UUID userId, UpdateUserDto dto) throws NotFoundException, UnauthorizedException, FoundException {
 
         User user = fetchUserEntity(userId);
 
@@ -79,7 +79,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException {
+    public void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
 
         User user = fetchUserEntity(userId);
 

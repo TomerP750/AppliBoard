@@ -4,6 +4,8 @@ import com.backend.appliboard.features.user.dto.ChangePasswordDto;
 import com.backend.appliboard.features.user.dto.UpdateUserDto;
 import com.backend.appliboard.features.user.dto.UserDto;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
+import com.backend.appliboard.shared.FoundException;
+import com.backend.appliboard.shared.InvalidInputException;
 import com.backend.appliboard.shared.NotFoundException;
 import com.backend.appliboard.shared.UnauthorizedException;
 import jakarta.validation.Valid;
@@ -39,7 +41,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public void updateUser(@AuthenticationPrincipal PrincipalUser principalUser,@Valid @RequestBody UpdateUserDto dto) throws UnauthorizedException, NotFoundException {
+    public void updateUser(@AuthenticationPrincipal PrincipalUser principalUser,@Valid @RequestBody UpdateUserDto dto) throws UnauthorizedException, NotFoundException, FoundException {
         UUID userId = principalUser.getUserId();
         userService.updateUser(userId, dto);
     }
@@ -51,7 +53,7 @@ public class UserController {
     }
 
     @PatchMapping("change-password")
-    public void changePassword(@AuthenticationPrincipal PrincipalUser principalUser, @RequestBody ChangePasswordDto dto) throws NotFoundException {
+    public void changePassword(@AuthenticationPrincipal PrincipalUser principalUser, @RequestBody ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
         UUID userId = principalUser.getUserId();
         userService.changePassword(userId, dto);
     }
