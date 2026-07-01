@@ -9,7 +9,7 @@ export function DashboardIndex() {
     const navigate = useNavigate();
 
     return (
-        <section className="h-screen p-6">
+        <section className="min-h-screen p-6">
 
             <DashboardHeader title="Welcome User" Icon={Sparkles} />
 
