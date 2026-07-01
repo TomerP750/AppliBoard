@@ -51,5 +51,11 @@ public class JobApplicationController {
         jobApplicationService.deleteJobApplication(userId, jobApplicationId);
     }
 
+    @PatchMapping("/toggle-favorite/{jobApplicationId}")
+    public boolean toggleJobApplicationFavorite(@AuthenticationPrincipal PrincipalUser user, @PathVariable UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
+        UUID userId = user.getUserId();
+        return jobApplicationService.toggleJobApplicationFavorite(userId, jobApplicationId);
+    }
+
 
 }

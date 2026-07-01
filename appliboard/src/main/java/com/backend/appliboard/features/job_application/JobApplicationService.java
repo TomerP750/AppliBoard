@@ -66,6 +66,17 @@ public class JobApplicationService implements IJobApplicationService {
 
     }
 
+    @Override
+    public boolean toggleJobApplicationFavorite(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
+        JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
+        if (!userId.equals(jobApplication.getUser().getId())) {
+            throw new UnauthorizedException("Cannot toggle favorite for this job application");
+        }
+        jobApplication.setIsFavorite(!jobApplication.getIsFavorite());
+        jobApplicationRepository.save(jobApplication);
+        return jobApplication.getIsFavorite();
+    }
+
     private JobApplication fetchJobApplicationEntity(UUID jobApplicationId) throws NotFoundException {
         return jobApplicationRepository.findById(jobApplicationId)
                 .orElseThrow(() -> new NotFoundException("Not found"));

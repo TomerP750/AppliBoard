@@ -19,5 +19,5 @@ public interface IJobApplicationService {
 
     void deleteJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException;
 
-
+    boolean toggleJobApplicationFavorite(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException;
 }
