@@ -1,4 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { Loader2 } from "lucide-react";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 type ButtonSize = "sm" | "md";
@@ -8,6 +9,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     size?: ButtonSize;
     leftIcon?: ReactNode;
     rightIcon?: ReactNode;
+    loading?: boolean;
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -17,6 +19,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         size = "md",
         leftIcon,
         rightIcon,
+        loading = false,
         className = "",
         disabled,
         children,
@@ -49,10 +52,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         .join(" ");
 
     return (
-        <button ref={ref} type={type} disabled={disabled} className={buttonClasses} {...props}>
-            {leftIcon}
-            {children}
-            {rightIcon}
+        <button
+            ref={ref}
+            type={type}
+            disabled={disabled || loading}
+            className={buttonClasses}
+            aria-busy={loading}
+            {...props}
+        >
+            {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+            ) : (
+                <>
+                    {leftIcon}
+                    {children}
+                    {rightIcon}
+                </>
+            )}
         </button>
     );
 });

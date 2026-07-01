@@ -1,19 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import userService from "../api/userService";
-
+import { useMutation } from "@tanstack/react-query";
+import { Button } from "../../../../shared/ui/Button";
 
 export function DeleteAccount() {
 
     const navigate = useNavigate();
 
-    // if deleted succesfull navigate to home page else toast error
-    const handleAccountDeletion = async() => {
-        try {
-            await userService.deleteUser();
+    const { mutate: deleteUser, isPending } = useMutation({
+        mutationFn: () => userService.deleteUser(),
+        onSuccess: () => {
             navigate("/");
-        } catch (error) {
-            // toast.error(error.response.data);
-        }
+        },
+        onError: (error) => {
+            console.error(error);
+        },
+    });
+
+    const handleAccountDeletion = async () => {
+        deleteUser();
     }
 
     return (
@@ -28,13 +33,14 @@ export function DeleteAccount() {
                     </p>
                 </div>
 
-                <button
+                <Button
                     type="button"
+                    loading={isPending}     
                     className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/40"
                     onClick={handleAccountDeletion}
                 >
                     Delete Account
-                </button>
+                </Button>
             </div>
         </section>
     )

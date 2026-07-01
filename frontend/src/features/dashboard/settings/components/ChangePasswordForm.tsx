@@ -1,15 +1,26 @@
 import { useForm } from "react-hook-form";
 import { Input } from "../../../../shared/ui/Input";
+import { useMutation } from "@tanstack/react-query";
+import type { ChangePasswordDto } from "../models/ChangePasswordDto";
+import userService from "../api/userService";
+import { Button } from "../../../../shared/ui/Button";
 
 export function ChangePasswordForm() {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm();
+    
+    const { register, handleSubmit, formState: { errors },} = useForm<ChangePasswordDto>();
 
-    const onSubmit = (values: unknown) => {
-        void values;
+    const { mutate: changePassword, isPending } = useMutation({
+        mutationFn: (dto: ChangePasswordDto) => userService.changePassword(dto),
+        onSuccess: () => {
+            console.log("Password changed successfully");
+        },
+        onError: (error) => {
+            console.error(error);
+        },
+    });
+
+    const onSubmit = (dto: ChangePasswordDto) => {
+        changePassword(dto);
     };
 
     return (
@@ -60,12 +71,13 @@ export function ChangePasswordForm() {
                 />
 
                 <div className="flex justify-end pt-2">
-                    <button
+                    <Button
                         type="submit"
-                        className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                        loading={isPending}
+                        className="min-w-32"
                     >
                         Update Password
-                    </button>
+                    </Button>
                 </div>
             </form>
         </section>
