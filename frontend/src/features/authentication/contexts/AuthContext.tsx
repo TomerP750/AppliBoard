@@ -4,6 +4,7 @@ import type { LoginRequestDto } from "../models/LoginRequestDto";
 import type { SignupRequestDto } from "../models/SignupRequestDto";
 import authService from "../api/authService";
 import userService from "../../dashboard/settings/api/userService";
+import { useQueryClient } from "@tanstack/react-query";
 
 type AuthState = {
     user: UserDto | null;
@@ -21,25 +22,26 @@ interface AuthProviderProps {
     children: React.ReactNode;
 }
 
+const queryClient = useQueryClient();
+
 export function AuthProvider({ children }: AuthProviderProps) {
-    
+
     const [user, setUser] = useState<UserDto | null>(null);
 
     const login = async (dto: LoginRequestDto) => {
         const response = await authService.login(dto);
-        localStorage.setItem('token', response.token);
-        const user = await userService.me();
-        setUser(user);
-    }
+        localStorage.setItem("token", response.token);
+        await queryClient.invalidateQueries({ queryKey: ["user"] });
+    };
 
     const signup = async (_dto: SignupRequestDto) => {
 
     }
 
     const logout = async () => {
-        setUser(null);
-        localStorage.removeItem('token');
-    }
+        localStorage.removeItem("token");
+        queryClient.removeQueries({ queryKey: ["user"] });
+    };
 
     const ctx = { user, login, signup, logout };
 

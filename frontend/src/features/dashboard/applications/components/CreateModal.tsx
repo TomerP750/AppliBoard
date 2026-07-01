@@ -23,6 +23,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
         mutationFn: (dto: CreateJobApplicationDto) => jobApplicationService.createJobApplication(dto),
         onSuccess: () => {
             console.log("Job application created successfully");
+            onClose();
         },
         onError: (error) => {
             console.error(error);

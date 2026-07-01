@@ -19,11 +19,11 @@ axios.interceptors.request.use(function (config) {
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <ThemeProvider>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
           <Layout />
-        </QueryClientProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   </BrowserRouter>,
 )
