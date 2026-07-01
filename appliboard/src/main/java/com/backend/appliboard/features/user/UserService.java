@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @Transactional
     public void updateUser(UUID userId, UpdateUserDto dto) throws NotFoundException, UnauthorizedException, FoundException {
 
         User user = fetchUserEntity(userId);
@@ -70,6 +72,7 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @Transactional
     public void deleteUser(UUID userId) throws NotFoundException, UnauthorizedException {
 
         
@@ -79,6 +82,7 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @Transactional
     public void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
 
         User user = fetchUserEntity(userId);

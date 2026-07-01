@@ -2,6 +2,7 @@ package com.backend.appliboard.features.job_application;
 
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
+import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
 import com.backend.appliboard.shared.NotFoundException;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 

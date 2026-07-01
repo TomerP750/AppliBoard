@@ -2,6 +2,7 @@ package com.backend.appliboard.features.job_application;
 
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
+import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.shared.NotFoundException;
 import com.backend.appliboard.shared.UnauthorizedException;
 import org.springframework.data.domain.Page;
