@@ -2,6 +2,7 @@ package com.backend.appliboard.shared;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -34,6 +35,15 @@ public class GlobalExceptionHandler {
 //    public ResponseEntity<String> handleJwtException(JwtException e) {
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
 //    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handle(MethodArgumentNotValidException ex) {
+        return ResponseEntity.badRequest().body(
+                ex.getBindingResult().getFieldErrors().stream()
+                        .map(err -> err.getField() + " -> " + err.getDefaultMessage())
+                        .toList()
+        );
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

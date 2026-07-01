@@ -6,6 +6,7 @@ import com.backend.appliboard.features.user.dto.UserDto;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
 import com.backend.appliboard.shared.NotFoundException;
 import com.backend.appliboard.shared.UnauthorizedException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public void updateUser(@AuthenticationPrincipal PrincipalUser principalUser, @RequestBody UpdateUserDto dto) throws UnauthorizedException, NotFoundException {
+    public void updateUser(@AuthenticationPrincipal PrincipalUser principalUser,@Valid @RequestBody UpdateUserDto dto) throws UnauthorizedException, NotFoundException {
         UUID userId = principalUser.getUserId();
         userService.updateUser(userId, dto);
     }

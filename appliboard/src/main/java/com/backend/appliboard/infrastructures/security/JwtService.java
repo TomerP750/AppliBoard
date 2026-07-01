@@ -4,6 +4,7 @@ import com.backend.appliboard.features.user.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class JwtService {
                 .issuedAt(now)
                 .expiration(expiration)
                 .subject(email)
-                .claim("userId", userId)
+                .claim("userId", userId.toString())
                 .claim("role", role.name())
                 .signWith(getSignInKey())
                 .compact();

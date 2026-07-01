@@ -18,9 +18,10 @@ public record SignupRequestDto(
         String email,
 
         @NotBlank
-        @Size(min = 8, max = 100)
+        @Size(min = 8, max = 255)
         String password,
 
+        @NotBlank
         String confirmPassword
 ) {
 }
