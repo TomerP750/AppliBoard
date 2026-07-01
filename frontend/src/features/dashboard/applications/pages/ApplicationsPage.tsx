@@ -7,6 +7,7 @@ import { SearchInput } from "../../../../shared/ui/SearchInput";
 import { ApplicationCard } from "../components/ApplicationCard";
 import { FilterMenu, type FilterValue } from "../components/FilterMenu";
 import { Position, Status, type JobApplicationDto } from "../models/JobApplicationDto";
+import { CreateModal } from "../components/CreateModal";
 
 const dummyApplications: JobApplicationDto[] = [
     {
@@ -49,6 +50,7 @@ const dummyApplications: JobApplicationDto[] = [
 
 export function ApplicationsPage() {
 
+    const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const filterParam = searchParams.get("filter");
@@ -68,7 +70,7 @@ export function ApplicationsPage() {
         setSearchParams(nextParams);
         setIsFilterMenuOpen(false);
     };
-    
+
     return (
         <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
 
@@ -99,8 +101,15 @@ export function ApplicationsPage() {
                         )}
                     </div>
 
-                    <Button leftIcon={<Plus size={16} />}>Add Application</Button>
+                    <Button
+                        onClick={() => setAddModalOpen(true)}
+                        leftIcon={<Plus
+                            size={16} />}>
+                        Add Application
+                    </Button>
                 </div>
+
+                <CreateModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} />
 
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
                     {dummyApplications.map((application) => (
@@ -108,7 +117,7 @@ export function ApplicationsPage() {
                     ))}
                 </div>
             </div>
-            
+
         </section>
     )
 }
