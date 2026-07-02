@@ -27,7 +27,7 @@ export function WeeklySentChart({ weeklyApplicationsByDay }: WeeklySentChartProp
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 20 }}>
                     <XAxis dataKey="name" tickMargin={10} />
-                    <YAxis label={{ value: "Sent", position: "top", offset: 10 }} />
+                    <YAxis allowDecimals={false} label={{ value: "Sent", position: "top", offset: 10 }} />
                     <CartesianGrid stroke="#ccc"  />
                     <Tooltip />
                     <Line type="monotone" dataKey="sent" stroke="#8884d8" />
