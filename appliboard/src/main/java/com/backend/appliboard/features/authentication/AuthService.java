@@ -5,10 +5,13 @@ import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
+import com.backend.appliboard.features.user.UserMapper;
 import com.backend.appliboard.features.user.UserRepository;
+import com.backend.appliboard.features.user.dto.UserDto;
 import com.backend.appliboard.infrastructures.security.JwtService;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
 import com.backend.appliboard.shared.InvalidInputException;
+import com.backend.appliboard.shared.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -28,7 +32,8 @@ public class AuthService implements IAuthService {
     private final UserRepository userRepository;
 
     @Override
-    public AuthResponseDto login(LoginRequestDto dto) {
+    @Transactional
+    public AuthResponseDto login(LoginRequestDto dto) throws NotFoundException {
 
         log.info("Entering Login");
 
@@ -42,11 +47,15 @@ public class AuthService implements IAuthService {
 
         log.info("Logged In Successfully");
 
-        return new AuthResponseDto(token);
+        User user = userRepository.findByEmail(dto.email()).orElseThrow(() -> new NotFoundException("User not found"));
+        UserDto userDto = UserMapper.toUserDto(user);
+
+        return new AuthResponseDto(token, userDto);
 
     }
 
     @Override
+    @Transactional
     public AuthResponseDto signup(SignupRequestDto dto) throws InvalidInputException {
 
         if (!dto.password().equals(dto.confirmPassword())) {
@@ -64,7 +73,10 @@ public class AuthService implements IAuthService {
         userRepository.save(user);
 
         String token = jwtService.generateToken(user.getId(), user.getEmail(), Role.USER);
-        return new AuthResponseDto(token);
+
+        UserDto userDto = UserMapper.toUserDto(user);
+
+        return new AuthResponseDto(token, userDto);
     }
 
     @Override

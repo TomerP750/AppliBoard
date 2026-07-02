@@ -4,6 +4,7 @@ import com.backend.appliboard.features.authentication.dto.AuthResponseDto;
 import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
 import com.backend.appliboard.shared.InvalidInputException;
+import com.backend.appliboard.shared.NotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public AuthResponseDto login(@Valid @RequestBody LoginRequestDto dto) {
+    public AuthResponseDto login(@Valid @RequestBody LoginRequestDto dto) throws InvalidInputException, NotFoundException {
         return authService.login(dto);
     }
 

@@ -1,10 +1,11 @@
-import { createContext, useContext, useState } from "react";
-import type { UserDto } from "../../../shared/models/UserDto";
+import { createContext, useContext, useEffect } from "react";
 import type { LoginRequestDto } from "../models/LoginRequestDto";
 import type { SignupRequestDto } from "../models/SignupRequestDto";
 import authService from "../api/authService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { AuthResponseDto } from "../models/AuthResponseDto";
 import userService from "../../dashboard/settings/api/userService";
-import { useQueryClient } from "@tanstack/react-query";
+import type { UserDto } from "../../../shared/models/UserDto";
 
 type AuthState = {
     user: UserDto | null;
@@ -22,22 +23,52 @@ interface AuthProviderProps {
     children: React.ReactNode;
 }
 
-const queryClient = useQueryClient();
-
 export function AuthProvider({ children }: AuthProviderProps) {
 
-    const [user, setUser] = useState<UserDto | null>(null);
+    const queryClient = useQueryClient();
 
+    /**
+     * Loads the current user from the saved token when the app starts.
+     * Login/signup seed this same cache key, so consumers can read one source of truth.
+     */
+    const { data: user = null, isError } = useQuery({
+        queryKey: ["user"],
+        queryFn: () => userService.me(),
+        enabled: Boolean(localStorage.getItem("token")),
+        retry: false,
+    });
+
+    /**
+     * Clears auth data when the saved token can no longer load the current userDto.
+     */
+    useEffect(() => {
+        if (isError) {
+            localStorage.removeItem("token");
+            queryClient.removeQueries({ queryKey: ["user"] });
+        }
+    }, [isError, queryClient]);
+
+    /**
+     * Authenticates the user, stores the returned JWT, and seeds the userDto cache.
+     */
     const login = async (dto: LoginRequestDto) => {
-        const response = await authService.login(dto);
+        const response: AuthResponseDto = await authService.login(dto);
         localStorage.setItem("token", response.token);
-        await queryClient.invalidateQueries({ queryKey: ["user"] });
+        queryClient.setQueryData(["user"], response.userDto);
     };
 
-    const signup = async (_dto: SignupRequestDto) => {
-
+    /**
+     * Creates a new account, stores the returned JWT, and seeds the userDto cache.
+     */
+    const signup = async (dto: SignupRequestDto) => {
+        const response: AuthResponseDto = await authService.signup(dto);
+        localStorage.setItem("token", response.token);
+        queryClient.setQueryData(["user"], response.userDto);
     }
 
+    /**
+     * Logs the user out locally by removing the token and clearing cached userDto data.
+     */
     const logout = async () => {
         localStorage.removeItem("token");
         queryClient.removeQueries({ queryKey: ["user"] });
@@ -45,9 +76,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const ctx = { user, login, signup, logout };
 
-    return <AuthContext.Provider value={ctx}>
-        {children}
-    </AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={ctx}>
+            {children}
+        </AuthContext.Provider>
+    );
 
 }
 
