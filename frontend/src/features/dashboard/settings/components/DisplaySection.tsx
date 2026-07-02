@@ -23,7 +23,7 @@ export function DisplaySection() {
                     >
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
-                        
+
                     </select>
                 </div>
             </div>

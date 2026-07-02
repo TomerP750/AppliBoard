@@ -19,14 +19,13 @@ interface WeeklySentChartProps {
 export function WeeklySentChart() {
 
     return (
-        <figure className="w-full h-75 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4">
+        <figure className="w-full h-85 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4">
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
+                <LineChart data={data} margin={{ top: 20 }}>
+                    <XAxis dataKey="name" tickMargin={10} />
+                    <YAxis label={{ value: "Sent", position: "top", offset: 10 }} />
                     <CartesianGrid stroke="#ccc"  />
                     <Tooltip />
-                    <Legend />
                     <Line type="monotone" dataKey="sent" stroke="#8884d8" />
                 </LineChart>
             </ResponsiveContainer>

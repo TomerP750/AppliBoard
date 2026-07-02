@@ -22,7 +22,7 @@ export function AnalyticsPage() {
             </section>
 
 
-            <section className="max-w-4xl w-full grid grid-cols-1 gap-4 mt-4 lg:mt-6">
+            <section className="max-w-5xl w-full grid grid-cols-1 gap-4 mt-4 lg:mt-6">
                 <WeeklySentChart />
             </section>
 
