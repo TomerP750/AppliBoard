@@ -3,11 +3,12 @@ import { Button } from "../../../../shared/ui/Button";
 import { Input } from "../../../../shared/ui/Input";
 import { Modal } from "../../../../shared/ui/Modal";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
-import { Position, Status } from "../models/JobApplicationDto";
 import { useForm } from "react-hook-form";
 import type { CreateJobApplicationDto } from "../models/CreateJobApplicationDto";
 import { useMutation } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
+import { Position } from "../models/Position";
+import { Status } from "../models/Status";
 
 
 interface CreateModalProps {
