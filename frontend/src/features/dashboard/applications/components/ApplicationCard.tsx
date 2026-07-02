@@ -1,9 +1,13 @@
 import { BriefcaseIcon, Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, PencilIcon, StarIcon, Trash2Icon } from "lucide-react";
-import type { JobApplicationDto, Status } from "../models/JobApplicationDto";
+import type { JobApplicationDto } from "../models/JobApplicationDto";
 import { Button } from "../../../../shared/ui/Button";
 import { useState } from "react";
 import { RowCard } from "./RowCard";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
+import type { Status } from "../models/Status";
+import jobApplicationService from "../api/jobApplicationService";
+import { useMutation } from "@tanstack/react-query";
+import { DeleteModal } from "./DeleteModal";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -19,6 +23,10 @@ const statusClasses: Record<Status, string> = {
 };
 
 export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCardProps) {
+
+
+    const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
+    const [updateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
 
     const [isFavorite, setIsFavorite] = useState<boolean>(application.isFavorite);
 
@@ -43,8 +51,21 @@ export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCa
         onEdit?.(application);
     };
 
+    
+
+    const { mutate: deleteJobApplication, isPending } = useMutation({
+        mutationFn: (id: string) => jobApplicationService.deleteJobApplication(id),
+        onSuccess: () => {
+            onDelete?.(application);
+            setDeleteModalOpen(false);
+        },
+        onError: (error) => {
+            console.error(error);
+        },
+    });
+
     const handleDelete = () => {
-        onDelete?.(application);
+        deleteJobApplication(application.id);
     };
 
     return (
@@ -91,13 +112,18 @@ export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCa
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={handleDelete}
+                        onClick={() => setDeleteModalOpen(true)}
                         leftIcon={<Trash2Icon size={18} />}
                         aria-label={`Delete ${application.name}`}
                         className="h-10 w-10 rounded-none p-0 text-zinc-500 hover:bg-rose-50 hover:text-rose-600 focus:ring-rose-500/30 dark:text-zinc-400 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
                     />
                 </div>
 
+                <DeleteModal
+                    isOpen={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                    onDelete={handleDelete}
+                />
 
             </div>
 

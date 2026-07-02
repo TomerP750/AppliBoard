@@ -7,10 +7,13 @@ import { ApplicationCard } from "../components/ApplicationCard";
 // import { FilterMenu, type FilterValue } from "../components/FilterMenu";
 import { CreateModal } from "../components/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
+import type { JobApplicationDto } from "../models/JobApplicationDto";
 
 export function ApplicationsPage() {
+
+    const queryClient = useQueryClient();
 
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
@@ -25,6 +28,10 @@ export function ApplicationsPage() {
     const applicationsList = applications?.content ?? [];
 
     const empty = applicationsList.length === 0;
+
+    const handleAddApplication = (application: JobApplicationDto) => {
+        
+    };
     
 
     return (
@@ -36,6 +43,7 @@ export function ApplicationsPage() {
                 <div className="flex flex-wrap items-center gap-2">
 
                     <Button
+                        className="rounded-none!"
                         onClick={() => setAddModalOpen(true)}
                         leftIcon={<Plus
                             size={16} />}>
@@ -44,6 +52,7 @@ export function ApplicationsPage() {
 
                     <div className="relative">
                         <Button
+                            className="rounded-none!"
                             variant="secondary"
                             leftIcon={<ListFilter size={16} />}
                             onClick={() => setIsFilterMenuOpen((prev) => !prev)}
@@ -62,11 +71,11 @@ export function ApplicationsPage() {
                     </div>
 
                     <div className="w-full max-w-2xl flex-1 min-w-[280px]">
-                        <SearchInput placeholder="Search applications..." />
+                        <SearchInput className="rounded-none!" placeholder="Search applications..." />
                     </div>
                 </div>
 
-                <CreateModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} />
+                <CreateModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onAddApplication={handleAddApplication} />
 
                 {empty ? (
                     <EmptyApplications />
