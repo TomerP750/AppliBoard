@@ -28,7 +28,8 @@ public class AnalyticsService implements IAnalyticsService {
         return new AnalyticsDto(
                 getTotalApplicationSent(userId),
                 getWeeklyApplicationsSent(userId),
-                getCountByStatus(userId)
+                getCountByStatus(userId),
+                getWeeklyApplicationsByDay(userId)
         );
     }
 
@@ -52,6 +53,22 @@ public class AnalyticsService implements IAnalyticsService {
         addSavedStatusCounts(userId, countByStatus);
 
         return countByStatus;
+    }
+
+    private Map<DayOfWeek, Long> getWeeklyApplicationsByDay(UUID userId) {
+        Instant startOfWeek = getStartOfCurrentWeek();
+        Instant startOfNextWeek = getStartOfNextWeek(startOfWeek);
+        Map<DayOfWeek, Long> countByDay = createEmptyWeekCountMap();
+
+        for (JobApplicationRepository.DayCount dayCount : jobApplicationRepository.countByDayForCurrentWeek(
+                userId,
+                startOfWeek,
+                startOfNextWeek
+        )) {
+            countByDay.put(toDayOfWeek(dayCount.getDayOfWeek()), dayCount.getCount());
+        }
+
+        return countByDay;
     }
 
     private Map<Status, Long> createEmptyStatusCountMap() {
@@ -81,5 +98,27 @@ public class AnalyticsService implements IAnalyticsService {
         return startOfWeek.atZone(ZoneId.systemDefault())
                 .plusWeeks(1)
                 .toInstant();
+    }
+
+    private Map<DayOfWeek, Long> createEmptyWeekCountMap() {
+        Map<DayOfWeek, Long> countByDay = new EnumMap<>(DayOfWeek.class);
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            countByDay.put(dayOfWeek, 0L);
+        }
+
+        return countByDay;
+    }
+
+    private DayOfWeek toDayOfWeek(Integer mysqlDayOfWeek) {
+        return switch (mysqlDayOfWeek) {
+            case 1 -> DayOfWeek.SUNDAY;
+            case 2 -> DayOfWeek.MONDAY;
+            case 3 -> DayOfWeek.TUESDAY;
+            case 4 -> DayOfWeek.WEDNESDAY;
+            case 5 -> DayOfWeek.THURSDAY;
+            case 6 -> DayOfWeek.FRIDAY;
+            case 7 -> DayOfWeek.SATURDAY;
+            default -> throw new IllegalArgumentException("Unexpected day of week: " + mysqlDayOfWeek);
+        };
     }
 }

@@ -1,11 +1,19 @@
 import type { Status } from "../../applications/models/Status";
 
-    
+export type DayOfWeek =
+    | "SUNDAY"
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY";
 
 export interface AnalyticsDto {
-    
-    id: string;
-    totalApplicationsSent: number;
-    countByStats: Record<Status, number>;
 
+    totalApplicationsSent: number;
+    weeklyApplicationsSent: number;
+    countByStatus: Record<Status, number>;
+    weeklyApplicationsByDay: Record<DayOfWeek, number>;
+    
 }

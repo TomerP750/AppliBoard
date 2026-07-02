@@ -30,8 +30,28 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
             """)
     List<StatusCount> countByStatusForUser(@Param("userId") UUID userId);
 
+    @Query("""
+            SELECT FUNCTION('DAYOFWEEK', j.appliedAt) AS dayOfWeek, COUNT(j) AS count
+            FROM JobApplication j
+            WHERE j.user.id = :userId
+            AND j.appliedAt >= :startOfWeek
+            AND j.appliedAt < :startOfNextWeek
+            GROUP BY FUNCTION('DAYOFWEEK', j.appliedAt)
+            """)
+    List<DayCount> countByDayForCurrentWeek(
+            @Param("userId") UUID userId,
+            @Param("startOfWeek") Instant startOfWeek,
+            @Param("startOfNextWeek") Instant startOfNextWeek
+    );
+
     interface StatusCount {
         Status getStatus();
+
+        Long getCount();
+    }
+
+    interface DayCount {
+        Integer getDayOfWeek();
 
         Long getCount();
     }
