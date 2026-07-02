@@ -1,4 +1,4 @@
-import { ActivityIcon, BarChart3, Briefcase, CheckCircle, Loader2, XCircle } from "lucide-react";
+import { BarChart3, Briefcase, ClockIcon, Loader2 } from "lucide-react";
 import { DashboardHeader } from "../../layout/DashboardHeader";
 import { StatCard } from "../components/StatCard";
 import { WeeklySentChart } from "../components/WeeklySentChart";
@@ -6,6 +6,9 @@ import { Status } from "../../applications/models/Status";
 import { useQuery } from "@tanstack/react-query";
 import analyticsService from "../api/analyticsService";
 import type { AnalyticsDto } from "../models/AnalyticsDto";
+import { toTitleCase } from "../../../../shared/util/toTitleCase";
+import { getIconByStatus } from "../utils/getIconByStatus";
+import { getColorByStatus } from "../utils/getColorByStatus";
 
 
 export function AnalyticsPage() {
@@ -16,7 +19,7 @@ export function AnalyticsPage() {
     });
 
     if (isLoading || !analytics) return (
-    <div className="flex flex-col justify-center items-center h-screen">
+    <div className="flex flex-col justify-center items-center h-screen text-white">
         <Loader2 className="animate-spin" />
         <span className="text-sm font-medium">Loading...</span>
     </div>
@@ -36,7 +39,7 @@ export function AnalyticsPage() {
                 {Object.entries(countByStatus).map(([status, count]) => (
                     <StatCard
                         key={status}
-                        title={status}
+                        title={toTitleCase(status)}
                         value={count}
                         color={getColorByStatus(status as Status)}
                         icon={getIconByStatus(status as Status)}
@@ -47,7 +50,14 @@ export function AnalyticsPage() {
 
 
             <section className="max-w-5xl w-full grid grid-cols-1 gap-4 mt-4 lg:mt-6 dark:text-white">
-                <span className="text-sm font-medium">Total Applications Sent This Week: {weeklyApplicationsSent}</span>
+                <span className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
+                        <ClockIcon className="w-5 h-5" /> Applications sent this week
+                    </span>
+                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {weeklyApplicationsSent}
+                    </span>
+                </span>
                 <WeeklySentChart weeklyApplicationsByDay={weeklyApplicationsByDay}  />
             </section>
 
@@ -56,32 +66,4 @@ export function AnalyticsPage() {
     )
 }
 
-function getColorByStatus(status: Status) {
-    switch (status) {
-        case Status.PENDING:
-            return "amber";
-        case Status.IN_PROGRESS:
-            return "sky";
-        case Status.ACCEPTED:
-            return "green";
-        case Status.REJECTED:
-            return "red";
-        default:
-            return "blue";
-    }
-}
 
-function getIconByStatus(status: Status) {
-    switch (status) {
-        case Status.PENDING:
-            return Loader2;
-        case Status.IN_PROGRESS:
-            return ActivityIcon;
-        case Status.ACCEPTED:
-            return CheckCircle;
-        case Status.REJECTED:
-            return XCircle;
-        default:
-            return Briefcase;
-    }
-}

@@ -38,7 +38,7 @@ export function StatCard({title,value,color = "default",icon: Icon,}: StatCardPr
     return (
         <article className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-sm">
             <div className="flex items-center justify-between">
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <p className={`text-sm text-zinc-500 dark:text-zinc-400`}>
                     {title}
                 </p>
 
