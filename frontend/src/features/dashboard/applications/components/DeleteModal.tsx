@@ -8,15 +8,13 @@ interface DeleteModalProps {
     applicationId: string;
     isOpen: boolean;
     onClose: () => void;
-    onDelete: (id: string) => void;
 }
 
-export function DeleteModal({ applicationId, isOpen, onClose, onDelete }: DeleteModalProps) {
+export function DeleteModal({ applicationId, isOpen, onClose }: DeleteModalProps) {
 
     const { mutate: deleteJobApplication, isPending } = useMutation({
         mutationFn: (id: string) => jobApplicationService.deleteJobApplication(applicationId),
         onSuccess: () => {
-            onDelete?.(applicationId);
             onClose();
         },
         onError: (error) => {
