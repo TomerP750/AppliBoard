@@ -66,7 +66,7 @@ export function Sidebar() {
 
                         <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-zinc-900 dark:text-white">
-                                {user ? `${user?.firstName} ${user?.lastName}` : "Guest"}
+                                {user ? `${user?.firstName}` : "Guest"}
                             </p>
                         </div>
                     </div>

@@ -19,14 +19,6 @@ export function Hero() {
                         AppliBoard
                     </h1>
                     
-                     <NavLink
-                        to={"/dashboard"}
-                        
-                    >
-                        Dashboard
-                    </NavLink>
-
-
                     <NavLink
                         to={"/auth/login"}
                         className="text-sm md:text-base bg-white/5 py-2 px-4 rounded-lg
