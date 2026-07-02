@@ -25,7 +25,7 @@ export function ChangePasswordForm() {
     };
 
     return (
-        <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0b0f19] sm:p-6">
+        <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900 sm:p-6">
             <div className="mb-6">
                 <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
                     <LockIcon className="h-5 w-5" />
@@ -40,6 +40,7 @@ export function ChangePasswordForm() {
                 <Input
                     label="Current Password"
                     type="password"
+                    className="bg-neutral-100! dark:bg-zinc-800!"
                     placeholder="Enter your current password"
                     autoComplete="current-password"
                     error={errors.currentPassword?.message?.toString()}
@@ -50,6 +51,7 @@ export function ChangePasswordForm() {
                 <Input
                     label="New Password"
                     type="password"
+                    className="bg-neutral-100! dark:bg-zinc-800!"
                     placeholder="Enter your new password"
                     autoComplete="new-password"
                     error={errors.newPassword?.message?.toString()}
@@ -64,6 +66,7 @@ export function ChangePasswordForm() {
                 <Input
                     label="Confirm New Password"
                     type="password"
+                    className="bg-neutral-100! dark:bg-zinc-800!"
                     placeholder="Confirm your new password"
                     autoComplete="new-password"
                     error={errors.confirmNewPassword?.message?.toString()}

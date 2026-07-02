@@ -19,7 +19,7 @@ export function DisplaySection() {
                     <select
                         value={theme}
                         onChange={(event) => setTheme(event.target.value as Theme)}
-                        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-colors focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        className="cursor-pointer appearance-none rounded-lg border border-zinc-300 bg-white px-5 py-2 text-sm text-zinc-900 outline-none transition-colors focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     >
                         <option value="light">Light</option>
                         <option value="dark">Dark</option>
