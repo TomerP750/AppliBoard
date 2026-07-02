@@ -9,11 +9,13 @@ import { useMutation } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
 import { Position } from "../models/Position";
 import { Status } from "../models/Status";
+import type { JobApplicationDto } from "../models/JobApplicationDto";
 
 
 interface CreateModalProps {
     isOpen: boolean;
     onClose: () => void;
+    // onAddApplication: (application: JobApplicationDto) => void;
 }
 
 export function CreateModal({ isOpen, onClose }: CreateModalProps) {
@@ -22,8 +24,8 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
 
     const { mutate: createJobApplication, isPending } = useMutation({
         mutationFn: (dto: CreateJobApplicationDto) => jobApplicationService.createJobApplication(dto),
-        onSuccess: () => {
-            console.log("Job application created successfully");
+        onSuccess: (data: JobApplicationDto) => {
+            // onAddApplication(data);
             onClose();
         },
         onError: (error) => {
