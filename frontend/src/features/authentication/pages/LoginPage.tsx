@@ -5,21 +5,27 @@ import { Input } from "../../../shared/ui/Input";
 import { Button } from "../../../shared/ui/Button";
 import { useAuth } from "../contexts/AuthContext";
 import { useMutation } from "@tanstack/react-query";
+import { Toast } from "../../../shared/ui/Toast";
+import { useState } from "react";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
 
 export function LoginPage() {
 
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
+    
     const { login: authLogin } = useAuth();
     const navigate = useNavigate();
     
     const { register, handleSubmit, formState: { errors } } = useForm<LoginRequestDto>();
 
-    const { mutate: loginUser, isPending } = useMutation({
+    const { mutate: loginUser, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, LoginRequestDto>({
         mutationFn: (dto: LoginRequestDto) => authLogin(dto),
         onSuccess: () => {
             navigate("/dashboard");
         },
-        onError: (error) => {
-            console.error(error);
+        onError: (err) => {
+            setToastMessage(err.response?.data?.message ?? "Login failed. Please try again.");
         },
     });
 
@@ -33,6 +39,8 @@ export function LoginPage() {
             onSubmit={handleSubmit(handleLogin)}
             className="w-full space-y-5 rounded-2xl border border-white/15 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
         >
+            {toastMessage && <Toast type="error" message={toastMessage} onClose={() => setToastMessage(null)} />}
+
             <h1 className="text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 Login
             </h1>
@@ -50,6 +58,7 @@ export function LoginPage() {
                 className="border-white/25 bg-transparent text-white placeholder:text-zinc-300"
                 error={errors.email?.message?.toString()}
             />
+
             <label htmlFor="password" className="block text-sm font-medium text-white">
                 Password
             </label>
@@ -71,9 +80,11 @@ export function LoginPage() {
                     Sign up
                 </Link>
             </p>
+
             <Button type="submit" loading={isPending} className="w-full">
                 Login
             </Button>
+
         </form>
     )
 }
