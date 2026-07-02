@@ -1,22 +1,26 @@
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { AnalyticsDto } from "../models/AnalyticsDto";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import type { DayOfWeek } from "../models/AnalyticsDto";
 
-// dummy data sun-saturday
-const data = [
-    { name: "Sunday", sent: 5 },
-    { name: "Monday", sent: 20 },
-    { name: "Tuesday", sent: 30 },
-    { name: "Wednesday", sent: 40 },
-    { name: "Thursday", sent: 50 },
-    { name: "Friday", sent: 60 },
-    { name: "Saturday", sent: 70 },
+const weekDays: Array<{ key: DayOfWeek; label: string }> = [
+    { key: "SUNDAY", label: "Sunday" },
+    { key: "MONDAY", label: "Monday" },
+    { key: "TUESDAY", label: "Tuesday" },
+    { key: "WEDNESDAY", label: "Wednesday" },
+    { key: "THURSDAY", label: "Thursday" },
+    { key: "FRIDAY", label: "Friday" },
+    { key: "SATURDAY", label: "Saturday" },
 ];
 
 interface WeeklySentChartProps {
-    analytics: AnalyticsDto;
+    weeklyApplicationsByDay: Record<DayOfWeek, number>;
 }
 
-export function WeeklySentChart() {
+export function WeeklySentChart({ weeklyApplicationsByDay }: WeeklySentChartProps) {
+    
+    const data = weekDays.map((day) => ({
+        name: day.label,
+        sent: weeklyApplicationsByDay[day.key],
+    }));
 
     return (
         <figure className="w-full h-85 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 p-4">
