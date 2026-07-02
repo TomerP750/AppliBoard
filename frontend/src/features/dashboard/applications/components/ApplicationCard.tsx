@@ -8,6 +8,7 @@ import type { Status } from "../models/Status";
 import jobApplicationService from "../api/jobApplicationService";
 import { useMutation } from "@tanstack/react-query";
 import { DeleteModal } from "./DeleteModal";
+import { UpdatedModal } from "./UpdatedModal";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -24,10 +25,8 @@ const statusClasses: Record<Status, string> = {
 
 export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCardProps) {
 
-
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
     const [updateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
-
     const [isFavorite, setIsFavorite] = useState<boolean>(application.isFavorite);
 
     const formattedAppliedDate = new Date(application.appliedAt).toLocaleDateString("en-US", {
@@ -51,21 +50,9 @@ export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCa
         onEdit?.(application);
     };
 
-    
-
-    const { mutate: deleteJobApplication, isPending } = useMutation({
-        mutationFn: (id: string) => jobApplicationService.deleteJobApplication(id),
-        onSuccess: () => {
-            onDelete?.(application);
-            setDeleteModalOpen(false);
-        },
-        onError: (error) => {
-            console.error(error);
-        },
-    });
-
     const handleDelete = () => {
-        deleteJobApplication(application.id);
+        onDelete?.(application);
+        setDeleteModalOpen(false);
     };
 
     return (
@@ -120,9 +107,16 @@ export function ApplicationCard({ application, onEdit, onDelete }: ApplicationCa
                 </div>
 
                 <DeleteModal
+                    applicationId={application.id}
                     isOpen={deleteModalOpen}
                     onClose={() => setDeleteModalOpen(false)}
                     onDelete={handleDelete}
+                />
+
+                <UpdatedModal
+                    applicationId={application.id}
+                    isOpen={updateModalOpen}
+                    onClose={() => setUpdateModalOpen(false)}
                 />
 
             </div>

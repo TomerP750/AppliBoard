@@ -15,17 +15,17 @@ import type { JobApplicationDto } from "../models/JobApplicationDto";
 interface CreateModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAddApplication: (application: JobApplicationDto) => void;
+    // onAddApplication: (application: JobApplicationDto) => void;
 }
 
-export function CreateModal({ isOpen, onClose, onAddApplication }: CreateModalProps) {
+export function CreateModal({ isOpen, onClose }: CreateModalProps) {
 
     const { register, handleSubmit, formState: { errors },} = useForm<CreateJobApplicationDto>();
 
     const { mutate: createJobApplication, isPending } = useMutation({
         mutationFn: (dto: CreateJobApplicationDto) => jobApplicationService.createJobApplication(dto),
         onSuccess: (data: JobApplicationDto) => {
-            onAddApplication(data);
+            // onAddApplication(data);
             onClose();
         },
         onError: (error) => {

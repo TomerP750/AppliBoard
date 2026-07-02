@@ -1,14 +1,37 @@
 import { AlertTriangleIcon, Trash2Icon } from "lucide-react";
 import { Button } from "../../../../shared/ui/Button";
 import { Modal } from "../../../../shared/ui/Modal";
+import jobApplicationService from "../api/jobApplicationService";
+import { useMutation } from "@tanstack/react-query";
 
 interface DeleteModalProps {
+    applicationId: string;
     isOpen: boolean;
     onClose: () => void;
-    onDelete: () => void;
+    onDelete: (id: string) => void;
 }
 
-export function DeleteModal({ isOpen, onClose, onDelete }: DeleteModalProps) {
+export function DeleteModal({ applicationId, isOpen, onClose, onDelete }: DeleteModalProps) {
+
+    const { mutate: deleteJobApplication, isPending } = useMutation({
+        mutationFn: (id: string) => jobApplicationService.deleteJobApplication(applicationId),
+        onSuccess: () => {
+            onDelete?.(applicationId);
+            onClose();
+        },
+        onError: (error) => {
+            console.error(error);
+        },
+    });
+
+    const handleDelete = () => {
+        deleteJobApplication(applicationId);
+    };
+
+    if (!isOpen) {
+        return null;
+    }
+
     return (
         <Modal
             isOpen={isOpen}
@@ -47,7 +70,8 @@ export function DeleteModal({ isOpen, onClose, onDelete }: DeleteModalProps) {
                         Cancel
                     </Button>
                     <Button
-                        onClick={onDelete}
+                        onClick={handleDelete}
+                        disabled={isPending}
                         leftIcon={<Trash2Icon size={17} />}
                         className="w-full bg-rose-600 text-white shadow-lg shadow-rose-600/20 hover:bg-rose-700 focus:ring-rose-500/40 dark:bg-rose-500 dark:hover:bg-rose-400"
                     >

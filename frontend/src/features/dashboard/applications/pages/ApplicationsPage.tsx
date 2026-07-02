@@ -18,7 +18,7 @@ export function ApplicationsPage() {
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     // const [searchParams, setSearchParams] = useSearchParams();
-    
+
     const { data: applications } = useQuery({
         queryKey: ["applications"],
         queryFn: () => jobApplicationService.allJobApplications(0, 10),
@@ -29,10 +29,8 @@ export function ApplicationsPage() {
 
     const empty = applicationsList.length === 0;
 
-    const handleAddApplication = (application: JobApplicationDto) => {
-        
-    };
-    
+
+
 
     return (
         <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
@@ -75,14 +73,19 @@ export function ApplicationsPage() {
                     </div>
                 </div>
 
-                <CreateModal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} onAddApplication={handleAddApplication} />
+                <CreateModal
+                    isOpen={addModalOpen}
+                    onClose={() => setAddModalOpen(false)}
+                />
 
                 {empty ? (
                     <EmptyApplications />
                 ) : (
                     <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
                         {applicationsList.map((application) => (
-                            <ApplicationCard key={application.id} application={application} />
+                            <ApplicationCard
+                                key={application.id}
+                                application={application} />
                         ))}
                     </div>
                 )}
