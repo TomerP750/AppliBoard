@@ -74,9 +74,6 @@ public class UserService implements IUserService{
     @Override
     @Transactional
     public void deleteUser(UUID userId) throws NotFoundException, UnauthorizedException {
-
-        
-
         userRepository.deleteById(userId);
         log.info("User deleted");
     }
