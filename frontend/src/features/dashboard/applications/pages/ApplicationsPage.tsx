@@ -1,19 +1,16 @@
-import { useState } from "react";
 import { Briefcase, ListFilter, Plus } from "lucide-react";
-import { DashboardHeader } from "../../layout/DashboardHeader";
+import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { SearchInput } from "../../../../shared/ui/SearchInput";
+import { DashboardHeader } from "../../layout/DashboardHeader";
 import { ApplicationCard } from "../components/ApplicationCard";
 // import { FilterMenu, type FilterValue } from "../components/FilterMenu";
+import { useQuery } from "@tanstack/react-query";
+import jobApplicationService from "../api/jobApplicationService";
 import { CreateModal } from "../components/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import jobApplicationService from "../api/jobApplicationService";
-import type { JobApplicationDto } from "../models/JobApplicationDto";
 
 export function ApplicationsPage() {
-
-    const queryClient = useQueryClient();
 
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
@@ -24,13 +21,9 @@ export function ApplicationsPage() {
         queryFn: () => jobApplicationService.allJobApplications(0, 10),
     });
 
-
     const applicationsList = applications?.content ?? [];
 
     const empty = applicationsList.length === 0;
-
-
-
 
     return (
         <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
