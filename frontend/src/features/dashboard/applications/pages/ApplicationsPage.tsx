@@ -4,7 +4,7 @@ import { Button } from "../../../../shared/ui/Button";
 import { SearchInput } from "../../../../shared/ui/SearchInput";
 import { DashboardHeader } from "../../layout/DashboardHeader";
 import { ApplicationCard } from "../components/ApplicationCard";
-// import { FilterMenu, type FilterValue } from "../components/FilterMenu";
+import { FilterMenu } from "../components/FilterMenu";
 import { useQuery } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
 import { CreateModal } from "../components/CreateModal";
@@ -83,11 +83,8 @@ export function ApplicationsPage() {
                         </Button>
 
                         {isFilterMenuOpen && (
-                            <div className="absolute right-0 top-full z-20 mt-2">
-                                {/* <FilterMenu
-                                    selectedFilter={selectedFilter}
-                                    onSelectFilter={handleSelectFilter}
-                                /> */}
+                            <div className="absolute left-0 top-full z-20 mt-2">
+                                <FilterMenu />
                             </div>
                         )}
                     </div>

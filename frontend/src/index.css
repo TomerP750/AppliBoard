@@ -13,3 +13,7 @@
 * {
   font-family: "outfit", sans-serif;
 }
+
+select {
+  border-right: none !important;
+}

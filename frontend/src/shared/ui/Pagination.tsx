@@ -61,7 +61,9 @@ export function Pagination({
     const pageItems = buildPageItems(currentPage, totalPages);
 
     return (
-        <div className={`flex flex-wrap items-center justify-between gap-3 ${className}`}>
+        <div className={`flex flex-wrap items-center justify-between gap-3
+            border-t border-zinc-200 dark:border-zinc-500/50 pt-5
+        ${className}`}>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 Page {visibleCurrentPage} of {visibleTotalPages}
             </p>
@@ -73,10 +75,8 @@ export function Pagination({
                     disabled={!canPrevious}
                     onClick={onPrevious}
                     leftIcon={<ChevronLeft size={16} />}
-                >
-                    Previous
-                </Button>
-
+                />
+             
                 <div className="flex flex-wrap items-center gap-1">
                     {pageItems.map((item, index) => {
                         if (item === "ellipsis") {
@@ -123,10 +123,11 @@ export function Pagination({
                     disabled={!canNext}
                     onClick={onNext}
                     rightIcon={<ChevronRight size={16} />}
-                >
-                    Next
-                </Button>
+                />
+                    
+                
             </div>
+
         </div>
     );
 }
