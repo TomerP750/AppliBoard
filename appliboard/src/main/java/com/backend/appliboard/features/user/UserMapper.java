@@ -14,7 +14,8 @@ public class UserMapper {
                 entity.getFirstName(),
                 entity.getLastName(),
                 entity.getEmail(),
-                entity.getAvatarUrl()
+                entity.getAvatarUrl(),
+                entity.getRole()
         );
     }
 }

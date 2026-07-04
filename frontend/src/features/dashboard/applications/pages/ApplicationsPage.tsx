@@ -9,21 +9,52 @@ import { useQuery } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
 import { CreateModal } from "../components/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
+import { useSearchParams } from "react-router-dom";
+import { Pagination } from "../../../../shared/ui/Pagination";
+import { usePaginationMetadata } from "../../../../shared/hooks/usePaginationMetadata";
+import { getSearchParamNumber } from "../utils/getSearchParamNumber";
+
+const DEFAULT_APPLICATIONS_PAGE = 0;
+const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
 
 export function ApplicationsPage() {
 
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-    // const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const { data: applications } = useQuery({
-        queryKey: ["applications"],
-        queryFn: () => jobApplicationService.allJobApplications(0, 10),
+    const requestedPage = getSearchParamNumber(
+        searchParams.get("page"),
+        DEFAULT_APPLICATIONS_PAGE,
+        0,
+    );
+
+    const requestedPageSize = getSearchParamNumber(
+        searchParams.get("size"),
+        DEFAULT_APPLICATIONS_PAGE_SIZE,
+        1,
+    );
+
+    const { data: applications, isLoading, isError } = useQuery({
+        queryKey: ["applications", { page: requestedPage, size: requestedPageSize }],
+        queryFn: () => jobApplicationService.allJobApplications(requestedPage, requestedPageSize),
+        staleTime: 1000 * 60 * 5
     });
 
     const applicationsList = applications?.content ?? [];
 
+    const { currentPage, totalPages, canGoToPreviousPage, canGoToNextPage } = usePaginationMetadata(applications, requestedPage);
+
     const empty = applicationsList.length === 0;
+
+    const updatePaginationParams = (nextPage: number) => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+
+        nextSearchParams.set("page", String(Math.max(nextPage, DEFAULT_APPLICATIONS_PAGE)));
+        nextSearchParams.set("size", String(requestedPageSize));
+
+        setSearchParams(nextSearchParams);
+    };
 
     return (
         <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
@@ -71,16 +102,34 @@ export function ApplicationsPage() {
                     onClose={() => setAddModalOpen(false)}
                 />
 
-                {empty ? (
+                {isLoading ? (
+                    <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">Loading applications...</p>
+                ) : isError ? (
+                    <p className="mt-6 text-sm text-rose-600 dark:text-rose-400">Could not load applications.</p>
+                ) : empty ? (
                     <EmptyApplications />
                 ) : (
-                    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                        {applicationsList.map((application) => (
-                            <ApplicationCard
-                                key={application.id}
-                                application={application} />
-                        ))}
-                    </div>
+                    <>
+                        <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">Total applications: {applications?.page.totalElements}</p>
+                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 ">
+                            {applicationsList.map((application) => (
+                                <ApplicationCard
+                                    key={application.id}
+                                    application={application} />
+                            ))}
+                        </div>
+
+                        <Pagination
+                            className="mt-6"
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            canPrevious={canGoToPreviousPage}
+                            canNext={canGoToNextPage}
+                            onPrevious={() => updatePaginationParams(currentPage - 1)}
+                            onNext={() => updatePaginationParams(currentPage + 1)}
+                            onPageChange={updatePaginationParams}
+                        />
+                    </>
                 )}
             </div>
 

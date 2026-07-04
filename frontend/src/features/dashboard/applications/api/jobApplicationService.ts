@@ -1,14 +1,14 @@
-// dont add axios yet
-
 import type { CreateJobApplicationDto } from "../models/CreateJobApplicationDto";
 import { baseApiUrl } from "../../../../shared/util/baseApi";
 import axios from "axios";
 import type { UpdateJobApplicationDto } from "../models/UpdateJobApplicationDto";
+import type { PageResponse } from "../../../../shared/models/PageResponse";
+import type { JobApplicationDto } from "../models/JobApplicationDto";
 
 class JobApplicationService {
 
-    async allJobApplications(page: number = 0, size: number = 10) {
-        return (await axios.get(`${baseApiUrl}/api/ja?page=${page}&size=${size}`)).data;
+    async allJobApplications(page: number = 0, size: number = 10): Promise<PageResponse<JobApplicationDto>> {
+        return (await axios.get(`${baseApiUrl}/api/ja/all?page=${page}&size=${size}`)).data;
     }
 
     async oneJobApplication(jobApplicationId: string) {

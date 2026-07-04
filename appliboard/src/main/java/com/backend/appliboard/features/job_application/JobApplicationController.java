@@ -2,6 +2,7 @@ package com.backend.appliboard.features.job_application;
 
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
+import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
 import com.backend.appliboard.shared.NotFoundException;
 import com.backend.appliboard.shared.UnauthorizedException;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +25,12 @@ public class JobApplicationController {
     private final JobApplicationService jobApplicationService;
 
 
-    @GetMapping
+    @GetMapping("/all")
     public Page<JobApplicationDto> allJobApplications(@AuthenticationPrincipal PrincipalUser user,
-                                                      @RequestParam(defaultValue = "0") int page,
-                                                      @RequestParam(defaultValue = "10") int size) {
+                                                      @RequestParam(name = "page", defaultValue = "0") int page,
+                                                      @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("appliedAt").descending());
         UUID userId = user.getUserId();
         return jobApplicationService.allJobApplications(userId, pageable);
     }
@@ -45,10 +47,12 @@ public class JobApplicationController {
         jobApplicationService.createJobApplication(userId, dto);
     }
 
-    @PutMapping("/update")
-    public void updateJobApplication(@AuthenticationPrincipal PrincipalUser user, @Valid @RequestBody CreateJobApplicationDto dto) throws NotFoundException {
+    @PutMapping("/update/{jobApplicationId}")
+    public void updateJobApplication(@AuthenticationPrincipal PrincipalUser user,
+                                     @PathVariable UUID jobApplicationId,
+                                     @Valid @RequestBody UpdateJobApplicationDto dto) throws NotFoundException, UnauthorizedException {
         UUID userId = user.getUserId();
-        jobApplicationService.createJobApplication(userId, dto);
+        jobApplicationService.updateJobApplication(userId, jobApplicationId, dto);
     }
 
     @DeleteMapping("/delete/{jobApplicationId}")
