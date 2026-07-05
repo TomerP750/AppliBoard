@@ -173,6 +173,18 @@ export function ApplicationsPage() {
                         Add Application
                     </Button>
 
+
+
+                    <div className="w-full max-w-2xl flex-1 min-w-[280px]">
+                        <SearchInput
+                            key={requestedName}
+                            className="rounded-none!"
+                            placeholder="Search applications By Name..."
+                            defaultValue={requestedName}
+                            onAfterSearch={handleSearch}
+                        />
+                    </div>
+
                     <div className="relative">
                         <Button
                             className="rounded-none!"
@@ -184,7 +196,7 @@ export function ApplicationsPage() {
                         </Button>
 
                         {isFilterMenuOpen && (
-                            <div className="absolute left-0 top-full z-20 mt-2">
+                            <div className="absolute right-0 top-full z-20 mt-2">
                                 <FilterMenu
                                     onClose={() => setIsFilterMenuOpen(false)}
                                     selectedStatuses={requestedStatuses}
@@ -198,16 +210,6 @@ export function ApplicationsPage() {
                                 />
                             </div>
                         )}
-                    </div>
-
-                    <div className="w-full max-w-2xl flex-1 min-w-[280px]">
-                        <SearchInput
-                            key={requestedName}
-                            className="rounded-none!"
-                            placeholder="Search applications By Name..."
-                            defaultValue={requestedName}
-                            onAfterSearch={handleSearch}
-                        />
                     </div>
                 </div>
 

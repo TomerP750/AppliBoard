@@ -32,7 +32,7 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                 </div>
 
                 {/* Right */}
-                <div className="flex flex-col items-end leading-tight">
+                <div className="flex flex-col items-end leading-tight opacity-80">
                     <span className="text-base text-gray-600 dark:text-gray-300">
                         {formatDate(now)}
                     </span>

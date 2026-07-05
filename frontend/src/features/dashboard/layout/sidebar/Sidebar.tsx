@@ -41,10 +41,11 @@ export function Sidebar() {
                             key={item.to}
                             to={item.to}
                             end
+                            // Add purple bar in the left when active
                             className={({ isActive }) =>
                                 `group flex items-center gap-3 px-3 py-2 rounded-lg transition text-sm font-medium ${
                                     isActive
-                                        ? "bg-zinc-100 text-zinc-950 dark:bg-white/10 dark:text-white"
+                                        ? "relative before:absolute before:left-0 before:top-0 before:h-full before:w-0.5 before:bg-brand-primary bg-zinc-100 text-zinc-950 dark:bg-white/10 dark:text-white"
                                         : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
                                 }`
                             }
