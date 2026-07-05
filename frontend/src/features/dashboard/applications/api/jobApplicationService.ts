@@ -4,6 +4,18 @@ import axios from "axios";
 import type { UpdateJobApplicationDto } from "../models/UpdateJobApplicationDto";
 import type { PageResponse } from "../../../../shared/models/PageResponse";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
+import type { Position } from "../models/Position";
+import type { Status } from "../models/Status";
+
+export type SearchJobApplicationsParams = {
+    name?: string;
+    statuses?: Status[];
+    positions?: Position[];
+    favorites?: boolean;
+    sort?: "newest" | "oldest";
+    page?: number;
+    size?: number;
+};
 
 class JobApplicationService {
 
@@ -11,12 +23,11 @@ class JobApplicationService {
         return (await axios.get(`${baseApiUrl}/api/ja/all?page=${page}&size=${size}`)).data;
     }
 
-    async searchJobApplications(searchValue: string, page: number = 0, size: number = 10): Promise<PageResponse<JobApplicationDto>> {
+    async searchJobApplications(params: SearchJobApplicationsParams): Promise<PageResponse<JobApplicationDto>> {
         return (await axios.get(`${baseApiUrl}/api/ja/search`, {
-            params: {
-                query: searchValue,
-                page,
-                size,
+            params,
+            paramsSerializer: {
+                indexes: null,
             },
         })).data;
     }

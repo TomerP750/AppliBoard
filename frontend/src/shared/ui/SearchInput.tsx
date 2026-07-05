@@ -1,4 +1,4 @@
-import { useEffect, useMemo, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, type ChangeEvent } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Search } from "lucide-react";
 import { Input, type InputProps } from "./Input";
@@ -17,9 +17,15 @@ export function SearchInput({
     onChange,
     ...props
 }: SearchInputProps) {
+    const onAfterSearchRef = useRef(onAfterSearch);
+
+    useEffect(() => {
+        onAfterSearchRef.current = onAfterSearch;
+    }, [onAfterSearch]);
+
     const debouncedAfterSearch = useMemo(
-        () => debounce((searchValue: string) => onAfterSearch?.(searchValue), 2500),
-        [onAfterSearch],
+        () => debounce((searchValue: string) => onAfterSearchRef.current?.(searchValue), 2500),
+        [],
     );
 
     useEffect(() => {
@@ -39,7 +45,7 @@ export function SearchInput({
             />
             <Input
                 type="search"
-                className={`pl-9 ${className}`.trim()}
+                className={`pl-9 appearance-none ${className}`.trim()}
                 placeholder={placeholder}
                 onChange={handleChange}
                 {...props}

@@ -7,6 +7,8 @@ import { Button } from "../../../../shared/ui/Button";
 
 const filterChipClassName =
     "rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-brand-primary/50 hover:bg-brand-primary/5 hover:text-brand-primary dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-200 dark:hover:border-brand-primary/60 dark:hover:bg-brand-primary/10";
+const activeFilterChipClassName =
+    "rounded-full border border-brand-primary bg-brand-primary/10 px-3 py-1.5 text-xs font-semibold text-brand-primary ring-1 ring-brand-primary/30 transition dark:border-brand-primary/70 dark:bg-brand-primary/15 dark:text-brand-primary";
 
 const statusToneClassNames: Record<Status, string> = {
     [Status.ACCEPTED]: "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-900",
@@ -17,12 +19,32 @@ const statusToneClassNames: Record<Status, string> = {
 
 interface FilterMenuProps {
     showFavoritesOnly: boolean;
+    selectedStatuses: Status[];
+    selectedPositions: Position[];
     onShowFavoritesOnlyChange: (checked: boolean) => void;
     onResetFilters: () => void;
     onApplyFilters: () => void;
+    onAddStatusFilter: (status: Status) => void;
+    onAddPositionFilter: (position: Position) => void;
+    onClose: () => void;
 }
 
-export function FilterMenu({ showFavoritesOnly, onShowFavoritesOnlyChange, onResetFilters, onApplyFilters }: FilterMenuProps) {
+export function FilterMenu({ showFavoritesOnly, 
+    selectedStatuses,
+    selectedPositions,
+    onShowFavoritesOnlyChange, 
+    onResetFilters, 
+    onApplyFilters,
+    onAddStatusFilter,
+    onAddPositionFilter,
+    onClose,
+}: FilterMenuProps) {
+
+    const handleResetFilters = () => {
+        onResetFilters();
+        onClose();
+    }
+
     return (
         <div className="w-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/60 ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30 dark:ring-white/10">
 
@@ -62,13 +84,20 @@ export function FilterMenu({ showFavoritesOnly, onShowFavoritesOnlyChange, onRes
                         Roles
                     </p>
                     <div className="flex flex-wrap gap-2">
-                        {Object.values(Position).map((position) => (
-                            <button key={position}
-                                type="button"
-                                className={filterChipClassName}>
-                                {toTitleCase(position)}
-                            </button>
-                        ))}
+                        {Object.values(Position).map((position) => {
+                            const selected = selectedPositions.includes(position);
+
+                            return (
+                                <button key={position}
+                                    type="button"
+                                    aria-pressed={selected}
+                                    className={selected ? activeFilterChipClassName : filterChipClassName}
+                                    onClick={() => onAddPositionFilter(position)}
+                                >
+                                    {toTitleCase(position)}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -77,16 +106,22 @@ export function FilterMenu({ showFavoritesOnly, onShowFavoritesOnlyChange, onRes
                         Statuses
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                        {Object.values(Status).map((status) => (
-                            <button
-                                key={status}
-                                type="button"
-                                className={`inline-flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold ring-1 transition hover:scale-[1.01] ${statusToneClassNames[status]}`}
-                            >
-                                {toTitleCase(status)}
-                                <Check size={14} className="opacity-40" />
-                            </button>
-                        ))}
+                        {Object.values(Status).map((status) => {
+                            const selected = selectedStatuses.includes(status);
+
+                            return (
+                                <button
+                                    key={status}
+                                    type="button"
+                                    aria-pressed={selected}
+                                    className={`inline-flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold ring-1 transition hover:scale-[1.01] ${selected ? "scale-[1.01] ring-2 ring-brand-primary" : ""} ${statusToneClassNames[status]}`}
+                                    onClick={() => onAddStatusFilter(status)}
+                                >
+                                    {toTitleCase(status)}
+                                    <Check size={14} className={selected ? "opacity-100" : "opacity-40"} />
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -97,7 +132,7 @@ export function FilterMenu({ showFavoritesOnly, onShowFavoritesOnlyChange, onRes
                     variant="ghost"
                     size="sm"
                     leftIcon={<RotateCcw size={15} />}
-                    onClick={onResetFilters}
+                    onClick={handleResetFilters}
                     className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                 >
                     Reset

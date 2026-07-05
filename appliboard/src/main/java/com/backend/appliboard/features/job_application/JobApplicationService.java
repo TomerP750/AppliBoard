@@ -1,6 +1,7 @@
 package com.backend.appliboard.features.job_application;
 
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
+import com.backend.appliboard.features.job_application.dto.JobApplicationFilterDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.features.user.User;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +40,29 @@ public class JobApplicationService implements IJobApplicationService {
     }
 
     @Override
-    public JobApplicationDto oneJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException {
+    public Page<JobApplicationDto> searchJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
+        log.info("Searching Job Applications");
+
+        Specification<JobApplication> specification = JobApplicationSpecifications.belongsToUser(userId)
+                .and(JobApplicationSpecifications.nameContains(filters.name()))
+                .and(JobApplicationSpecifications.hasStatuses(filters.statuses()))
+                .and(JobApplicationSpecifications.hasPositions(filters.positions()))
+                .and(JobApplicationSpecifications.hasFavorite(filters.isFavorite()));
+
+        Page<JobApplication> filteredApplications = jobApplicationRepository.findAll(specification, pageable);
+
+        log.info("Searched Job Applications");
+
+        return filteredApplications.map(JobApplicationMapper::toDto);
+    }
+
+    @Override
+    public JobApplicationDto oneJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException {
         JobApplication jobApplication = fetchJobApplicationEntity(jobApplicationId);
+        if (!userId.equals(jobApplication.getUser().getId())) {
+            throw new UnauthorizedException("Cannot access this job application");
+        }
+
         return JobApplicationMapper.toDto(jobApplication);
     }
 

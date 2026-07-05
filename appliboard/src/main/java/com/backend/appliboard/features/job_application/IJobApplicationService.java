@@ -1,6 +1,7 @@
 package com.backend.appliboard.features.job_application;
 
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
+import com.backend.appliboard.features.job_application.dto.JobApplicationFilterDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.shared.NotFoundException;
@@ -14,7 +15,9 @@ public interface IJobApplicationService {
 
     Page<JobApplicationDto> allJobApplications(UUID userId, Pageable pageable);
 
-    JobApplicationDto oneJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException;
+    Page<JobApplicationDto> searchJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable);
+
+    JobApplicationDto oneJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException;
 
     /**
      * Creates a new job application for the specified user.

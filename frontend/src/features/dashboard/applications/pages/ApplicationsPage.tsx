@@ -5,14 +5,16 @@ import { SearchInput } from "../../../../shared/ui/SearchInput";
 import { DashboardHeader } from "../../layout/DashboardHeader";
 import { ApplicationCard } from "../components/ApplicationCard";
 import { FilterMenu } from "../components/FilterMenu";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import jobApplicationService from "../api/jobApplicationService";
+import { useQuery } from "@tanstack/react-query";
+import jobApplicationService, { type SearchJobApplicationsParams } from "../api/jobApplicationService";
 import { CreateModal } from "../components/crud_modals/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
 import { useSearchParams } from "react-router-dom";
 import { Pagination } from "../../../../shared/ui/Pagination";
 import { usePaginationMetadata } from "../../../../shared/hooks/usePaginationMetadata";
 import { getSearchParamNumber } from "../utils/getSearchParamNumber";
+import type { Position } from "../models/Position";
+import type { Status } from "../models/Status";
 
 const DEFAULT_APPLICATIONS_PAGE = 0;
 const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
@@ -23,7 +25,11 @@ export function ApplicationsPage() {
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
+    const requestedName = searchParams.get("name") ?? "";
     const showFavoritesOnly = searchParams.get("favorites") === "true";
+    const requestedStatuses = searchParams.getAll("statuses") as Status[];
+    const requestedPositions = searchParams.getAll("positions") as Position[];
+    const requestedSort = searchParams.get("sort") === "oldest" ? "oldest" : "newest";
 
     const requestedPage = getSearchParamNumber(
         searchParams.get("page"),
@@ -40,18 +46,20 @@ export function ApplicationsPage() {
         ? requestedPageSizeParam
         : DEFAULT_APPLICATIONS_PAGE_SIZE;
 
-    const { data: applications, isLoading, isError } = useQuery({
-        queryKey: ["applications", { page: requestedPage, size: requestedPageSize }],
-        queryFn: () => jobApplicationService.allJobApplications(requestedPage, requestedPageSize),
-        staleTime: 1000 * 60 * 5
-    });
+    const searchApplicationsParams: SearchJobApplicationsParams = {
+        name: requestedName || undefined,
+        statuses: requestedStatuses.length ? requestedStatuses : undefined,
+        positions: requestedPositions.length ? requestedPositions : undefined,
+        favorites: showFavoritesOnly ? true : undefined,
+        sort: requestedSort,
+        page: requestedPage,
+        size: requestedPageSize,
+    };
 
-    const { mutate: searchApplications } = useMutation({
-        mutationFn: (searchValue: string) => jobApplicationService.searchJobApplications(
-            searchValue,
-            requestedPage,
-            requestedPageSize,
-        ),
+    const { data: applications, isLoading, isError } = useQuery({
+        queryKey: ["applications", searchApplicationsParams],
+        queryFn: () => jobApplicationService.searchJobApplications(searchApplicationsParams),
+        staleTime: 1000 * 60 * 5
     });
 
     const applicationsList = applications?.content ?? [];
@@ -60,10 +68,26 @@ export function ApplicationsPage() {
 
     const { currentPage, totalPages, canGoToPreviousPage, canGoToNextPage } = usePaginationMetadata(applications, requestedPage);
 
-    const updatePaginationParams = (nextPage: number) => {
+    const handleSearch = (name: string) => {
+        const nextSearchName = name.trim();
         const nextSearchParams = new URLSearchParams(searchParams);
 
-        nextSearchParams.set("page", String(Math.max(nextPage, DEFAULT_APPLICATIONS_PAGE)));
+        if (nextSearchName) {
+            nextSearchParams.set("name", nextSearchName);
+        } else {
+            nextSearchParams.delete("name");
+        }
+
+        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
+        nextSearchParams.set("size", String(requestedPageSize));
+        setSearchParams(nextSearchParams);
+    };
+
+    const updatePaginationParams = (nextPage: number) => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+        const page = Math.max(nextPage, DEFAULT_APPLICATIONS_PAGE);
+
+        nextSearchParams.set("page", String(page));
         nextSearchParams.set("size", String(requestedPageSize));
 
         setSearchParams(nextSearchParams);
@@ -96,10 +120,40 @@ export function ApplicationsPage() {
     const resetFilters = () => {
         const nextSearchParams = new URLSearchParams(searchParams);
 
+        nextSearchParams.delete("name");
         nextSearchParams.delete("favorites");
+        nextSearchParams.delete("statuses");
+        nextSearchParams.delete("positions");
+        nextSearchParams.delete("sort");
         nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
         nextSearchParams.set("size", String(requestedPageSize));
 
+        setSearchParams(nextSearchParams);
+    };
+
+    const updateStatusFilter = (status: Status) => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+        const nextStatuses = requestedStatuses.includes(status)
+            ? requestedStatuses.filter((selectedStatus) => selectedStatus !== status)
+            : [...requestedStatuses, status];
+
+        nextSearchParams.delete("statuses");
+        nextStatuses.forEach((selectedStatus) => nextSearchParams.append("statuses", selectedStatus));
+        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
+        nextSearchParams.set("size", String(requestedPageSize));
+        setSearchParams(nextSearchParams);
+    };
+
+    const updatePositionFilter = (position: Position) => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+        const nextPositions = requestedPositions.includes(position)
+            ? requestedPositions.filter((selectedPosition) => selectedPosition !== position)
+            : [...requestedPositions, position];
+
+        nextSearchParams.delete("positions");
+        nextPositions.forEach((selectedPosition) => nextSearchParams.append("positions", selectedPosition));
+        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
+        nextSearchParams.set("size", String(requestedPageSize));
         setSearchParams(nextSearchParams);
     };
 
@@ -132,6 +186,11 @@ export function ApplicationsPage() {
                         {isFilterMenuOpen && (
                             <div className="absolute left-0 top-full z-20 mt-2">
                                 <FilterMenu
+                                    onClose={() => setIsFilterMenuOpen(false)}
+                                    selectedStatuses={requestedStatuses}
+                                    selectedPositions={requestedPositions}
+                                    onAddStatusFilter={updateStatusFilter}
+                                    onAddPositionFilter={updatePositionFilter}
                                     showFavoritesOnly={showFavoritesOnly}
                                     onShowFavoritesOnlyChange={updateFavoritesFilter}
                                     onResetFilters={resetFilters}
@@ -143,9 +202,11 @@ export function ApplicationsPage() {
 
                     <div className="w-full max-w-2xl flex-1 min-w-[280px]">
                         <SearchInput
+                            key={requestedName}
                             className="rounded-none!"
-                            placeholder="Search applications..."
-                            onAfterSearch={searchApplications}
+                            placeholder="Search applications By Name..."
+                            defaultValue={requestedName}
+                            onAfterSearch={handleSearch}
                         />
                     </div>
                 </div>
@@ -156,7 +217,7 @@ export function ApplicationsPage() {
                 />
 
                 {isLoading ? (
-                    <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">Loading applications...</p>
+                    <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">{requestedName ? "Searching applications..." : "Loading applications..."}</p>
                 ) : isError ? (
                     <p className="mt-6 text-sm text-rose-600 dark:text-rose-400">Could not load applications.</p>
                 ) : empty ? (
