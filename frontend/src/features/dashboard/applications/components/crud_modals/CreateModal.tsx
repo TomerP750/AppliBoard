@@ -34,6 +34,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
     });
     
     const handleCreateJobApplication = (dto: CreateJobApplicationDto) => {
+        console.log(dto);
         createJobApplication(dto);
     };
 

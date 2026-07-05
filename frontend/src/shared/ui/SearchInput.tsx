@@ -17,6 +17,7 @@ export function SearchInput({
     onChange,
     ...props
 }: SearchInputProps) {
+    
     const onAfterSearchRef = useRef(onAfterSearch);
 
     useEffect(() => {
@@ -24,7 +25,7 @@ export function SearchInput({
     }, [onAfterSearch]);
 
     const debouncedAfterSearch = useMemo(
-        () => debounce((searchValue: string) => onAfterSearchRef.current?.(searchValue), 2500),
+        () => debounce((searchValue: string) => onAfterSearchRef.current?.(searchValue), 1000),
         [],
     );
 

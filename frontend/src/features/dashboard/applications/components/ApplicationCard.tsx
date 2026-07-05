@@ -1,13 +1,13 @@
-import { BriefcaseIcon, Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, MonitorIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
 import type { Status } from "../models/Status";
 import { DeleteModal } from "./crud_modals/DeleteModal";
+import { UpdatedModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { RowCard } from "./RowCard";
-import { UpdatedModal } from "./crud_modals/UpdatedModal";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -34,7 +34,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
     const rows = [
         { Icon: Building2Icon, text: application.name },
         { Icon: MapPinIcon, text: application.city },
-        { Icon: BriefcaseIcon, text: toTitleCase(application.position) },
+        { Icon: MonitorIcon, text: toTitleCase(application.position) },
         { Icon: CalendarIcon, text: `Applied on ${formattedAppliedDate}` },
     ];
 

@@ -224,7 +224,12 @@ export function ApplicationsPage() {
                     <EmptyApplications />
                 ) : (
                     <>
-                        <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">Total applications: {applications?.page.totalElements}</p>
+                        <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
+                            Total applications{" "}
+                            <span className="ml-1 font-semibold text-zinc-900 dark:text-white">
+                                {applications?.page.totalElements}
+                            </span>
+                        </p>
                         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 ">
                             {applicationsList.map((application) => (
                                 <ApplicationCard

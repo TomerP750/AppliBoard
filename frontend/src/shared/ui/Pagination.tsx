@@ -66,6 +66,44 @@ export function Pagination({
     const visibleCurrentPage = Math.min(currentPage + 1, visibleTotalPages);
     const pageItems = buildPageItems(currentPage, totalPages);
 
+    function renderPageItem(item: PageItem, index: number) {
+        if (item === "ellipsis") {
+            return (
+                <span
+                    key={`ellipsis-${index}`}
+                    className="px-2 text-sm text-zinc-400 dark:text-zinc-500"
+                >
+                    ...
+                </span>
+            );
+        }
+
+        const pageIndex = item - 1;
+        const isCurrent = item === visibleCurrentPage;
+        const pageClasses = [
+            "flex h-9 min-w-9 items-center justify-center border px-3 text-sm transition",
+            isCurrent
+                ? "border-brand-primary bg-brand-primary text-white"
+                : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
+            onPageChange && !isCurrent ? "cursor-pointer" : "cursor-default",
+        ]
+            .filter(Boolean)
+            .join(" ");
+
+        return (
+            <button
+                key={item}
+                type="button"
+                className={pageClasses}
+                disabled={isCurrent || !onPageChange}
+                onClick={() => onPageChange?.(pageIndex)}
+                aria-current={isCurrent ? "page" : undefined}
+            >
+                {item}
+            </button>
+        );
+    }
+
     return (
         <div className={`flex flex-wrap items-center justify-between gap-3
             border-t border-zinc-200 dark:border-zinc-500/50 pt-5
@@ -76,11 +114,14 @@ export function Pagination({
                 </p>
 
                 <label className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                    Size
                     <select
                         value={currentPageSize}
                         onChange={(event) => onPageSizeChange(Number(event.target.value))}
-                        className="cursor-pointer rounded-none border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        className="appearance-none cursor-pointer rounded-none
+                        bg-white px-5 py-2 text-sm text-zinc-700 outline-none 
+                        transition-colors focus:border-brand-primary focus:ring-1 
+                        focus:ring-brand-primary/40 dark:border-zinc-700 
+                        dark:bg-zinc-800 dark:text-zinc-100"
                     >
                         {pageSizeOptions.map((pageSizeOption) => (
                             <option key={pageSizeOption} value={pageSizeOption}>
@@ -99,45 +140,9 @@ export function Pagination({
                     onClick={onPrevious}
                     leftIcon={<ChevronLeft size={16} />}
                 />
-             
+
                 <div className="flex flex-wrap items-center gap-1">
-                    {pageItems.map((item, index) => {
-                        if (item === "ellipsis") {
-                            return (
-                                <span
-                                    key={`ellipsis-${index}`}
-                                    className="px-2 text-sm text-zinc-400 dark:text-zinc-500"
-                                >
-                                    ...
-                                </span>
-                            );
-                        }
-
-                        const pageIndex = item - 1;
-                        const isCurrent = item === visibleCurrentPage;
-                        const pageClasses = [
-                            "flex h-9 min-w-9 items-center justify-center border px-3 text-sm transition",
-                            isCurrent
-                                ? "border-brand-primary bg-brand-primary text-white"
-                                : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
-                            onPageChange && !isCurrent ? "cursor-pointer" : "cursor-default",
-                        ]
-                            .filter(Boolean)
-                            .join(" ");
-
-                        return (
-                            <button
-                                key={item}
-                                type="button"
-                                className={pageClasses}
-                                disabled={isCurrent || !onPageChange}
-                                onClick={() => onPageChange?.(pageIndex)}
-                                aria-current={isCurrent ? "page" : undefined}
-                            >
-                                {item}
-                            </button>
-                        );
-                    })}
+                    {pageItems.map(renderPageItem)}
                 </div>
 
                 <Button
