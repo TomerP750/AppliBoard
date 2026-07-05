@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -69,6 +70,48 @@ public class UserServiceTest {
         assertEquals(dto.lastName(), user.getLastName());
         assertEquals(dto.email(), user.getEmail());
         assertEquals(dto.avatarUrl(), user.getAvatarUrl());
+        verify(userRepositoryMock).save(user);
+    }
+
+    @Test
+    public void updateUser_ShouldKeepOldValues_WhenInputsAreEmpty() throws NotFoundException, UnauthorizedException, FoundException {
+        UpdateUserDto dto = new UpdateUserDto(
+                "",
+                "",
+                "",
+                ""
+        );
+
+        when(userRepositoryMock.findById(userId)).thenReturn(Optional.of(user));
+
+        userServiceMock.updateUser(userId, dto);
+
+        assertEquals("Test", user.getFirstName());
+        assertEquals("User", user.getLastName());
+        assertEquals("test.user@example.com", user.getEmail());
+        assertEquals("avatar-url", user.getAvatarUrl());
+        verify(userRepositoryMock, never()).existsByEmail(anyString());
+        verify(userRepositoryMock).save(user);
+    }
+
+    @Test
+    public void updateUser_ShouldNotCheckEmailExists_WhenEmailIsUnchanged() throws NotFoundException, UnauthorizedException, FoundException {
+        UpdateUserDto dto = new UpdateUserDto(
+                "Updated",
+                "Name",
+                "test.user@example.com",
+                "updated-avatar-url"
+        );
+
+        when(userRepositoryMock.findById(userId)).thenReturn(Optional.of(user));
+
+        userServiceMock.updateUser(userId, dto);
+
+        assertEquals(dto.firstName(), user.getFirstName());
+        assertEquals(dto.lastName(), user.getLastName());
+        assertEquals(dto.email(), user.getEmail());
+        assertEquals(dto.avatarUrl(), user.getAvatarUrl());
+        verify(userRepositoryMock, never()).existsByEmail(anyString());
         verify(userRepositoryMock).save(user);
     }
 

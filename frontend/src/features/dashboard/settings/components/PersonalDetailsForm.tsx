@@ -1,29 +1,19 @@
-import { useForm } from "react-hook-form";
-import { Input } from "../../../../shared/ui/Input";
-import type { UpdateUserDto } from "../models/UpdateUserDto";
-import userService from "../api/userService";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button } from "../../../../shared/ui/Button";
-import type { UserDto } from "../../../../shared/models/UserDto";
 import { UserIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../../../../shared/ui/Button";
+import { Input } from "../../../../shared/ui/Input";
+import userService from "../api/userService";
+import type { UpdateUserDto } from "../models/UpdateUserDto";
+import { Badge } from "../../../../shared/ui/Badge";
+import type { UserDto } from "../../../../shared/models/UserDto";
 
 export function PersonalDetailsForm() {
 
     const navigate = useNavigate();
-    
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm<UpdateUserDto>();
 
-    const { data: user } = useQuery<UserDto>({
-        queryKey: ["user"],
-        queryFn: () => userService.me(),
-        // onSuccess: (data) => {
-        //     setValue("firstName", data.firstName);
-        //     setValue("lastName", data.lastName);
-        //     setValue("email", data.email);
-        //     setValue("avatarUrl", data.avatarUrl);
-        // },
-    });
+    const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserDto>();
 
     const { mutate: updateUser, isPending } = useMutation({
         mutationFn: (dto: UpdateUserDto) => userService.updateUser(dto),
@@ -39,16 +29,46 @@ export function PersonalDetailsForm() {
         updateUser(dto);
     };
 
+    const { data: user } = useQuery<UserDto>({
+        queryKey: ["user"],
+        queryFn: () => userService.me(),
+    });
+
     return (
         <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900 sm:p-6">
-            <div className="mb-6">
-                <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                    <UserIcon className="h-5 w-5" />
-                    <span>Personal Details</span>
-                </h2>
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    Update your name and account email address.
-                </p>
+
+            <div className="flex items-center gap-10 mb-6">
+
+                <header className="flex flex-col">
+                    <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                        <UserIcon className="h-5 w-5" />
+                        <span>Personal Details</span>
+                    </h2>
+                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                        Update your name and account email address.
+                    </p>
+                </header>
+
+                <div className="flex items-center gap-2">
+                    {/* Avatar url input */}
+                    <Badge 
+                    firstName={user?.firstName}
+                    lastName={user?.lastName}
+                    avatarUrl={user?.avatarUrl} 
+                    size="lg" 
+                    className="rounded-xl"/>
+
+                    <Input
+                        label="Avatar URL"
+                        type="text"
+                        className="bg-neutral-100! dark:bg-zinc-800! w-full!"
+                        placeholder="Enter your avatar URL"
+                        autoComplete="avatar-url"
+                        error={errors.avatarUrl?.message?.toString()}
+                        {...register("avatarUrl")}
+                    />
+                </div>
+
             </div>
 
             <form onSubmit={handleSubmit(handleUpdateUser)} className="flex flex-col gap-5">
@@ -61,7 +81,14 @@ export function PersonalDetailsForm() {
                         autoComplete="given-name"
                         error={errors.firstName?.message?.toString()}
                         {...register("firstName", {
-                            required: "First name is required",
+                            minLength: {
+                                value: 3,
+                                message: "First name must be at least 3 characters long",
+                            },
+                            maxLength: {
+                                value: 50,
+                                message: "First name must be less than 50 characters long",
+                            },
                         })}
                     />
                     <Input
@@ -72,7 +99,14 @@ export function PersonalDetailsForm() {
                         autoComplete="family-name"
                         error={errors.lastName?.message?.toString()}
                         {...register("lastName", {
-                            required: "Last name is required",
+                            minLength: {
+                                value: 3,
+                                message: "Last name must be at least 3 characters long",
+                            },
+                            maxLength: {
+                                value: 50,
+                                message: "Last name must be less than 50 characters long",
+                            },
                         })}
                     />
                 </div>
@@ -85,7 +119,6 @@ export function PersonalDetailsForm() {
                     autoComplete="email"
                     error={errors.email?.message?.toString()}
                     {...register("email", {
-                        required: "Email is required",
                         pattern: {
                             value: /^\S+@\S+\.\S+$/,
                             message: "Enter a valid email address",
@@ -103,6 +136,7 @@ export function PersonalDetailsForm() {
                     </Button>
                 </div>
             </form>
+            
         </section>
     );
 }

@@ -47,20 +47,20 @@ public class UserService implements IUserService{
             throw new UnauthorizedException("You are not authorized to update this user");
         }
 
-        if (userRepository.existsByEmail(dto.email())) {
+        if (dto.email() != null && !dto.email().isEmpty() && !dto.email().equals(user.getEmail()) && userRepository.existsByEmail(dto.email())) {
             throw new FoundException("Email already exists");
         }
 
-        if (dto.firstName() != null) {
+        if (dto.firstName() != null && !dto.firstName().isEmpty()) {
             user.setFirstName(dto.firstName());
         }
-        if (dto.lastName() != null) {
+        if (dto.lastName() != null && !dto.lastName().isEmpty()) {
             user.setLastName(dto.lastName());
         }
-        if (dto.email() != null) {
+        if (dto.email() != null && !dto.email().isEmpty()) {
             user.setEmail(dto.email());
         }
-        if (dto.avatarUrl() != null) {
+        if (dto.avatarUrl() != null && !dto.avatarUrl().isEmpty()) {
             user.setAvatarUrl(dto.avatarUrl());
         }
 
@@ -101,6 +101,5 @@ public class UserService implements IUserService{
     public User fetchUserEntity(UUID userId) throws NotFoundException {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     }
-
 
 }

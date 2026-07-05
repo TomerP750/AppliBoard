@@ -62,7 +62,12 @@ export function Sidebar() {
                     
                     {/* User badge */}
                     <div className="flex items-center gap-3 min-w-0">
-                        <Badge avatarUrl={user?.avatarUrl} size="sm" alt="User avatar" />
+                        <Badge 
+                        firstName={user?.firstName}
+                        lastName={user?.lastName}
+                        avatarUrl={user?.avatarUrl} 
+                        size="sm" 
+                        alt="User avatar" />
 
                         <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-zinc-900 dark:text-white">
@@ -77,7 +82,7 @@ export function Sidebar() {
                         aria-label="Logout"
                         onClick={handleLogout}
                     >
-                        <LogOut size={18} />
+                        <LogOut size={18}/>
                     </button>
                 </div>
             </div>
