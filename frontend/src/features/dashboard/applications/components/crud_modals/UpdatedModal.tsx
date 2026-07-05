@@ -1,10 +1,10 @@
-import { Button } from "../../../../shared/ui/Button";
-import { Modal } from "../../../../shared/ui/Modal";
+import { Button } from "../../../../../shared/ui/Button";
+import { Modal } from "../../../../../shared/ui/Modal";
 import { useForm } from "react-hook-form";
-import type { UpdateJobApplicationDto } from "../models/UpdateJobApplicationDto";
+import type { UpdateJobApplicationDto } from "../../models/UpdateJobApplicationDto";
 import { useMutation } from "@tanstack/react-query";
-import jobApplicationService from "../api/jobApplicationService";
-import type { JobApplicationDto } from "../models/JobApplicationDto";
+import jobApplicationService from "../../api/jobApplicationService";
+import type { JobApplicationDto } from "../../models/JobApplicationDto";
 
 interface UpdatedModalProps {
     applicationId: string;

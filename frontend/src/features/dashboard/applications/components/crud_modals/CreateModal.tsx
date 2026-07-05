@@ -1,15 +1,15 @@
 import { BriefcaseIcon, Building2Icon, FileTextIcon, MapPinIcon } from "lucide-react";
-import { Button } from "../../../../shared/ui/Button";
-import { Input } from "../../../../shared/ui/Input";
-import { Modal } from "../../../../shared/ui/Modal";
-import { toTitleCase } from "../../../../shared/util/toTitleCase";
+import { Button } from "../../../../../shared/ui/Button";
+import { Input } from "../../../../../shared/ui/Input";
+import { Modal } from "../../../../../shared/ui/Modal";
+import { toTitleCase } from "../../../../../shared/util/toTitleCase";
 import { useForm } from "react-hook-form";
-import type { CreateJobApplicationDto } from "../models/CreateJobApplicationDto";
+import type { CreateJobApplicationDto } from "../../models/CreateJobApplicationDto";
 import { useMutation } from "@tanstack/react-query";
-import jobApplicationService from "../api/jobApplicationService";
-import { Position } from "../models/Position";
-import { Status } from "../models/Status";
-import type { JobApplicationDto } from "../models/JobApplicationDto";
+import jobApplicationService from "../../api/jobApplicationService";
+import { Position } from "../../models/Position";
+import { Status } from "../../models/Status";
+import type { JobApplicationDto } from "../../models/JobApplicationDto";
 
 
 interface CreateModalProps {

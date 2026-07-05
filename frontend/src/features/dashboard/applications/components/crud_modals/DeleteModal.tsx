@@ -1,7 +1,7 @@
 import { AlertTriangleIcon, Trash2Icon } from "lucide-react";
-import { Button } from "../../../../shared/ui/Button";
-import { Modal } from "../../../../shared/ui/Modal";
-import jobApplicationService from "../api/jobApplicationService";
+import { Button } from "../../../../../shared/ui/Button";
+import { Modal } from "../../../../../shared/ui/Modal";
+import jobApplicationService from "../../api/jobApplicationService";
 import { useMutation } from "@tanstack/react-query";
 
 interface DeleteModalProps {

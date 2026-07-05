@@ -4,10 +4,10 @@ import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
 import type { Status } from "../models/Status";
-import { DeleteModal } from "./DeleteModal";
+import { DeleteModal } from "./crud_modals/DeleteModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { RowCard } from "./RowCard";
-import { UpdatedModal } from "./UpdatedModal";
+import { UpdatedModal } from "./crud_modals/UpdatedModal";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;

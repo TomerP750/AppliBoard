@@ -1,7 +1,7 @@
 import { Briefcase, Plus } from "lucide-react";
 import { Button } from "../../../../shared/ui/Button";
 import { useState } from "react";
-import { CreateModal } from "./CreateModal";
+import { CreateModal } from "./crud_modals/CreateModal";
 
 export function EmptyApplications() {
 
