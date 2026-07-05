@@ -1,108 +1,131 @@
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { SignupRequestDto } from "../models/SignupRequestDto";
 import { Input } from "../../../shared/ui/Input";
 import { Button } from "../../../shared/ui/Button";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import { Toast } from "../../../shared/ui/Toast";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
+import { useAuth } from "../contexts/AuthContext";
 
 export function SignupPage() {
 
+    const navigate = useNavigate();
+
+    const { signup: authSignup } = useAuth();
+
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
     const { register, handleSubmit, formState: { errors } } = useForm<SignupRequestDto>();
-    
-    const handleSignup = async (_dto: SignupRequestDto) => {
 
+    const { mutate: signup, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, SignupRequestDto>({
+        mutationFn: (dto: SignupRequestDto) => authSignup(dto),
+        onSuccess: () => {
+            navigate("/dashboard");
+        },
+        onError: (error: AxiosError<ApiErrorResponse>) => {
+            setErrorMessage(error.response?.data?.message ?? "Signup failed. Please try again.");
+        },
+    });
 
-    }
-    
+    const handleSignup = (dto: SignupRequestDto) => {
+        signup(dto);
+    };
+
     return (
-        <form
-            onSubmit={handleSubmit(handleSignup)}
-            className="w-full space-y-5 rounded-2xl border border-white/15 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
-        >
-            <h1 className="text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                Sign up
+        <section className="flex flex-col items-center justify-center h-screen">
+            <h1 className="mb-3 text-center text-2xl font-semibold tracking-tight dark:text-white sm:text-3xl">
+                Create an account
             </h1>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-2">
-                    <label htmlFor="firstName" className="block text-sm font-medium text-white">
-                        First name
-                    </label>
-                    <Input
-                        id="firstName"
-                        type="text"
-                        {...register("firstName", { required: "First name is required" })}
-                        placeholder="John"
-                        autoComplete="given-name"
-                        className="border-white/25 bg-transparent text-white placeholder:text-zinc-300"
-                        error={errors.firstName?.message?.toString()}
-                    />
+                <form
+                onSubmit={handleSubmit(handleSignup)}
+                className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
+            >
+                {errorMessage && <Toast type="error" message={errorMessage} onClose={() => setErrorMessage(null)} />}
+                <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <label htmlFor="firstName" className="block text-sm font-medium text-white">
+                            First name
+                        </label>
+                        <Input
+                            id="firstName"
+                            type="text"
+                            {...register("firstName", { required: "First name is required" })}
+                            placeholder="John"
+                            autoComplete="given-name"
+                            className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                            error={errors.firstName?.message?.toString()}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label htmlFor="lastName" className="block text-sm font-medium text-white">
+                            Last name
+                        </label>
+                        <Input
+                            id="lastName"
+                            type="text"
+                            {...register("lastName", { required: "Last name is required" })}
+                            placeholder="Doe"
+                            autoComplete="family-name"
+                            className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                            error={errors.lastName?.message?.toString()}
+                        />
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <label htmlFor="lastName" className="block text-sm font-medium text-white">
-                        Last name
-                    </label>
-                    <Input
-                        id="lastName"
-                        type="text"
-                        {...register("lastName", { required: "Last name is required" })}
-                        placeholder="Doe"
-                        autoComplete="family-name"
-                        className="border-white/25 bg-transparent text-white placeholder:text-zinc-300"
-                        error={errors.lastName?.message?.toString()}
-                    />
-                </div>
-            </div>
-            <label htmlFor="email" className="block text-sm font-medium text-white">
-                Email
-            </label>
-            <Input
-                id="email"
-                type="email"
-                {...register("email", {
-                    required: "Email is required",
-                    pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" },
-                })}
-                placeholder="name@example.com"
-                autoComplete="email"
-                className="border-white/25 bg-transparent text-white placeholder:text-zinc-300"
-                error={errors.email?.message?.toString()}
-            />
-            <label htmlFor="password" className="block text-sm font-medium text-white">
-                Password
-            </label>
-            <Input
-                id="password"
-                type="password"
-                {...register("password", {
-                    required: "Password is required",
-                    minLength: { value: 6, message: "Password must be at least 6 characters" },
-                })}
-                placeholder="Create a password"
-                autoComplete="new-password"
-                className="border-white/25 bg-transparent text-white placeholder:text-zinc-300"
-                error={errors.password?.message?.toString()}
-            />
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-white">
-                Confirm password
-            </label>
-            <Input
-                id="confirmPassword"
-                type="password"
-                {...register("confirmPassword", { required: "Please confirm your password" })}
-                placeholder="Re-enter your password"
-                autoComplete="new-password"
-                className="border-white/25 bg-transparent text-white placeholder:text-zinc-300"
-                error={errors.confirmPassword?.message?.toString()}
-            />
-            <p className="text-center text-sm text-white/90">
-                Already have an account?{" "}
-                <Link to="/auth/login" className="font-semibold text-white underline underline-offset-4">
-                    Login
-                </Link>
-            </p>
-            <Button type="submit" className="w-full">
-                Create account
-            </Button>
-        </form>
+                <label htmlFor="email" className="block text-sm font-medium text-white">
+                    Email
+                </label>
+                <Input
+                    id="email"
+                    type="email"
+                    {...register("email", {
+                        required: "Email is required",
+                        pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" },
+                    })}
+                    placeholder="name@example.com"
+                    autoComplete="email"
+                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    error={errors.email?.message?.toString()}
+                />
+                <label htmlFor="password" className="block text-sm font-medium text-white">
+                    Password
+                </label>
+                <Input
+                    id="password"
+                    type="password"
+                    {...register("password", {
+                        required: "Password is required",
+                        minLength: { value: 6, message: "Password must be at least 6 characters" },
+                    })}
+                    placeholder="Create a password"
+                    autoComplete="new-password"
+                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    error={errors.password?.message?.toString()}
+                />
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-white">
+                    Confirm password
+                </label>
+                <Input
+                    id="confirmPassword"
+                    type="password"
+                    {...register("confirmPassword", { required: "Please confirm your password" })}
+                    placeholder="Re-enter your password"
+                    autoComplete="new-password"
+                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    error={errors.confirmPassword?.message?.toString()}
+                />
+                <p className="text-center text-sm text-white/90">
+                    Already have an account?{" "}
+                    <Link to="/auth/login" className="font-semibold text-white underline underline-offset-4">
+                        Login
+                    </Link>
+                </p>
+                <Button loading={isPending} disabled={isPending} type="submit" className="w-full">
+                    Create account
+                </Button>
+            </form>
+        </section>
     )
 }
