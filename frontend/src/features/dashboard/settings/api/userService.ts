@@ -1,12 +1,13 @@
 import { baseApiUrl } from "../../../../shared/util/baseApi";
 import type { ChangePasswordDto } from "../models/ChangePasswordDto";
 import type { UpdateUserDto } from "../models/UpdateUserDto";
+import type { UserDto } from "../../../../shared/models/UserDto";
 import axios from "axios";
 
 class UserService {
 
-    async me() {
-        return (await axios.get(`${baseApiUrl}/api/user/me`)).data;
+    async me(): Promise<UserDto> {
+        return (await axios.get<UserDto>(`${baseApiUrl}/api/user/me`)).data;
     }
 
     async allUsers(page: number = 0, size: number = 10) {
