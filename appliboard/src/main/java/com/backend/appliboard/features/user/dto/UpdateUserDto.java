@@ -1,15 +1,14 @@
 package com.backend.appliboard.features.user.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UpdateUserDto(
 
-        @Pattern(regexp = "^$|.{2,10}", message = "First name must be between 2 and 10 characters")
+        @Size(min = 2, max = 10, message = "First name must be between 2 and 10 characters")
         String firstName,
 
-        @Pattern(regexp = "^$|.{2,10}", message = "Last name must be between 2 and 10 characters")
+        @Size(min = 2, max = 10, message = "Last name must be between 2 and 10 characters")
         String lastName,
 
         @Email(message = "Email must be valid")

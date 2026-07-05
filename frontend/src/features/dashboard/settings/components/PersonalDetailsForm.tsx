@@ -37,7 +37,8 @@ export function PersonalDetailsForm() {
     return (
         <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900 sm:p-6">
 
-            <div className="flex items-center gap-10 mb-6">
+            {/* Avatar and Title */}
+            <div className="flex flex-wrap items-center gap-10 mb-6">
 
                 <header className="flex flex-col">
                     <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
@@ -51,12 +52,12 @@ export function PersonalDetailsForm() {
 
                 <div className="flex items-center gap-2">
                     {/* Avatar url input */}
-                    <Badge 
-                    firstName={user?.firstName}
-                    lastName={user?.lastName}
-                    avatarUrl={user?.avatarUrl} 
-                    size="lg" 
-                    className="rounded-xl"/>
+                    <Badge
+                        firstName={user?.firstName}
+                        lastName={user?.lastName}
+                        avatarUrl={user?.avatarUrl}
+                        size="lg"
+                        className="rounded-xl" />
 
                     <Input
                         label="Avatar URL"
@@ -136,7 +137,7 @@ export function PersonalDetailsForm() {
                     </Button>
                 </div>
             </form>
-            
+
         </section>
     );
 }

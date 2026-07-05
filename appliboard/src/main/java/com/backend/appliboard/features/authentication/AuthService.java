@@ -58,6 +58,8 @@ public class AuthService implements IAuthService {
     @Transactional
     public AuthResponseDto signup(SignupRequestDto dto) throws InvalidInputException {
 
+        log.info("Signing User Up");
+
         if (!dto.password().equals(dto.confirmPassword())) {
             throw new InvalidInputException("Passwords do not match");
         }
@@ -75,6 +77,8 @@ public class AuthService implements IAuthService {
         String token = jwtService.generateToken(user.getId(), user.getEmail(), Role.USER);
 
         UserDto userDto = UserMapper.toUserDto(user);
+
+        log.info("User Signed Up Successfully");
 
         return new AuthResponseDto(token, userDto);
     }

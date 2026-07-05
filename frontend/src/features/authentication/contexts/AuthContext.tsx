@@ -44,7 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     useEffect(() => {
         if (isError) {
             localStorage.removeItem("token");
-            queryClient.removeQueries({ queryKey: ["user"] });
+            queryClient.clear();
         }
     }, [isError, queryClient]);
 
@@ -53,6 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
      */
     const login = async (dto: LoginRequestDto) => {
         const response: AuthResponseDto = await authService.login(dto);
+        queryClient.clear();
         localStorage.setItem("token", response.token);
         queryClient.setQueryData(["user"], response.userDto);
     };
@@ -62,16 +63,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
      */
     const signup = async (dto: SignupRequestDto) => {
         const response: AuthResponseDto = await authService.signup(dto);
+        queryClient.clear();
         localStorage.setItem("token", response.token);
         queryClient.setQueryData(["user"], response.userDto);
     }
 
     /**
-     * Logs the user out locally by removing the token and clearing cached userDto data.
+     * Logs the user out locally by removing the token and clearing cached user data.
      */
     const logout = async () => {
         localStorage.removeItem("token");
-        queryClient.removeQueries({ queryKey: ["user"] });
+        queryClient.clear();
     };
 
     const ctx = { user, login, signup, logout };
