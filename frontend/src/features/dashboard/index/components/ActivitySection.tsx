@@ -13,7 +13,7 @@ export function ActivitySection() {
                 <Button
                     rightIcon={<ArrowRightIcon className="w-4 h-4" />}
                     variant="ghost"
-                    className="text-indigo-400!">View All</Button>
+                    className="text-indigo-400! hover:underline hover:bg-transparent!">View All</Button>
             </div>
         </section>
     )

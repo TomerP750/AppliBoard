@@ -37,10 +37,9 @@ export function PersonalDetailsForm() {
     return (
         <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900 sm:p-6">
 
-            {/* Avatar and Title */}
-            <div className="flex flex-wrap items-center gap-10 mb-6">
+            {/* Title */}
 
-                <header className="flex flex-col">
+                <header className="flex flex-col mb-6">
                     <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
                         <UserIcon className="h-5 w-5" />
                         <span>Personal Details</span>
@@ -50,6 +49,8 @@ export function PersonalDetailsForm() {
                     </p>
                 </header>
 
+            <form onSubmit={handleSubmit(handleUpdateUser)} className="flex flex-col gap-5">
+                
                 <div className="flex items-center gap-2">
                     {/* Avatar url input */}
                     <Badge
@@ -62,7 +63,7 @@ export function PersonalDetailsForm() {
                     <Input
                         label="Avatar URL"
                         type="text"
-                        className="bg-neutral-100! dark:bg-zinc-800! w-full!"
+                        className="bg-neutral-100! dark:bg-zinc-800!"
                         placeholder="Enter your avatar URL"
                         autoComplete="avatar-url"
                         error={errors.avatarUrl?.message?.toString()}
@@ -70,9 +71,6 @@ export function PersonalDetailsForm() {
                     />
                 </div>
 
-            </div>
-
-            <form onSubmit={handleSubmit(handleUpdateUser)} className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                     <Input
                         label="First Name"
