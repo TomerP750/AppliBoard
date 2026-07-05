@@ -1,12 +1,12 @@
-# AppliBoard
+# 📋 AppliBoard
 
-## Overview
+## 🔎 Overview
 
 AppliBoard is a full-stack job application tracking project built to help candidates organize their search with clarity and control. It brings applications, statuses, favorites, search, filtering, analytics, and account management into one focused workspace.
 
 The project is designed around a clean dashboard experience for tracking job applications in one place.
 
-## Features
+## ✨ Features
 
 - Track job applications with company name, city, role type, status, favorite state, and application date.
 - Manage applications through create, edit, delete, and favorite actions from a card-based dashboard.
@@ -18,7 +18,7 @@ The project is designed around a clean dashboard experience for tracking job app
 - Update personal details, change password, and delete an account from the settings area.
 - Work in a responsive interface with dark-mode styling and reusable UI components.
 
-## Folder Structure
+## 📁 Folder Structure
 
 ```text
 AppliBoard/
@@ -37,7 +37,7 @@ AppliBoard/
 └── README.md
 ```
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 **Frontend**
 
