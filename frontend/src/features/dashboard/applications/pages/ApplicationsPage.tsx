@@ -5,7 +5,7 @@ import { SearchInput } from "../../../../shared/ui/SearchInput";
 import { DashboardHeader } from "../../layout/DashboardHeader";
 import { ApplicationCard } from "../components/ApplicationCard";
 import { FilterMenu } from "../components/FilterMenu";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
 import { CreateModal } from "../components/crud_modals/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
@@ -16,6 +16,7 @@ import { getSearchParamNumber } from "../utils/getSearchParamNumber";
 
 const DEFAULT_APPLICATIONS_PAGE = 0;
 const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
+const APPLICATIONS_PAGE_SIZE_OPTIONS = [20, 10, 5];
 
 export function ApplicationsPage() {
 
@@ -30,16 +31,27 @@ export function ApplicationsPage() {
         0,
     );
 
-    const requestedPageSize = getSearchParamNumber(
+    const requestedPageSizeParam = getSearchParamNumber(
         searchParams.get("size"),
         DEFAULT_APPLICATIONS_PAGE_SIZE,
         1,
     );
+    const requestedPageSize = APPLICATIONS_PAGE_SIZE_OPTIONS.includes(requestedPageSizeParam)
+        ? requestedPageSizeParam
+        : DEFAULT_APPLICATIONS_PAGE_SIZE;
 
     const { data: applications, isLoading, isError } = useQuery({
         queryKey: ["applications", { page: requestedPage, size: requestedPageSize }],
         queryFn: () => jobApplicationService.allJobApplications(requestedPage, requestedPageSize),
         staleTime: 1000 * 60 * 5
+    });
+
+    const { mutate: searchApplications } = useMutation({
+        mutationFn: (searchValue: string) => jobApplicationService.searchJobApplications(
+            searchValue,
+            requestedPage,
+            requestedPageSize,
+        ),
     });
 
     const applicationsList = applications?.content ?? [];
@@ -53,6 +65,15 @@ export function ApplicationsPage() {
 
         nextSearchParams.set("page", String(Math.max(nextPage, DEFAULT_APPLICATIONS_PAGE)));
         nextSearchParams.set("size", String(requestedPageSize));
+
+        setSearchParams(nextSearchParams);
+    };
+
+    const updatePageSizeParam = (nextPageSize: number) => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+
+        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
+        nextSearchParams.set("size", String(nextPageSize));
 
         setSearchParams(nextSearchParams);
     };
@@ -121,7 +142,11 @@ export function ApplicationsPage() {
                     </div>
 
                     <div className="w-full max-w-2xl flex-1 min-w-[280px]">
-                        <SearchInput className="rounded-none!" placeholder="Search applications..." />
+                        <SearchInput
+                            className="rounded-none!"
+                            placeholder="Search applications..."
+                            onAfterSearch={searchApplications}
+                        />
                     </div>
                 </div>
 
@@ -150,12 +175,15 @@ export function ApplicationsPage() {
                         <Pagination
                             className="mt-6"
                             currentPage={currentPage}
+                            currentPageSize={requestedPageSize}
                             totalPages={totalPages}
                             canPrevious={canGoToPreviousPage}
                             canNext={canGoToNextPage}
                             onPrevious={() => updatePaginationParams(currentPage - 1)}
                             onNext={() => updatePaginationParams(currentPage + 1)}
                             onPageChange={updatePaginationParams}
+                            onPageSizeChange={updatePageSizeParam}
+                            pageSizeOptions={APPLICATIONS_PAGE_SIZE_OPTIONS}
                         />
                     </>
                 )}

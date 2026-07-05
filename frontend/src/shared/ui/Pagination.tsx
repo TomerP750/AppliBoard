@@ -3,12 +3,15 @@ import { Button } from "./Button";
 
 interface PaginationProps {
     currentPage: number;
+    currentPageSize: number;
     totalPages: number;
     canPrevious: boolean;
     canNext: boolean;
     onPrevious: () => void;
     onNext: () => void;
     onPageChange?: (page: number) => void;
+    onPageSizeChange: (pageSize: number) => void;
+    pageSizeOptions?: number[];
     className?: string;
 }
 
@@ -48,12 +51,15 @@ function buildPageItems(currentPage: number, totalPages: number): PageItem[] {
 
 export function Pagination({
     currentPage,
+    currentPageSize,
     totalPages,
     canPrevious,
     canNext,
     onPrevious,
     onNext,
     onPageChange,
+    onPageSizeChange,
+    pageSizeOptions = [20, 10, 5],
     className = "",
 }: PaginationProps) {
     const visibleTotalPages = Math.max(totalPages, 1);
@@ -64,9 +70,26 @@ export function Pagination({
         <div className={`flex flex-wrap items-center justify-between gap-3
             border-t border-zinc-200 dark:border-zinc-500/50 pt-5
         ${className}`}>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Page {visibleCurrentPage} of {visibleTotalPages}
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                    Page {visibleCurrentPage} of {visibleTotalPages}
+                </p>
+
+                <label className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    Size
+                    <select
+                        value={currentPageSize}
+                        onChange={(event) => onPageSizeChange(Number(event.target.value))}
+                        className="cursor-pointer rounded-none border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 outline-none transition-colors focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                    >
+                        {pageSizeOptions.map((pageSizeOption) => (
+                            <option key={pageSizeOption} value={pageSizeOption}>
+                                {pageSizeOption}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
 
             <div className="flex flex-wrap items-center gap-2">
                 <Button

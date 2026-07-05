@@ -11,6 +11,16 @@ class JobApplicationService {
         return (await axios.get(`${baseApiUrl}/api/ja/all?page=${page}&size=${size}`)).data;
     }
 
+    async searchJobApplications(searchValue: string, page: number = 0, size: number = 10): Promise<PageResponse<JobApplicationDto>> {
+        return (await axios.get(`${baseApiUrl}/api/ja/search`, {
+            params: {
+                query: searchValue,
+                page,
+                size,
+            },
+        })).data;
+    }
+
     async oneJobApplication(jobApplicationId: string) {
         return (await axios.get(`${baseApiUrl}/api/ja/${jobApplicationId}`)).data;
     }
