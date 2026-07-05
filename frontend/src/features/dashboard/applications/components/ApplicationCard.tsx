@@ -5,7 +5,7 @@ import { toTitleCase } from "../../../../shared/util/toTitleCase";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
 import type { Status } from "../models/Status";
 import { DeleteModal } from "./crud_modals/DeleteModal";
-import { UpdatedModal } from "./crud_modals/UpdateModal";
+import { UpdateModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { RowCard } from "./RowCard";
 
@@ -87,8 +87,8 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
                     onClose={() => setDeleteModalOpen(false)}
                 />
 
-                <UpdatedModal
-                    applicationId={application.id}
+                <UpdateModal
+                    application={application}
                     isOpen={updateModalOpen}
                     onClose={() => setUpdateModalOpen(false)}
                 />

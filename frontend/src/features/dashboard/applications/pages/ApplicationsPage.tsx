@@ -18,7 +18,7 @@ import type { Status } from "../models/Status";
 
 const DEFAULT_APPLICATIONS_PAGE = 0;
 const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
-const APPLICATIONS_PAGE_SIZE_OPTIONS = [20, 10, 5];
+const APPLICATIONS_PAGE_SIZE_OPTIONS = [5, 10, 20];
 
 export function ApplicationsPage() {
 

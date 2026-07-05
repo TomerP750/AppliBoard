@@ -1,4 +1,5 @@
-import type { Status, Position } from "./JobApplicationDto";
+import type { Position } from "./Position";
+import type { Status } from "./Status";
 
 export interface UpdateJobApplicationDto {
     name: string;
