@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
+import rightSideImage from "../../../assets/HeroImage.jpg";
 
 export function Hero() {
     return (
-        <header className="relative min-h-screen overflow-hidden bg-dark-background px-6 md:px-10">
+        <header className="relative min-h-screen overflow-hidden bg-dark-background ">
 
             {/* Background effects */}
             <div className="absolute inset-0">
@@ -14,11 +15,11 @@ export function Hero() {
             <div className="relative z-10">
 
                 {/* NAVBAR */}
-                <div className="w-full h-20 md:h-24 flex items-center justify-between text-white">
+                <div className="w-full h-20 md:h-24 flex items-center justify-between text-white px-6 md:px-10">
                     <h1 className="text-xl md:text-2xl font-semibold tracking-tight">
                         AppliBoard
                     </h1>
-                    
+
                     <NavLink
                         to={"/auth/login"}
                         className="text-sm md:text-base bg-white/5 py-2 px-4 rounded-lg
@@ -30,36 +31,45 @@ export function Hero() {
                 </div>
 
                 {/* HERO CONTENT */}
-                <section className="flex flex-col items-start justify-center min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-7rem)]">
+                <div className="w-full flex flex-wrap items-center justify-between min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-7rem)] pl-6 md:pl-10">
+                    <section className="flex flex-col items-start justify-center min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-7rem)]">
 
-                    <div className="max-w-2xl">
+                        <div className="max-w-3xl">
 
-                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                            <span className="bg-linear-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
-                                Track your job applications
-                            </span>
-                            <br />
-                            <span className="text-white/90">
-                                with clarity and control
-                            </span>
-                        </h1>
+                            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                                <span className="bg-linear-to-r from-indigo-400 via-sky-400 to-emerald-400 bg-clip-text text-transparent">
+                                    Track your job applications
+                                </span>
+                                <br />
+                                <span className="text-white/90">
+                                    with clarity and control
+                                </span>
+                            </h1>
 
-                        <p className="mt-5 text-white/60 text-sm md:text-base max-w-lg leading-relaxed">
-                            Organize applications, follow up on interviews, and stay consistent with your job search in one clean workspace.
-                        </p>
+                            <p className="mt-5 text-white/60 text-sm md:text-base max-w-lg leading-relaxed">
+                                Organize applications, follow up on interviews, and stay consistent with your job search in one clean workspace.
+                            </p>
 
-                        <div className="mt-7">
-                            <NavLink
-                                to="/auth/signup"
-                                className="bg-indigo-500 hover:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-medium transition-colors text-sm md:text-base"
-                            >
-                                Get Started
-                            </NavLink>
+                            <div className="mt-7">
+                                <NavLink
+                                    to="/auth/signup"
+                                    className="bg-indigo-500 hover:bg-indigo-400 text-white px-5 py-2.5 rounded-lg font-medium transition-colors text-sm md:text-base"
+                                >
+                                    Get Started
+                                </NavLink>
+                            </div>
+
                         </div>
 
-                    </div>
+                    </section>
+                    <img src={rightSideImage}
+                        alt="Hero Image"
+                        className="w-full md:w-4/10 h-4/5 object-cover rounded-lg shadow-2xl shadow-slate-500/50"
+                    />
 
-                </section>
+                </div>
+
+
             </div>
         </header>
     );
