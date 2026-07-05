@@ -1,7 +1,9 @@
-import { Check, Heart, RotateCcw, SlidersHorizontal, StarIcon } from "lucide-react";
+import { Check, RotateCcw, SlidersHorizontal, StarIcon } from "lucide-react";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
 import { Position } from "../models/Position";
 import { Status } from "../models/Status";
+import { Switch } from "../../../../shared/ui/Switch";
+import { Button } from "../../../../shared/ui/Button";
 
 const filterChipClassName =
     "rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-brand-primary/50 hover:bg-brand-primary/5 hover:text-brand-primary dark:border-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-200 dark:hover:border-brand-primary/60 dark:hover:bg-brand-primary/10";
@@ -13,7 +15,14 @@ const statusToneClassNames: Record<Status, string> = {
     [Status.PENDING]: "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900",
 };
 
-export function FilterMenu() {
+interface FilterMenuProps {
+    showFavoritesOnly: boolean;
+    onShowFavoritesOnlyChange: (checked: boolean) => void;
+    onResetFilters: () => void;
+    onApplyFilters: () => void;
+}
+
+export function FilterMenu({ showFavoritesOnly, onShowFavoritesOnlyChange, onResetFilters, onApplyFilters }: FilterMenuProps) {
     return (
         <div className="w-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/60 ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30 dark:ring-white/10">
 
@@ -41,9 +50,10 @@ export function FilterMenu() {
                     </div>
 
                     {/* Switch */}
-                    <span className="flex h-6 w-11 items-center rounded-full bg-zinc-200 p-1 dark:bg-zinc-700">
-                        <span className="h-4 w-4 rounded-full bg-white shadow-sm" />
-                    </span>
+                    <Switch
+                        checked={showFavoritesOnly}
+                        onCheckedChange={onShowFavoritesOnlyChange}
+                    />
 
                 </div>
 
@@ -83,19 +93,21 @@ export function FilterMenu() {
             </div>
 
             <div className="flex items-center justify-between gap-3 border-t border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/70">
-                <button
-                    type="button"
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<RotateCcw size={15} />}
+                    onClick={onResetFilters}
                     className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                 >
-                    <RotateCcw size={15} />
                     Reset
-                </button>
-                <button
-                    type="button"
+                </Button>
+                <Button
+                    onClick={onApplyFilters}
                     className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-primary/20 transition hover:bg-brand-primary/90"
                 >
                     Apply Filters
-                </button>
+                </Button>
             </div>
         </div>
     );

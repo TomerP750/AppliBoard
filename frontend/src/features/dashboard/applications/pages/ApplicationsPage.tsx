@@ -7,7 +7,7 @@ import { ApplicationCard } from "../components/ApplicationCard";
 import { FilterMenu } from "../components/FilterMenu";
 import { useQuery } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
-import { CreateModal } from "../components/CreateModal";
+import { CreateModal } from "../components/crud_modals/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
 import { useSearchParams } from "react-router-dom";
 import { Pagination } from "../../../../shared/ui/Pagination";
@@ -22,6 +22,7 @@ export function ApplicationsPage() {
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
+    const showFavoritesOnly = searchParams.get("favorites") === "true";
 
     const requestedPage = getSearchParamNumber(
         searchParams.get("page"),
@@ -42,15 +43,40 @@ export function ApplicationsPage() {
     });
 
     const applicationsList = applications?.content ?? [];
+    const empty = applicationsList.length === 0;
+
 
     const { currentPage, totalPages, canGoToPreviousPage, canGoToNextPage } = usePaginationMetadata(applications, requestedPage);
-
-    const empty = applicationsList.length === 0;
 
     const updatePaginationParams = (nextPage: number) => {
         const nextSearchParams = new URLSearchParams(searchParams);
 
         nextSearchParams.set("page", String(Math.max(nextPage, DEFAULT_APPLICATIONS_PAGE)));
+        nextSearchParams.set("size", String(requestedPageSize));
+
+        setSearchParams(nextSearchParams);
+    };
+
+    const updateFavoritesFilter = (checked: boolean) => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+
+        if (checked) {
+            nextSearchParams.set("favorites", "true");
+        } else {
+            nextSearchParams.delete("favorites");
+        }
+
+        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
+        nextSearchParams.set("size", String(requestedPageSize));
+
+        setSearchParams(nextSearchParams);
+    };
+
+    const resetFilters = () => {
+        const nextSearchParams = new URLSearchParams(searchParams);
+
+        nextSearchParams.delete("favorites");
+        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
         nextSearchParams.set("size", String(requestedPageSize));
 
         setSearchParams(nextSearchParams);
@@ -84,7 +110,12 @@ export function ApplicationsPage() {
 
                         {isFilterMenuOpen && (
                             <div className="absolute left-0 top-full z-20 mt-2">
-                                <FilterMenu />
+                                <FilterMenu
+                                    showFavoritesOnly={showFavoritesOnly}
+                                    onShowFavoritesOnlyChange={updateFavoritesFilter}
+                                    onResetFilters={resetFilters}
+                                    onApplyFilters={() => setIsFilterMenuOpen(false)}
+                                />
                             </div>
                         )}
                     </div>
