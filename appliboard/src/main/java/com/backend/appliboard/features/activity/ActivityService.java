@@ -1,7 +1,6 @@
 package com.backend.appliboard.features.activity;
 
 import com.backend.appliboard.features.activity.dto.ActivityDto;
-import com.backend.appliboard.features.job_application.JobApplication;
 import com.backend.appliboard.features.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

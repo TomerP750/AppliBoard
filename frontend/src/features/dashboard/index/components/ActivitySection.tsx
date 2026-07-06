@@ -1,8 +1,15 @@
 import { ArrowRightIcon, HistoryIcon } from "lucide-react";
 import { Button } from "../../../../shared/ui/Button";
-
+import { useQuery } from "@tanstack/react-query";
+import activityService from "../api/activityService";
+import type { ActivityDto } from "../models/Activity";
 
 export function ActivitySection() {
+
+    const { data: activities } = useQuery<ActivityDto>({
+        queryKey: ["activities"],
+        queryFn: () => activityService.getActivities(),
+    });
     return (
         <section className="px-5 py-5 h-80 bg-white dark:bg-[#0d111d] rounded-xl border border-black/10 dark:border-white/10">
             <div className="flex justify-between items-center border-b border-black/10 dark:border-white/10 pb-5">
