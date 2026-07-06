@@ -1,5 +1,7 @@
 package com.backend.appliboard.features.job_application;
 
+import com.backend.appliboard.features.activity.ActivityService;
+import com.backend.appliboard.features.activity.ActivityType;
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationFilterDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
@@ -25,6 +27,7 @@ public class JobApplicationService implements IJobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
     private final UserService userService;
+    private final ActivityService activityService;
 
 
     @Override
@@ -87,6 +90,8 @@ public class JobApplicationService implements IJobApplicationService {
 
         log.info("Created Job Application");
 
+        activityService.createActivity(user, jobApplication.getName(), ActivityType.CREATED);
+
     }
 
     @Override
@@ -120,6 +125,10 @@ public class JobApplicationService implements IJobApplicationService {
 
         log.info("Job application updated");
 
+        User user = userService.fetchUserEntity(userId);
+        activityService.createActivity(user, jobApplication.getName(), ActivityType.UPDATED);
+
+
     }
 
     @Override
@@ -137,6 +146,9 @@ public class JobApplicationService implements IJobApplicationService {
         jobApplicationRepository.deleteById(jobApplicationId);
 
         log.info("Deleted Job Application");
+
+        User user = userService.fetchUserEntity(userId);
+        activityService.createActivity(user, jobApplication.getName(), ActivityType.DELETED);
 
     }
 

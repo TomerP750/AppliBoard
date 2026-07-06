@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -27,9 +28,10 @@ public class ActivityService implements IActivityService {
     }
 
     @Override
-    public void createActivity(User user, String message, ActivityType type) {
+    @Transactional
+    public void createActivity(User user, String name, ActivityType type) {
         Activity activity = Activity.builder()
-                .message(message)
+                .message(type.createMessage(name))
                 .activityType(type)
                 .user(user)
                 .build();
