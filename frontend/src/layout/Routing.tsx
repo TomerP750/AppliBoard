@@ -21,16 +21,22 @@ export function Routing() {
                 <Route path="signup" element={<SignupPage />} />
             </Route>
 
-            <Suspense fallback={<div>Loading...</div>}>
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                    <Route index element={<DashboardIndex />} />
-                    <Route path="analytics" element={<AnalyticsPage />} />
-                    <Route path="applications" element={<ApplicationsPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
-                </Route>
-            </Suspense>
 
+            <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={ <SuspenseWrapper><DashboardIndex /></SuspenseWrapper> }/>
+                <Route path="analytics" element={ <SuspenseWrapper><AnalyticsPage /></SuspenseWrapper> }/>
+                <Route path="applications" element={ <SuspenseWrapper><ApplicationsPage /></SuspenseWrapper> }/>
+                <Route path="settings" element={ <SuspenseWrapper><SettingsPage /></SuspenseWrapper> }/>
+            </Route>
 
         </Routes>
+    )
+}
+
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            {children}
+        </Suspense>
     )
 }
