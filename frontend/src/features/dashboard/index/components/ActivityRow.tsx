@@ -1,4 +1,6 @@
-import type { ActivityDto } from "../models/Activity";
+import { timeAgo } from "../../../../shared/util/timeAgo";
+import type { ActivityDto } from "../models/ActivityDto";
+import { getIconFromActivityType } from "../utils/getIconFromActivityType";
 
 interface ActivityRowProps {
     activity: ActivityDto;
@@ -6,10 +8,14 @@ interface ActivityRowProps {
 
 export function ActivityRow({ activity }: ActivityRowProps) {
     return (
-        <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium">{activity.message}</span>
+        <div className="flex items-center justify-between gap-2 dark:text-white">
+            <div className="inline-flex items-center gap-2 cursor-default text-sm font-medium">
+                {getIconFromActivityType(activity.activityType)}
+                <span>{activity.message}</span>
             </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+                {timeAgo(new Date(activity.createdAt))}
+            </p>
         </div>
     );
 }

@@ -1,15 +1,19 @@
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRightIcon, HistoryIcon } from "lucide-react";
 import { Button } from "../../../../shared/ui/Button";
-import { useQuery } from "@tanstack/react-query";
 import activityService from "../api/activityService";
-import type { ActivityDto } from "../models/Activity";
+import { ActivityRow } from "./ActivityRow";
 
 export function ActivitySection() {
 
-    const { data: activities } = useQuery<ActivityDto>({
+    const { data: activities } = useQuery({
         queryKey: ["activities"],
         queryFn: () => activityService.getActivities(),
+        staleTime: 1000 * 60 * 1
     });
+
+    const activitiesList = activities?.content.slice(0, 8) ?? [];
+
     return (
         <section className="px-5 py-5 h-80 bg-white dark:bg-[#0d111d] rounded-xl border border-black/10 dark:border-white/10">
             <div className="flex justify-between items-center border-b border-black/10 dark:border-white/10 pb-5">
@@ -22,6 +26,17 @@ export function ActivitySection() {
                     variant="ghost"
                     className="text-indigo-400! hover:underline hover:bg-transparent!">View All</Button>
             </div>
+            {activitiesList.length === 0 ? (
+                <div className="flex flex-col">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No Recent Activity</p>
+                </div>
+            ) : (
+                <div className="flex flex-col gap-2">
+                    {activitiesList?.map((activity) => (
+                        <ActivityRow key={activity.id} activity={activity}  />
+                    ))}
+                </div>
+            )}
         </section>
     )
 }

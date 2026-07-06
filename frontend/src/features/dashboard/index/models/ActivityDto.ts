@@ -1,12 +1,12 @@
 export enum ActivityType {
-    CREATE = "CREATE",
-    UPDATE = "UPDATE",
-    DELETE = "DELETE",
+    CREATED = "CREATED",
+    UPDATED = "UPDATED",
+    DELETED = "DELETED",
 }
 
 export interface ActivityDto {
     id: string;
     message: string;
-    type: ActivityType;
+    activityType: ActivityType;
     createdAt: Date;
 }
