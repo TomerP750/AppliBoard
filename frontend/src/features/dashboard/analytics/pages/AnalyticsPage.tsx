@@ -11,7 +11,7 @@ import { getIconByStatus } from "../utils/getIconByStatus";
 import { getColorByStatus } from "../utils/getColorByStatus";
 
 
-export function AnalyticsPage() {
+export default function AnalyticsPage() {
 
     const { data: analytics, isLoading } = useQuery({
         queryKey: ["analytics"],

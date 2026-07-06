@@ -6,7 +6,7 @@ import { useAuth } from "../../../authentication/contexts/AuthContext";
 import { ActivitySection } from "../components/ActivitySection";
 
 
-export function DashboardIndex() {
+export default function DashboardIndex() {
 
     const navigate = useNavigate();
     const { user } = useAuth();

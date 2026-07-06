@@ -1,14 +1,15 @@
 import { Routes, Route } from "react-router-dom";
 import { Home } from "../features/home/pages/Home";
 import { DashboardLayout } from "../features/dashboard/layout/DashboardLayout";
-import { DashboardIndex } from "../features/dashboard/index/pages/DashboardIndex";
-import { ApplicationsPage } from "../features/dashboard/applications/pages/ApplicationsPage";
-import { AnalyticsPage } from "../features/dashboard/analytics/pages/AnalyticsPage";
-import { SettingsPage } from "../features/dashboard/settings/pages/SettingsPage";
 import { LoginPage } from "../features/authentication/pages/LoginPage";
 import { SignupPage } from "../features/authentication/pages/SignupPage";
 import { AuthPanel } from "../features/authentication/pages/AuthPanel";
+import { lazy, Suspense } from "react";
 
+const AnalyticsPage = lazy(() => import("../features/dashboard/analytics/pages/AnalyticsPage"));
+const SettingsPage = lazy(() => import("../features/dashboard/settings/pages/SettingsPage"));
+const ApplicationsPage = lazy(() => import("../features/dashboard/applications/pages/ApplicationsPage"));
+const DashboardIndex = lazy(() => import("../features/dashboard/index/pages/DashboardIndex"));
 
 export function Routing() {
     return (
@@ -20,13 +21,14 @@ export function Routing() {
                 <Route path="signup" element={<SignupPage />} />
             </Route>
 
-
-            <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<DashboardIndex />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="applications" element={<ApplicationsPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-            </Route>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                    <Route index element={<DashboardIndex />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
+                    <Route path="applications" element={<ApplicationsPage />} />
+                    <Route path="settings" element={<SettingsPage />} />
+                </Route>
+            </Suspense>
 
 
         </Routes>

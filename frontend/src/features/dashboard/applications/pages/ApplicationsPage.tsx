@@ -20,7 +20,7 @@ const DEFAULT_APPLICATIONS_PAGE = 0;
 const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
 const APPLICATIONS_PAGE_SIZE_OPTIONS = [5, 10, 20];
 
-export function ApplicationsPage() {
+export default function ApplicationsPage() {
 
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);

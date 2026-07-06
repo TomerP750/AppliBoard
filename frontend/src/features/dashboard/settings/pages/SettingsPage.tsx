@@ -6,7 +6,7 @@ import { DeleteAccount } from "../components/DeleteAccount";
 import { DisplaySection } from "../components/DisplaySection";
 
 
-export function SettingsPage() {
+export default function SettingsPage() {
 
     return (
 
