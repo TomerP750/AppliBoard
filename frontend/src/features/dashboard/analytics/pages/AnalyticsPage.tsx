@@ -15,8 +15,7 @@ export default function AnalyticsPage() {
 
     const { data: analytics, isLoading } = useQuery({
         queryKey: ["analytics"],
-        queryFn: () => analyticsService.getAnalytics(),
-        staleTime: 10 * 60 * 1000,
+        queryFn: () => analyticsService.getAnalytics()
     });
 
     if (isLoading || !analytics) return (
