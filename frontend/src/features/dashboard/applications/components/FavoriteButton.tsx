@@ -1,7 +1,9 @@
 import { StarIcon } from "lucide-react";
 import { Button } from "../../../../shared/ui/Button";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jobApplicationService from "../api/jobApplicationService";
+import type { JobApplicationDto } from "../models/JobApplicationDto";
+import type { PageResponse } from "../../../../shared/models/PageResponse";
 
 interface FavoriteButtonProps {
     applicationId: string;
@@ -9,21 +11,38 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ applicationId, isFavorite }: FavoriteButtonProps) {
-    
-    const { mutate: toggleFavorite, isPending } = useMutation<boolean>({
+
+    const queryClient = useQueryClient();
+
+    const { mutate: toggleFavorite } = useMutation<boolean>({
         mutationFn: () => jobApplicationService.toggleJobApplicationFavorite(applicationId),
-        onSuccess: (data: boolean) => {
-            console.log("Card is favorite: " ,data);
+        onSuccess: (isFavoriteFromServer) => {
+            queryClient.setQueriesData<PageResponse<JobApplicationDto>>(
+                { queryKey: ["applications"] },
+                (oldData) => {
+                    if (!oldData) return oldData;
+
+                    return {
+                        ...oldData,
+                        content: oldData.content.map((application: JobApplicationDto) =>
+                            application.id === applicationId
+                                ? { ...application, isFavorite: isFavoriteFromServer }
+                                : application
+                        ),
+                    };
+                }
+            );
         },
+
         onError: (error) => {
             console.error(error);
         },
     });
-    
+
     const handleToggleFavorite = () => {
         toggleFavorite();
     };
-    
+
     return (
         <Button
             variant="ghost"
