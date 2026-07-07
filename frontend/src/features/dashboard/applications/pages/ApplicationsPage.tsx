@@ -51,7 +51,7 @@ export default function ApplicationsPage() {
 
             <DashboardHeader Icon={Briefcase} title={"Your Applications"} />
 
-            <div className="mt-8">
+            <div className="mt-8 max-w-7xl">
                 <div className="flex flex-wrap items-center gap-2">
 
                     <Button
@@ -119,7 +119,7 @@ export default function ApplicationsPage() {
                                 {applications?.page.totalElements}
                             </span>
                         </p>
-                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3 ">
+                        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 ">
                             {applicationsList.map((application) => (
                                 <ApplicationCard
                                     key={application.id}

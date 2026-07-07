@@ -74,7 +74,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
     return (
         <article className="relative group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700">
 
-            <div className={`absolute -right-5 -bottom-5 h-28 w-28 rounded-full blur-3xl ${accentClasses.glow}`} />
+            <div className={`absolute right-0 bottom-0 lg:-right-5 lg:-bottom-5 h-28 w-28 rounded-full blur-3xl ${accentClasses.glow}`} />
             <Icon
                 strokeWidth={1}
                 className={`pointer-events-none absolute bottom-1 right-1 w-15 h-15  ${accentClasses.watermark}`}
