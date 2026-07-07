@@ -1,60 +1,39 @@
+import { useQuery } from "@tanstack/react-query";
 import { Briefcase, ListFilter, Plus } from "lucide-react";
 import { useState } from "react";
+import { usePaginationMetadata } from "../../../../shared/hooks/usePaginationMetadata";
 import { Button } from "../../../../shared/ui/Button";
+import { Pagination } from "../../../../shared/ui/Pagination";
 import { SearchInput } from "../../../../shared/ui/SearchInput";
 import { DashboardHeader } from "../../layout/DashboardHeader";
+import jobApplicationService from "../api/jobApplicationService";
 import { ApplicationCard } from "../components/ApplicationCard";
-import { FilterMenu } from "../components/FilterMenu";
-import { useQuery } from "@tanstack/react-query";
-import jobApplicationService, { type SearchJobApplicationsParams } from "../api/jobApplicationService";
 import { CreateModal } from "../components/crud_modals/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
-import { useSearchParams } from "react-router-dom";
-import { Pagination } from "../../../../shared/ui/Pagination";
-import { usePaginationMetadata } from "../../../../shared/hooks/usePaginationMetadata";
-import { getSearchParamNumber } from "../utils/getSearchParamNumber";
-import type { Position } from "../models/Position";
-import type { Status } from "../models/Status";
+import { FilterMenu } from "../components/FilterMenu";
+import { useApplicationsFilter } from "../hooks/useApplicationsFilter";
 
-const DEFAULT_APPLICATIONS_PAGE = 0;
-const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
-const APPLICATIONS_PAGE_SIZE_OPTIONS = [5, 10, 20];
 
 export default function ApplicationsPage() {
 
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
-    const [searchParams, setSearchParams] = useSearchParams();
-    const requestedName = searchParams.get("name") ?? "";
-    const showFavoritesOnly = searchParams.get("favorites") === "true";
-    const requestedStatuses = searchParams.getAll("statuses") as Status[];
-    const requestedPositions = searchParams.getAll("positions") as Position[];
-    const requestedSort = searchParams.get("sort") === "oldest" ? "oldest" : "newest";
 
-    const requestedPage = getSearchParamNumber(
-        searchParams.get("page"),
-        DEFAULT_APPLICATIONS_PAGE,
-        0,
-    );
-
-    const requestedPageSizeParam = getSearchParamNumber(
-        searchParams.get("size"),
-        DEFAULT_APPLICATIONS_PAGE_SIZE,
-        1,
-    );
-    const requestedPageSize = APPLICATIONS_PAGE_SIZE_OPTIONS.includes(requestedPageSizeParam)
-        ? requestedPageSizeParam
-        : DEFAULT_APPLICATIONS_PAGE_SIZE;
-
-    const searchApplicationsParams: SearchJobApplicationsParams = {
-        name: requestedName || undefined,
-        statuses: requestedStatuses.length ? requestedStatuses : undefined,
-        positions: requestedPositions.length ? requestedPositions : undefined,
-        favorites: showFavoritesOnly ? true : undefined,
-        sort: requestedSort,
-        page: requestedPage,
-        size: requestedPageSize,
-    };
+    const { searchApplicationsParams,
+        requestedName,
+        showFavoritesOnly,
+        requestedStatuses,
+        requestedPositions,
+        APPLICATIONS_PAGE_SIZE_OPTIONS,
+        requestedPage,
+        requestedPageSize,
+        handleSearch,
+        updatePaginationParams,
+        updatePageSizeParam,
+        updateFavoritesFilter,
+        resetFilters,
+        updateStatusFilter,
+        updatePositionFilter } = useApplicationsFilter();
 
     const { data: applications, isLoading, isError } = useQuery({
         queryKey: ["applications", searchApplicationsParams],
@@ -65,97 +44,7 @@ export default function ApplicationsPage() {
     const applicationsList = applications?.content ?? [];
     const empty = applicationsList.length === 0;
 
-
     const { currentPage, totalPages, canGoToPreviousPage, canGoToNextPage } = usePaginationMetadata(applications, requestedPage);
-
-    const handleSearch = (name: string) => {
-        const nextSearchName = name.trim();
-        const nextSearchParams = new URLSearchParams(searchParams);
-
-        if (nextSearchName) {
-            nextSearchParams.set("name", nextSearchName);
-        } else {
-            nextSearchParams.delete("name");
-        }
-
-        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
-        nextSearchParams.set("size", String(requestedPageSize));
-        setSearchParams(nextSearchParams);
-    };
-
-    const updatePaginationParams = (nextPage: number) => {
-        const nextSearchParams = new URLSearchParams(searchParams);
-        const page = Math.max(nextPage, DEFAULT_APPLICATIONS_PAGE);
-
-        nextSearchParams.set("page", String(page));
-        nextSearchParams.set("size", String(requestedPageSize));
-
-        setSearchParams(nextSearchParams);
-    };
-
-    const updatePageSizeParam = (nextPageSize: number) => {
-        const nextSearchParams = new URLSearchParams(searchParams);
-
-        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
-        nextSearchParams.set("size", String(nextPageSize));
-
-        setSearchParams(nextSearchParams);
-    };
-
-    const updateFavoritesFilter = (checked: boolean) => {
-        const nextSearchParams = new URLSearchParams(searchParams);
-
-        if (checked) {
-            nextSearchParams.set("favorites", "true");
-        } else {
-            nextSearchParams.delete("favorites");
-        }
-
-        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
-        nextSearchParams.set("size", String(requestedPageSize));
-
-        setSearchParams(nextSearchParams);
-    };
-
-    const resetFilters = () => {
-        const nextSearchParams = new URLSearchParams(searchParams);
-
-        nextSearchParams.delete("name");
-        nextSearchParams.delete("favorites");
-        nextSearchParams.delete("statuses");
-        nextSearchParams.delete("positions");
-        nextSearchParams.delete("sort");
-        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
-        nextSearchParams.set("size", String(requestedPageSize));
-
-        setSearchParams(nextSearchParams);
-    };
-
-    const updateStatusFilter = (status: Status) => {
-        const nextSearchParams = new URLSearchParams(searchParams);
-        const nextStatuses = requestedStatuses.includes(status)
-            ? requestedStatuses.filter((selectedStatus) => selectedStatus !== status)
-            : [...requestedStatuses, status];
-
-        nextSearchParams.delete("statuses");
-        nextStatuses.forEach((selectedStatus) => nextSearchParams.append("statuses", selectedStatus));
-        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
-        nextSearchParams.set("size", String(requestedPageSize));
-        setSearchParams(nextSearchParams);
-    };
-
-    const updatePositionFilter = (position: Position) => {
-        const nextSearchParams = new URLSearchParams(searchParams);
-        const nextPositions = requestedPositions.includes(position)
-            ? requestedPositions.filter((selectedPosition) => selectedPosition !== position)
-            : [...requestedPositions, position];
-
-        nextSearchParams.delete("positions");
-        nextPositions.forEach((selectedPosition) => nextSearchParams.append("positions", selectedPosition));
-        nextSearchParams.set("page", String(DEFAULT_APPLICATIONS_PAGE));
-        nextSearchParams.set("size", String(requestedPageSize));
-        setSearchParams(nextSearchParams);
-    };
 
     return (
         <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
@@ -172,8 +61,6 @@ export default function ApplicationsPage() {
                             size={16} />}>
                         Add Application
                     </Button>
-
-
 
                     <div className="w-full max-w-2xl flex-1 min-w-[280px]">
                         <SearchInput
