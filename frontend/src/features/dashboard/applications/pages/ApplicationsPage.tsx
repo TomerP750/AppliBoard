@@ -47,7 +47,7 @@ export default function ApplicationsPage() {
     const { currentPage, totalPages, canGoToPreviousPage, canGoToNextPage } = usePaginationMetadata(applications, requestedPage);
 
     return (
-        <section className="min-h-screen bg-zinc-50 p-4 sm:p-6 dark:bg-dark-background">
+        <section className="min-h-screen bg-zinc-50 p-6 pb-28 md:pb-6 dark:bg-dark-background">
 
             <DashboardHeader Icon={Briefcase} title={"Your Applications"} />
 

@@ -46,7 +46,7 @@ export function FilterMenu({ showFavoritesOnly,
     }
 
     return (
-        <div className="w-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/60 ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/30 dark:ring-white/10">
+        <div className="w-100 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl shadow-zinc-200/60 ring-1 ring-black/5 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-zinc-800/30 dark:ring-white/10">
 
             <header className="border-b border-zinc-100 bg-gradient-to-br from-zinc-50 to-white px-4 py-3 dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-900">
                 <p className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -127,22 +127,17 @@ export function FilterMenu({ showFavoritesOnly,
 
             </div>
 
-            <div className="flex items-center justify-between gap-3 border-t border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/70">
+            <div className="flex items-center gap-3 border-t border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/70">
                 <Button
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
                     leftIcon={<RotateCcw size={15} />}
                     onClick={handleResetFilters}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                    className=""
                 >
                     Reset
                 </Button>
-                <Button
-                    onClick={onApplyFilters}
-                    className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-brand-primary/20 transition hover:bg-brand-primary/90"
-                >
-                    Apply Filters
-                </Button>
+               
             </div>
         </div>
     );

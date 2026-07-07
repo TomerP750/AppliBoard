@@ -12,7 +12,7 @@ export default function DashboardIndex() {
     const { user } = useAuth();
 
     return (
-        <section className="min-h-screen p-6 bg-gray-100 dark:bg-dark-background">
+        <section className="min-h-screen p-6 pb-24 md:pb-6 bg-gray-100 dark:bg-dark-background">
 
             <DashboardHeader title={`Welcome ${user?.firstName} ${user?.lastName}`} Icon={Sparkles} />
 

@@ -5,8 +5,8 @@ import { getSearchParamNumber } from "../utils/getSearchParamNumber";
 import type { SearchJobApplicationsParams } from "../api/jobApplicationService";
 
 const DEFAULT_APPLICATIONS_PAGE = 0;
-const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
-const APPLICATIONS_PAGE_SIZE_OPTIONS = [5, 10, 20];
+const DEFAULT_APPLICATIONS_PAGE_SIZE = 12;
+const APPLICATIONS_PAGE_SIZE_OPTIONS = [6, 12, 18];
 
 export function useApplicationsFilters() {
 
