@@ -29,7 +29,7 @@ export default function AnalyticsPage() {
     const { totalApplicationsSent, weeklyApplicationsByDay, weeklyApplicationsSent, countByStatus }: AnalyticsDto = analytics;
 
     return (
-        <section className="min-h-screen p-6 bg-zinc-100 dark:bg-dark-background">
+        <section className="min-h-screen p-6 pb-24 md:pb-6 bg-zinc-100 dark:bg-dark-background">
 
             <DashboardHeader Icon={BarChart3} title={"Analytics"} />
 

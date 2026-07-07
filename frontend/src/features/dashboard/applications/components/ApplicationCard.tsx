@@ -1,14 +1,14 @@
-import { Building2Icon, CalendarIcon, FileTextIcon, Icon, MapPinIcon, MonitorIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, MonitorIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
+import { getIconByStatus } from "../../analytics/utils/getIconByStatus";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
 import type { Status } from "../models/Status";
 import { DeleteModal } from "./crud_modals/DeleteModal";
 import { UpdateModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { RowCard } from "./RowCard";
-import { getIconByStatus } from "../../analytics/utils/getIconByStatus";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
