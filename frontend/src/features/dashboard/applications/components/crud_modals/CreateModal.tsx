@@ -5,7 +5,7 @@ import { Modal } from "../../../../../shared/ui/Modal";
 import { toTitleCase } from "../../../../../shared/util/toTitleCase";
 import { useForm } from "react-hook-form";
 import type { CreateJobApplicationDto } from "../../models/CreateJobApplicationDto";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jobApplicationService from "../../api/jobApplicationService";
 import { Position } from "../../models/Position";
 import { Status } from "../../models/Status";
@@ -20,12 +20,21 @@ interface CreateModalProps {
 
 export function CreateModal({ isOpen, onClose }: CreateModalProps) {
 
+    const queryClient = useQueryClient();
+
     const { register, handleSubmit, formState: { errors },} = useForm<CreateJobApplicationDto>();
 
     const { mutate: createJobApplication, isPending } = useMutation({
         mutationFn: (dto: CreateJobApplicationDto) => jobApplicationService.createJobApplication(dto),
-        onSuccess: (data: JobApplicationDto) => {
-            // onAddApplication(data);
+        // onSuccess: (data: JobApplicationDto) => {
+        //     // onAddApplication(data);
+        //     onClose();
+        // },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["applications"],
+            });
+    
             onClose();
         },
         onError: (error) => {
@@ -34,7 +43,6 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
     });
     
     const handleCreateJobApplication = (dto: CreateJobApplicationDto) => {
-        console.log(dto);
         createJobApplication(dto);
     };
 

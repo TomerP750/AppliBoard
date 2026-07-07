@@ -2,7 +2,7 @@ import { AlertTriangleIcon, Trash2Icon } from "lucide-react";
 import { Button } from "../../../../../shared/ui/Button";
 import { Modal } from "../../../../../shared/ui/Modal";
 import jobApplicationService from "../../api/jobApplicationService";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface DeleteModalProps {
     applicationId: string;
@@ -12,9 +12,15 @@ interface DeleteModalProps {
 
 export function DeleteModal({ applicationId, isOpen, onClose }: DeleteModalProps) {
 
+    const queryClient = useQueryClient();
+
     const { mutate: deleteJobApplication, isPending } = useMutation({
-        mutationFn: (id: string) => jobApplicationService.deleteJobApplication(applicationId),
+        mutationFn: (id: string) => jobApplicationService.deleteJobApplication(id),
         onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["applications"],
+            });
+
             onClose();
         },
         onError: (error) => {
