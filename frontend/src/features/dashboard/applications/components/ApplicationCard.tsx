@@ -1,4 +1,4 @@
-import { Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, MonitorIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { Building2Icon, CalendarIcon, FileTextIcon, Icon, MapPinIcon, MonitorIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
@@ -8,6 +8,7 @@ import { DeleteModal } from "./crud_modals/DeleteModal";
 import { UpdateModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { RowCard } from "./RowCard";
+import { getIconByStatus } from "../../analytics/utils/getIconByStatus";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -20,7 +21,36 @@ const statusClasses: Record<Status, string> = {
     REJECTED: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
 };
 
+
+
 export function ApplicationCard({ application }: ApplicationCardProps) {
+
+    const accentClasses = {
+        PENDING: {
+            icon: "bg-indigo-400/10 text-yellow-400 ring-indigo-400/20",
+            watermark: "text-yellow-400/30",
+            glow: "bg-yellow-400/25",
+            button: "!bg-yellow-400 hover:!bg-yellow-500 focus:!ring-yellow-400/40",
+        },
+        IN_PROGRESS: {
+            icon: "bg-sky-400/10 text-sky-400 ring-sky-400/20",
+            watermark: "text-sky-400/30",
+            glow: "bg-sky-400/25",
+            button: "!bg-sky-400 hover:!bg-sky-500 focus:!ring-sky-400/40",
+        },
+        ACCEPTED: {
+            icon: "bg-emerald-400/10 text-emerald-400 ring-emerald-400/20",
+            watermark: "text-emerald-400/30",
+            glow: "bg-emerald-400/25",
+            button: "!bg-emerald-400 hover:!bg-emerald-500 focus:!ring-emerald-400/40",
+        },
+        REJECTED: {
+            icon: "bg-rose-400/10 text-rose-400 ring-rose-400/20",
+            watermark: "text-rose-400/30",
+            glow: "bg-rose-400/25",
+            button: "!bg-rose-400 hover:!bg-rose-500 focus:!ring-rose-400/40",
+        },
+    }[application.status];
 
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
     const [updateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
@@ -38,8 +68,18 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         { Icon: CalendarIcon, text: `Applied on ${formattedAppliedDate}` },
     ];
 
+
+    const Icon = getIconByStatus(application.status);
+
     return (
-        <article className="group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700">
+        <article className="relative group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700">
+
+            <div className={`absolute -right-5 -bottom-5 h-28 w-28 rounded-full blur-3xl ${accentClasses.glow}`} />
+            <Icon
+                strokeWidth={1}
+                className={`pointer-events-none absolute bottom-1 right-1 w-15 h-15  ${accentClasses.watermark}`}
+                aria-hidden="true"
+            />
 
             <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
 

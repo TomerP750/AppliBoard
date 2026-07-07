@@ -11,7 +11,7 @@ import { ApplicationCard } from "../components/ApplicationCard";
 import { CreateModal } from "../components/crud_modals/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
 import { FilterMenu } from "../components/FilterMenu";
-import { useApplicationsFilter } from "../hooks/useApplicationsFilter";
+import { useApplicationsFilters } from "../hooks/useApplicationsFilters";
 
 
 export default function ApplicationsPage() {
@@ -33,7 +33,7 @@ export default function ApplicationsPage() {
         updateFavoritesFilter,
         resetFilters,
         updateStatusFilter,
-        updatePositionFilter } = useApplicationsFilter();
+        updatePositionFilter } = useApplicationsFilters();
 
     const { data: applications, isLoading, isError } = useQuery({
         queryKey: ["applications", searchApplicationsParams],

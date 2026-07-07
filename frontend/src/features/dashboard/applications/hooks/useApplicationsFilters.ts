@@ -8,7 +8,7 @@ const DEFAULT_APPLICATIONS_PAGE = 0;
 const DEFAULT_APPLICATIONS_PAGE_SIZE = 10;
 const APPLICATIONS_PAGE_SIZE_OPTIONS = [5, 10, 20];
 
-export function useApplicationsFilter() {
+export function useApplicationsFilters() {
 
     const [searchParams, setSearchParams] = useSearchParams();
 
