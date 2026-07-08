@@ -9,13 +9,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jobApplicationService from "../../api/jobApplicationService";
 import { Position } from "../../models/Position";
 import { Status } from "../../models/Status";
-import type { JobApplicationDto } from "../../models/JobApplicationDto";
 
 
 interface CreateModalProps {
     isOpen: boolean;
     onClose: () => void;
-    // onAddApplication: (application: JobApplicationDto) => void;
 }
 
 export function CreateModal({ isOpen, onClose }: CreateModalProps) {
@@ -72,6 +70,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         placeholder="Acme Inc." 
                         {...register("name", { required: "Name is required" })} 
                         />
+                        {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                     </label>
 
                     <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -82,6 +81,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         <Input 
                         placeholder="Tel Aviv" 
                         {...register("city", { required: "City is required" })} />
+                        {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
                     </label>
 
                     <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -103,6 +103,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                                 </option>
                             ))}
                         </select>
+                        {errors.status && <p className="text-sm text-red-500">{errors.status.message}</p>}
                     </label>
 
                     <label className="flex flex-col gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -124,6 +125,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                                 </option>
                             ))}
                         </select>
+                        {errors.position && <p className="text-sm text-red-500">{errors.position.message}</p>}
                     </label>
                 </div>
 

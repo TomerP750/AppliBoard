@@ -11,7 +11,7 @@ export function ActivityRow({ activity }: ActivityRowProps) {
         <div className="flex items-center justify-between gap-2 dark:text-white">
             <div className="inline-flex items-center gap-2 cursor-default text-sm font-medium">
                 {getIconFromActivityType(activity.activityType)}
-                <span>{activity.message}</span>
+                <span className="text-zinc-900 dark:text-zinc-50 hover:underline">{activity.message}</span>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
                 {timeAgo(new Date(activity.createdAt))}
