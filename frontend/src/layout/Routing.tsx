@@ -5,6 +5,7 @@ import { LoginPage } from "../features/authentication/pages/LoginPage";
 import { SignupPage } from "../features/authentication/pages/SignupPage";
 import { AuthPanel } from "../features/authentication/pages/AuthPanel";
 import { lazy, Suspense } from "react";
+import { NotFoundPage } from "../shared/pages/NotFoundPage";
 
 const AnalyticsPage = lazy(() => import("../features/dashboard/analytics/pages/AnalyticsPage"));
 const SettingsPage = lazy(() => import("../features/dashboard/settings/pages/SettingsPage"));
@@ -28,6 +29,8 @@ export function Routing() {
                 <Route path="applications" element={ <SuspenseWrapper><ApplicationsPage /></SuspenseWrapper> }/>
                 <Route path="settings" element={ <SuspenseWrapper><SettingsPage /></SuspenseWrapper> }/>
             </Route>
+
+            <Route path="*" element={<NotFoundPage />} />
 
         </Routes>
     )
