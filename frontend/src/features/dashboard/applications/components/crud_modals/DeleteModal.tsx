@@ -25,6 +25,7 @@ export function DeleteModal({ applicationId, isOpen, onClose }: DeleteModalProps
             });
 
             onClose();
+            toast.success("Application deleted successfully.");
         },
         onError: (error) => {
             toast.error(error.response?.data?.message ?? "Failed to delete application. Please try again.");

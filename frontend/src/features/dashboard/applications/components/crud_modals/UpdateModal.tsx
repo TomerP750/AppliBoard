@@ -56,6 +56,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["applications"] });
             onClose();
+            toast.success("Application updated successfully.");
         },
         onError: (error) => {
             toast.error(error.response?.data?.message ?? "Failed to update application. Please try again.");
