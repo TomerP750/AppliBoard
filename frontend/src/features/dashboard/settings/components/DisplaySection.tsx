@@ -12,7 +12,7 @@ export function DisplaySection() {
                 <span>Display</span>
             </h2>
             <div className="mt-4 flex flex-col gap-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center gap-5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                     <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
                         Theme
                     </span>

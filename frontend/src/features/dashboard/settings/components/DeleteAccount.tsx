@@ -1,18 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import userService from "../api/userService";
-import { useMutation } from "@tanstack/react-query";
-import { Button } from "../../../../shared/ui/Button";
 import { TrashIcon } from "lucide-react";
 import { useState } from "react";
+import { Button } from "../../../../shared/ui/Button";
 import { DeleteUserModal } from "./DeleteUserModal";
 
 export function DeleteAccount() {
 
     const [modalOpen, setModalOpen] = useState<boolean>(false);
-
-    const navigate = useNavigate();
-
-    
 
     return (
         <section className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm dark:border-red-900/60 dark:bg-red-950/20 sm:p-6">
