@@ -8,6 +8,10 @@ import userService from "../api/userService";
 import type { UpdateUserDto } from "../models/UpdateUserDto";
 import { Badge } from "../../../../shared/ui/Badge";
 import type { UserDto } from "../../../../shared/models/UserDto";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../../shared/models/ApiErrorResponse";
+
 
 export function PersonalDetailsForm() {
 
@@ -15,13 +19,14 @@ export function PersonalDetailsForm() {
 
     const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserDto>();
 
-    const { mutate: updateUser, isPending } = useMutation({
+    const { mutate: updateUser, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, UpdateUserDto>({
         mutationFn: (dto: UpdateUserDto) => userService.updateUser(dto),
         onSuccess: () => {
             navigate("/dashboard");
+            toast.success("User updated successfully.");
         },
         onError: (error) => {
-            console.error(error);
+            toast.error(error.response?.data?.message ?? "Failed to update user. Please try again.");
         },
     });
 

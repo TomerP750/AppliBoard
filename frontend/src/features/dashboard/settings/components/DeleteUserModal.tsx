@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Modal } from "../../../../shared/ui/Modal";
 import { Button } from "../../../../shared/ui/Button";
 import { AlertTriangleIcon, Trash2Icon } from "lucide-react";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../../shared/models/ApiErrorResponse";
 
 interface DeleteUserModalProps {
     isOpen: boolean;
@@ -14,14 +17,15 @@ export function DeleteUserModal({ isOpen, onClose }: DeleteUserModalProps) {
 
     const navigate = useNavigate();
 
-    const { mutate: deleteUser, isPending } = useMutation({
+    const { mutate: deleteUser, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, void>({
         mutationFn: () => userService.deleteUser(),
         onSuccess: () => {
             navigate("/");
             onClose();
+            toast.success("User deleted successfully.");
         },
         onError: (error) => {
-            console.error(error);
+            toast.error(error.response?.data?.message ?? "Failed to delete user. Please try again.");
         },
     });
 

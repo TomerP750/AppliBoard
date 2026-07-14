@@ -5,18 +5,21 @@ import type { ChangePasswordDto } from "../models/ChangePasswordDto";
 import userService from "../api/userService";
 import { Button } from "../../../../shared/ui/Button";
 import { LockIcon } from "lucide-react";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../../shared/models/ApiErrorResponse";
 
 export function ChangePasswordForm() {
     
     const { register, handleSubmit, formState: { errors },} = useForm<ChangePasswordDto>();
 
-    const { mutate: changePassword, isPending } = useMutation({
+    const { mutate: changePassword, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, ChangePasswordDto>({
         mutationFn: (dto: ChangePasswordDto) => userService.changePassword(dto),
         onSuccess: () => {
             console.log("Password changed successfully");
         },
         onError: (error) => {
-            console.error(error);
+            toast.error(error.response?.data?.message ?? "Failed to change password. Please try again.");
         },
     });
 
