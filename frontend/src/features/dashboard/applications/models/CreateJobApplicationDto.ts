@@ -7,4 +7,5 @@ export interface CreateJobApplicationDto {
     city: string;
     status: Status;
     position: Position;
+    note: string;
 }

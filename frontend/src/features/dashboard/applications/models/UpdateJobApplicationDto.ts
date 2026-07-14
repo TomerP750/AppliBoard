@@ -6,4 +6,5 @@ export interface UpdateJobApplicationDto {
     city: string;
     status: Status;
     position: Position;
+    note: string;
 }

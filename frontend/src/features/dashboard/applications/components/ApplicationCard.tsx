@@ -1,4 +1,4 @@
-import { Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, MonitorIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, MonitorIcon, NotepadText, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
@@ -9,6 +9,7 @@ import { DeleteModal } from "./crud_modals/DeleteModal";
 import { UpdateModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { RowCard } from "./RowCard";
+import { NoteModal } from "./NoteModal";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -20,8 +21,6 @@ const statusClasses: Record<Status, string> = {
     ACCEPTED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
     REJECTED: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
 };
-
-
 
 export function ApplicationCard({ application }: ApplicationCardProps) {
 
@@ -54,6 +53,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
 
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
     const [updateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
+    const [noteModalOpen, setNoteModalOpen] = useState<boolean>(false);
 
     const formattedAppliedDate = new Date(application.appliedAt).toLocaleDateString("en-US", {
         year: "numeric",
@@ -97,7 +97,7 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
                         applicationId={application.id}
                         isFavorite={application.isFavorite}
                     />
-                    
+
                     <span className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" aria-hidden="true" />
 
                     <Button
@@ -143,8 +143,29 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
                     </li>
                 ))}
 
+
+                <li>
+                    <button
+                        disabled={!application.note}
+                        onClick={() => setNoteModalOpen(true)}
+                    >
+                        <RowCard
+                            Icon={NotepadText}
+                            text={application.note ? "View Note" : "No Note Added"}
+                            textClassName={`${application.note
+                                ? "hover:underline hover:underline-offset-2 cursor-pointer text-zinc-700 dark:text-zinc-300"
+                                : "cursor-not-allowed text-zinc-500 dark:text-zinc-400/90"}`}
+                        />
+                    </button>
+                </li>
             </ul>
 
+            <NoteModal
+                title={`${application.name} Note`}
+                note={application.note}
+                isOpen={noteModalOpen}
+                onClose={() => setNoteModalOpen(false)}
+            />
 
         </article>
     )

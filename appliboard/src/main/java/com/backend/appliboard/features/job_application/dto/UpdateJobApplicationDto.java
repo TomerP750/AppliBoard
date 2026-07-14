@@ -12,7 +12,8 @@ public record UpdateJobApplicationDto(
     String city,
     Status status,
     Position position,
-    Boolean isFavorite
-   
+    Boolean isFavorite,
+    String note
+
 ) {
 }

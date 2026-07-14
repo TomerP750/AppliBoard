@@ -14,6 +14,7 @@ public class JobApplicationMapper {
                 entity.getStatus(),
                 entity.getPosition(),
                 entity.getIsFavorite(),
+                entity.getNote(),
                 entity.getAppliedAt()
         );
     }

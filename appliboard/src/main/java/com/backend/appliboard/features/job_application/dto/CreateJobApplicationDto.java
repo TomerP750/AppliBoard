@@ -19,6 +19,9 @@ public record CreateJobApplicationDto(
         Status status,
 
         @NotNull(message = "Position is required")
-        Position position
+        Position position,
+
+        @Size(max = 500)
+        String note
 ) {
 }

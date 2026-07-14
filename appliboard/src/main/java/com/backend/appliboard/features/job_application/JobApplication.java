@@ -39,6 +39,9 @@ public class JobApplication {
 
     private Boolean isFavorite;
 
+    @Column(length = 500)
+    private String note;
+
     @ManyToOne
     private User user;
 

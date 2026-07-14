@@ -83,6 +83,7 @@ public class JobApplicationService implements IJobApplicationService {
                 .city(dto.city())
                 .isFavorite(false)
                 .position(dto.position())
+                .note(dto.note())
                 .user(user)
                 .build();
 
@@ -119,6 +120,9 @@ public class JobApplicationService implements IJobApplicationService {
         }
         if (dto.isFavorite() != null) {
             jobApplication.setIsFavorite(dto.isFavorite());
+        }
+        if (dto.note() != null) {
+            jobApplication.setNote(dto.note());
         }
 
         jobApplicationRepository.save(jobApplication);

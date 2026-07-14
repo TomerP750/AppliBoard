@@ -12,6 +12,7 @@ import { Status } from "../../models/Status";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
 import type { ApiErrorResponse } from "../../../../../shared/models/ApiErrorResponse";
+import { TextArea } from "../../../../../shared/ui/TextArea";
 
 
 interface CreateModalProps {
@@ -23,7 +24,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
 
     const queryClient = useQueryClient();
 
-    const { register, handleSubmit, formState: { errors },} = useForm<CreateJobApplicationDto>();
+    const { register, handleSubmit, formState: { errors }, } = useForm<CreateJobApplicationDto>();
 
     const { mutate: createJobApplication, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, CreateJobApplicationDto>({
         mutationFn: (dto: CreateJobApplicationDto) => jobApplicationService.createJobApplication(dto),
@@ -31,7 +32,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
             queryClient.invalidateQueries({
                 queryKey: ["applications"],
             });
-    
+
             onClose();
             toast.success("Application created successfully.");
         },
@@ -39,7 +40,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
             toast.error(error.response?.data?.message ?? "Failed to create application. Please try again.");
         },
     });
-    
+
     const handleCreateJobApplication = (dto: CreateJobApplicationDto) => {
         createJobApplication(dto);
     };
@@ -66,9 +67,9 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                             <Building2Icon size={16} className="text-zinc-400 dark:text-zinc-500" />
                             Company Name
                         </span>
-                        <Input 
-                        placeholder="Acme Inc." 
-                        {...register("name", { required: "Name is required" })} 
+                        <Input
+                            placeholder="Acme Inc."
+                            {...register("name", { required: "Name is required" })}
                         />
                         {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                     </label>
@@ -78,9 +79,9 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                             <MapPinIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
                             City
                         </span>
-                        <Input 
-                        placeholder="Tel Aviv" 
-                        {...register("city", { required: "City is required" })} />
+                        <Input
+                            placeholder="Tel Aviv"
+                            {...register("city", { required: "City is required" })} />
                         {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
                     </label>
 
@@ -127,6 +128,18 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         </select>
                         {errors.position && <p className="text-sm text-red-500">{errors.position.message}</p>}
                     </label>
+
+                    <TextArea
+                        label="Note"
+                        rows={4}
+                        {...register("note",
+                            {
+                                required: "Note is required",
+                                maxLength: { value: 500, message: "Note must be less than 500 characters" }
+                            })
+                        }
+                    />
+                    {errors.note && <p className="text-sm text-red-500">{errors.note.message}</p>}
                 </div>
 
                 <div className="flex justify-center gap-3 pt-10">
@@ -137,7 +150,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         Create
                     </Button>
                 </div>
-                
+
             </form>
         </Modal>
     );

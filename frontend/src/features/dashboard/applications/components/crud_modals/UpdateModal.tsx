@@ -14,6 +14,7 @@ import type { UpdateJobApplicationDto } from "../../models/UpdateJobApplicationD
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
 import type { ApiErrorResponse } from "../../../../../shared/models/ApiErrorResponse";
+import { TextArea } from "../../../../../shared/ui/TextArea";
 
 interface UpdateModalProps {
     application: JobApplicationDto;
@@ -27,6 +28,11 @@ const selectClasses =
 const selectErrorClasses =
     "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500";
 
+const fieldLabelClasses =
+    "inline-flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300";
+
+const fieldIconClasses = "text-zinc-400 dark:text-zinc-500";
+
 export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) {
 
     const queryClient = useQueryClient();
@@ -37,6 +43,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
             city: application.city,
             status: application.status,
             position: application.position,
+            note: application.note,
         },
     });
 
@@ -47,6 +54,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
                 city: application.city,
                 status: application.status,
                 position: application.position,
+                note: application.note,
             });
         }
     }, [application, isOpen, reset]);
@@ -75,120 +83,138 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            size="md"
+            size="lg"
             className="overflow-hidden p-0"
         >
             <form onSubmit={handleSubmit(handleUpdate)} className="flex flex-col">
-                <div className="border-b border-zinc-200 bg-zinc-50 px-6 py-5 dark:border-zinc-800 dark:bg-zinc-950/60">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary dark:bg-brand-primary/20">
-                            <PencilIcon size={21} aria-hidden="true" />
+                <div className="px-5 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-primary text-white shadow-sm shadow-brand-primary/25">
+                                <PencilIcon size={19} aria-hidden="true" />
+                            </div>
+
+                            <div className="min-w-0">
+                                <h2 className="text-xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+                                    Edit Application
+                                </h2>
+                                <p className="mt-0.5 truncate text-sm text-zinc-500 dark:text-zinc-400">
+                                    Update the key details for this application.
+                                </p>
+                            </div>
                         </div>
 
-                        <div>
-                            <h2 className="text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-                                Edit Application
-                            </h2>
-                            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                                Update the job details you are tracking.
+                        <div className="hidden max-w-56 rounded-xl border border-zinc-200 bg-white/80 px-3 py-2 text-right text-xs text-zinc-500 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400 sm:block">
+                            <p className="font-medium uppercase tracking-wide">Editing</p>
+                            <p className="mt-0.5 truncate text-sm font-semibold normal-case tracking-normal text-zinc-950 dark:text-zinc-50">
+                                {application.name}
                             </p>
                         </div>
                     </div>
-
-                    <div className="mt-5 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-600 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
-                        Editing <span className="font-semibold text-zinc-950 dark:text-zinc-50">{application.name}</span>
-                    </div>
                 </div>
 
-                <div className="flex flex-col gap-4 px-6 py-6">
-                    <div className="flex flex-col gap-1.5">
-                        <label htmlFor="update-application-name" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            <span className="inline-flex items-center gap-2">
-                                <Building2Icon size={16} className="text-zinc-400 dark:text-zinc-500" />
+                <div className="flex flex-col gap-4 px-5 py-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="flex flex-col gap-1.5">
+                            <label htmlFor="update-application-name" className={fieldLabelClasses}>
+                                <Building2Icon size={16} className={fieldIconClasses} />
                                 Company Name
-                            </span>
-                        </label>
-                        <Input
-                            id="update-application-name"
-                            placeholder="Acme Inc."
-                            error={errors.name?.message}
-                            disabled={isPending}
-                            {...register("name", { required: "Name is required" })}
-                        />
-                    </div>
+                            </label>
+                            <Input
+                                id="update-application-name"
+                                placeholder="Acme Inc."
+                                error={errors.name?.message}
+                                disabled={isPending}
+                                {...register("name", { required: "Name is required" })}
+                            />
+                        </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label htmlFor="update-application-city" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            <span className="inline-flex items-center gap-2">
-                                <MapPinIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
+                        <div className="flex flex-col gap-1.5">
+                            <label htmlFor="update-application-city" className={fieldLabelClasses}>
+                                <MapPinIcon size={16} className={fieldIconClasses} />
                                 City
-                            </span>
-                        </label>
-                        <Input
-                            id="update-application-city"
-                            placeholder="Tel Aviv"
-                            error={errors.city?.message}
-                            disabled={isPending}
-                            {...register("city", { required: "City is required" })}
-                        />
+                            </label>
+                            <Input
+                                id="update-application-city"
+                                placeholder="Tel Aviv"
+                                error={errors.city?.message}
+                                disabled={isPending}
+                                {...register("city", { required: "City is required" })}
+                            />
+                        </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                        <label htmlFor="update-application-status" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            <span className="inline-flex items-center gap-2">
-                                <FileTextIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
+
+                    <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+                        
+                        {/* Status */}
+                        <div className="flex flex-col gap-1.5 p-3 rounded-xl">
+                            <label htmlFor="update-application-status" className={fieldLabelClasses}>
+                                <FileTextIcon size={16} className={fieldIconClasses} />
                                 Status
-                            </span>
-                        </label>
-                        <select
-                            id="update-application-status"
-                            disabled={isPending}
-                            aria-invalid={errors.status ? true : undefined}
-                            {...register("status", { required: "Status is required" })}
-                            className={`${selectClasses} ${errors.status ? selectErrorClasses : ""}`}
-                        >
-                            {Object.values(Status).map((status) => (
-                                <option key={status} value={status}>
-                                    {toTitleCase(status)}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.status ? (
-                            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-                                {errors.status.message}
-                            </p>
-                        ) : null}
+                            </label>
+                            <select
+                                id="update-application-status"
+                                disabled={isPending}
+                                aria-invalid={errors.status ? true : undefined}
+                                {...register("status", { required: "Status is required" })}
+                                className={`${selectClasses} ${errors.status ? selectErrorClasses : ""}`}
+                            >
+                                {Object.values(Status).map((status) => (
+                                    <option key={status} value={status}>
+                                        {toTitleCase(status)}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.status ? (
+                                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                                    {errors.status.message}
+                                </p>
+                            ) : null}
+                        </div>
+
+                        {/* Position */}
+                        <div className="flex flex-col gap-1.5 p-3">
+                            <label htmlFor="update-application-position" className={fieldLabelClasses}>
+                                <BriefcaseIcon size={16} className={fieldIconClasses} />
+                                Position
+                            </label>
+                            <select
+                                id="update-application-position"
+                                disabled={isPending}
+                                aria-invalid={errors.position ? true : undefined}
+                                {...register("position", { required: "Position is required" })}
+                                className={`${selectClasses} ${errors.position ? selectErrorClasses : ""}`}
+                            >
+                                {Object.values(Position).map((position) => (
+                                    <option key={position} value={position}>
+                                        {toTitleCase(position)}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.position ? (
+                                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                                    {errors.position.message}
+                                </p>
+                            ) : null}
+                        </div>
                     </div>
 
+
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="update-application-position" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                            <span className="inline-flex items-center gap-2">
-                                <BriefcaseIcon size={16} className="text-zinc-400 dark:text-zinc-500" />
-                                Position
-                            </span>
-                        </label>
-                        <select
-                            id="update-application-position"
+                        <TextArea
+                            label="Note"
+                            rows={3}
+                            placeholder="Add a quick reminder, contact name, or next step..."
+                            error={errors.note?.message}
                             disabled={isPending}
-                            aria-invalid={errors.position ? true : undefined}
-                            {...register("position", { required: "Position is required" })}
-                            className={`${selectClasses} ${errors.position ? selectErrorClasses : ""}`}
-                        >
-                            {Object.values(Position).map((position) => (
-                                <option key={position} value={position}>
-                                    {toTitleCase(position)}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.position ? (
-                            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-                                {errors.position.message}
-                            </p>
-                        ) : null}
+                            className="min-h-24"
+                            {...register("note", { maxLength: { value: 500, message: "Note must be less than 500 characters" } })}
+                        />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 border-t border-zinc-200 bg-zinc-50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950/60">
+                <div className="grid grid-cols-2 gap-3 border-t border-zinc-200 bg-zinc-50 px-5 py-3.5 dark:border-zinc-800 dark:bg-zinc-950/60">
                     <Button
                         type="button"
                         variant="secondary"

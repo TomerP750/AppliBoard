@@ -13,6 +13,7 @@ public record JobApplicationDto(
         Status status,
         Position position,
         Boolean isFavorite,
+        String note,
         Instant appliedAt
 ) {
 }
