@@ -11,6 +11,9 @@ import type { JobApplicationDto } from "../../models/JobApplicationDto";
 import { Position } from "../../models/Position";
 import { Status } from "../../models/Status";
 import type { UpdateJobApplicationDto } from "../../models/UpdateJobApplicationDto";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../../../shared/models/ApiErrorResponse";
 
 interface UpdateModalProps {
     application: JobApplicationDto;
@@ -48,14 +51,14 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
         }
     }, [application, isOpen, reset]);
 
-    const { mutate: updateJobApplication, isPending } = useMutation({
+    const { mutate: updateJobApplication, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, UpdateJobApplicationDto>({
         mutationFn: (dto: UpdateJobApplicationDto) => jobApplicationService.updateJobApplication(application.id, dto),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["applications"] });
             onClose();
         },
         onError: (error) => {
-            console.error(error);
+            toast.error(error.response?.data?.message ?? "Failed to update application. Please try again.");
         },
     });
 

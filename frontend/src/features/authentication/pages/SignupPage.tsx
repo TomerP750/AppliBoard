@@ -4,19 +4,16 @@ import type { SignupRequestDto } from "../models/SignupRequestDto";
 import { Input } from "../../../shared/ui/Input";
 import { Button } from "../../../shared/ui/Button";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
-import { Toast } from "../../../shared/ui/Toast";
 import type { AxiosError } from "axios";
 import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 export function SignupPage() {
 
     const navigate = useNavigate();
 
     const { signup: authSignup } = useAuth();
-
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const { register, handleSubmit, formState: { errors } } = useForm<SignupRequestDto>();
 
@@ -26,7 +23,7 @@ export function SignupPage() {
             navigate("/dashboard");
         },
         onError: (error: AxiosError<ApiErrorResponse>) => {
-            setErrorMessage(error.response?.data?.message ?? "Signup failed. Please try again.");
+            toast.error(error.response?.data?.message ?? "Signup failed. Please try again.");
         },
     });
 
@@ -43,7 +40,6 @@ export function SignupPage() {
                 onSubmit={handleSubmit(handleSignup)}
                 className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
             >
-                {errorMessage && <Toast type="error" message={errorMessage} onClose={() => setErrorMessage(null)} />}
                 <div className="grid gap-5 sm:grid-cols-2">
                     <div className="space-y-2">
                         <label htmlFor="firstName" className="block text-sm font-medium text-white">

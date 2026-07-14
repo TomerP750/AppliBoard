@@ -9,6 +9,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jobApplicationService from "../../api/jobApplicationService";
 import { Position } from "../../models/Position";
 import { Status } from "../../models/Status";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import type { ApiErrorResponse } from "../../../../../shared/models/ApiErrorResponse";
 
 
 interface CreateModalProps {
@@ -22,21 +25,18 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
 
     const { register, handleSubmit, formState: { errors },} = useForm<CreateJobApplicationDto>();
 
-    const { mutate: createJobApplication, isPending } = useMutation({
+    const { mutate: createJobApplication, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, CreateJobApplicationDto>({
         mutationFn: (dto: CreateJobApplicationDto) => jobApplicationService.createJobApplication(dto),
-        // onSuccess: (data: JobApplicationDto) => {
-        //     // onAddApplication(data);
-        //     onClose();
-        // },
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: ["applications"],
             });
     
             onClose();
+            toast.success("Application created successfully.");
         },
         onError: (error) => {
-            console.error(error);
+            toast.error(error.response?.data?.message ?? "Failed to create application. Please try again.");
         },
     });
     

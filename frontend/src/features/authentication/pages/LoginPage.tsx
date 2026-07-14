@@ -1,18 +1,15 @@
+import { useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import type { LoginRequestDto } from "../models/LoginRequestDto";
-import { Input } from "../../../shared/ui/Input";
-import { Button } from "../../../shared/ui/Button";
-import { useAuth } from "../contexts/AuthContext";
-import { useMutation } from "@tanstack/react-query";
-import { Toast } from "../../../shared/ui/Toast";
-import { useState } from "react";
-import type { AxiosError } from "axios";
+import { toast } from "react-toastify";
 import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
+import { Button } from "../../../shared/ui/Button";
+import { Input } from "../../../shared/ui/Input";
+import { useAuth } from "../contexts/AuthContext";
+import type { LoginRequestDto } from "../models/LoginRequestDto";
 
 export function LoginPage() {
-
-    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     const { login: authLogin } = useAuth();
     const navigate = useNavigate();
@@ -25,7 +22,7 @@ export function LoginPage() {
             navigate("/dashboard");
         },
         onError: (err) => {
-            setToastMessage(err.response?.data?.message ?? "Login failed. Please try again.");
+            toast.error(err.response?.data?.message ?? "Login failed. Please try again.");
         },
     });
 
@@ -43,8 +40,6 @@ export function LoginPage() {
                 onSubmit={handleSubmit(handleLogin)}
                 className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
             >
-                {toastMessage && <Toast type="error" message={toastMessage} onClose={() => setToastMessage(null)} />}
-
                 <label htmlFor="email" className="block text-sm font-medium text-white">
                     Email
                 </label>

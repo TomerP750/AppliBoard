@@ -6,6 +6,7 @@ import { AuthProvider } from './features/authentication/contexts/AuthContext.tsx
 import { ThemeProvider } from './shared/context/ThemeContext.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import axios from 'axios'
+import { ToastConfig } from './shared/util/ToastConfig.tsx'
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Layout />
+          <ToastConfig />
         </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>

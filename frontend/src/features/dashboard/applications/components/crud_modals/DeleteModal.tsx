@@ -3,6 +3,9 @@ import { Button } from "../../../../../shared/ui/Button";
 import { Modal } from "../../../../../shared/ui/Modal";
 import jobApplicationService from "../../api/jobApplicationService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import type { ApiErrorResponse } from "../../../../../shared/models/ApiErrorResponse";
+import type { AxiosError } from "axios";
 
 interface DeleteModalProps {
     applicationId: string;
@@ -14,7 +17,7 @@ export function DeleteModal({ applicationId, isOpen, onClose }: DeleteModalProps
 
     const queryClient = useQueryClient();
 
-    const { mutate: deleteJobApplication, isPending } = useMutation({
+    const { mutate: deleteJobApplication, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, string>({
         mutationFn: (id: string) => jobApplicationService.deleteJobApplication(id),
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -24,7 +27,7 @@ export function DeleteModal({ applicationId, isOpen, onClose }: DeleteModalProps
             onClose();
         },
         onError: (error) => {
-            console.error(error);
+            toast.error(error.response?.data?.message ?? "Failed to delete application. Please try again.");
         },
     });
 
