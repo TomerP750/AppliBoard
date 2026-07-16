@@ -14,6 +14,7 @@ public record JobApplicationDto(
         Position position,
         Boolean isFavorite,
         String note,
-        Instant appliedAt
+        Instant appliedAt,
+        Boolean isStale
 ) {
 }

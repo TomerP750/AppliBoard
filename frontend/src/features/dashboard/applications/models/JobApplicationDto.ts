@@ -11,4 +11,5 @@ export interface JobApplicationDto {
     isFavorite: boolean;
     appliedAt: string;
     note: string;
+    isStale: boolean;
 }

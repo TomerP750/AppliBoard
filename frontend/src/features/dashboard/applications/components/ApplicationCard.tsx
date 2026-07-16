@@ -1,4 +1,4 @@
-import { Building2Icon, CalendarIcon, FileTextIcon, MapPinIcon, MonitorIcon, NotepadText, PencilIcon, Trash2Icon } from "lucide-react";
+import { Building2Icon, CalendarIcon, ClockAlertIcon, FileTextIcon, MapPinIcon, MonitorIcon, NotepadText, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
@@ -8,8 +8,8 @@ import type { Status } from "../models/Status";
 import { DeleteModal } from "./crud_modals/DeleteModal";
 import { UpdateModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
-import { RowCard } from "./RowCard";
 import { NoteModal } from "./NoteModal";
+import { RowCard } from "./RowCard";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
@@ -83,13 +83,25 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
 
             <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
 
-                <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${statusClasses[application.status]}`}
-                >
-                    <FileTextIcon size={14} aria-hidden="true" />
+                <div className="flex items-center gap-2">
+                    <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${statusClasses[application.status]}`}
+                    >
+                        <FileTextIcon size={14} aria-hidden="true" />
 
-                    {toTitleCase(application.status)}
-                </span>
+                        {toTitleCase(application.status)}
+                    </span>
+                    {application.isStale && (
+                        <span title="This application has been stale for a while">
+                            <ClockAlertIcon
+                                className="text-zinc-500 dark:text-yellow-400"
+                                size={20}
+                                aria-hidden="true"
+                            />
+                        </span>
+                    )}
+
+                </div>
 
                 <div className="inline-flex items-center overflow-hidden rounded-full border border-zinc-200 bg-zinc-50 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/70">
 

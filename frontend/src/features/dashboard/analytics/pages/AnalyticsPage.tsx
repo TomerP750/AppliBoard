@@ -49,6 +49,7 @@ export default function AnalyticsPage() {
             </section>
 
             <section className="max-w-8xl w-full grid grid-cols-1 gap-4 mt-4 lg:mt-6 dark:text-white">
+                
                 <span className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between">
                     <h2 className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
                         <ClockIcon className="w-5 h-5" /> Applications sent this week:
@@ -57,6 +58,7 @@ export default function AnalyticsPage() {
                         </span>
                     </h2>
                 </span>
+                
                 <WeeklySentChart weeklyApplicationsByDay={weeklyApplicationsByDay}  />
             </section>
 
