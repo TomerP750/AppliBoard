@@ -36,77 +36,75 @@ export function SignupPage() {
             <h1 className="mb-3 text-center text-2xl font-semibold tracking-tight dark:text-white sm:text-3xl">
                 Create an account
             </h1>
-                <form
+            <form
                 onSubmit={handleSubmit(handleSignup)}
                 className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
             >
                 <div className="grid gap-5 sm:grid-cols-2">
-                    <div className="space-y-2">
-                        <label htmlFor="firstName" className="block text-sm font-medium text-white">
-                            First name
-                        </label>
-                        <Input
-                            id="firstName"
-                            type="text"
-                            {...register("firstName", { required: "First name is required" })}
-                            placeholder="John"
-                            autoComplete="given-name"
-                            className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
-                            error={errors.firstName?.message?.toString()}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="lastName" className="block text-sm font-medium text-white">
-                            Last name
-                        </label>
-                        <Input
-                            id="lastName"
-                            type="text"
-                            {...register("lastName", { required: "Last name is required" })}
-                            placeholder="Doe"
-                            autoComplete="family-name"
-                            className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
-                            error={errors.lastName?.message?.toString()}
-                        />
-                    </div>
+                    
+                    <Input
+                        id="firstName"
+                        type="text"
+                        label="First name"
+                        {...register("firstName", { required: "First name is required" })}
+                        required
+                        placeholder="John"
+                        autoComplete="given-name"
+                        className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                        error={errors.firstName?.message?.toString()}
+                    />
+
+
+
+                    <Input
+                        id="lastName"
+                        type="text"
+                        label="Last name"
+                        {...register("lastName", { required: "Last name is required" })}
+                        required
+                        placeholder="Doe"
+                        autoComplete="family-name"
+                        className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                        error={errors.lastName?.message?.toString()}
+                    />
+
                 </div>
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                    Email
-                </label>
+
                 <Input
                     id="email"
                     type="email"
+                    label="Email"
                     {...register("email", {
                         required: "Email is required",
                         pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" },
                     })}
+                    required
                     placeholder="name@example.com"
                     autoComplete="email"
                     className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
                     error={errors.email?.message?.toString()}
                 />
-                <label htmlFor="password" className="block text-sm font-medium text-white">
-                    Password
-                </label>
+
                 <Input
                     id="password"
                     type="password"
+                    label="Password"
                     {...register("password", {
                         required: "Password is required",
                         minLength: { value: 6, message: "Password must be at least 6 characters" },
                     })}
+                    required
                     placeholder="Create a password"
                     autoComplete="new-password"
                     className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
                     error={errors.password?.message?.toString()}
                 />
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-white">
-                    Confirm password
-                </label>
                 <Input
                     id="confirmPassword"
                     type="password"
+                    label="Confirm password"
                     {...register("confirmPassword", { required: "Please confirm your password" })}
+                    required={true}
                     placeholder="Re-enter your password"
                     autoComplete="new-password"
                     className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"

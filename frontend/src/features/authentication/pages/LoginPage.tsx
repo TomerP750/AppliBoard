@@ -40,32 +40,32 @@ export function LoginPage() {
                 onSubmit={handleSubmit(handleLogin)}
                 className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
             >
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                    Email
-                </label>
+                
                 <Input
                     id="email"
                     type="email"
+                    label="Email"
                     {...register("email", {
                         required: "Email is required",
                         pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email address" }
                     })}
+                    required
                     placeholder="name@example.com"
                     autoComplete="email"
                     className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
                     error={errors.email?.message?.toString()}
                 />
 
-                <label htmlFor="password" className="block text-sm font-medium text-white">
-                    Password
-                </label>
+               
                 <Input
                     id="password"
                     type="password"
+                    label="Password"
                     {...register("password", {
                         required: "Password is required",
                         minLength: { value: 6, message: "Password must be at least 6 characters" },
                     })}
+                    required
                     placeholder="Enter your password"
                     autoComplete="current-password"
                     className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"

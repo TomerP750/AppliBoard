@@ -4,6 +4,7 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
     label?: string;
     error?: string;
     helperText?: string;
+    required?: boolean;
 };
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -14,6 +15,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         id,
         className = "",
         disabled,
+        required,
         ...props
     },
     ref,
@@ -64,6 +66,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
                     className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
                 >
                     {label}
+                    {required ? <span className="text-red-500"> *</span> : null}
                 </label>
             ) : null}
 
