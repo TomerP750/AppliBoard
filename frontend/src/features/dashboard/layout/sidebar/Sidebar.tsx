@@ -18,7 +18,7 @@ export function Sidebar() {
     }
 
     return (
-        <aside className="hidden md:flex min-h-screen w-64 flex-col border-r border-zinc-200 bg-white px-5 py-6 text-zinc-900 dark:border-white/10 dark:bg-dark-background dark:text-white">
+        <aside className="hidden md:flex h-screen w-64 flex-col border-r border-zinc-200 bg-white px-5 py-6 text-zinc-900 dark:border-white/10 dark:bg-dark-background dark:text-white">
 
             {/* Brand */}
             <div className="mb-8">
