@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { BellIcon, type LucideIcon } from "lucide-react";
 import { formatDate, formatTime } from "../../../shared/util/format_dateTime";
 import { IconBadge } from "../../../shared/ui/IconBadge";
+import { NotificationMenu } from "./NotificationMenu";
 
 type DashboardHeaderProps = {
     Icon: LucideIcon;
@@ -9,6 +10,9 @@ type DashboardHeaderProps = {
 };
 
 export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
+
+    const [notificatinoMenuOpen, setNotificatinoMenuOpen] = useState<boolean>(false);
+
     const [now, setNow] = useState<Date>(new Date());
 
     useEffect(() => {
@@ -32,8 +36,12 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                 </div>
 
                 {/* Right */}
-                <div className="flex items-center gap-5">
-                    <IconBadge countTheme="danger" Icon={BellIcon} count={0} />
+                <div className="relative flex items-center gap-5">
+                    <IconBadge
+                        countTheme="danger"
+                        Icon={BellIcon} count={0}
+                        onClick={() => setNotificatinoMenuOpen(prev => !prev)}
+                    />
                     <div className="flex flex-col items-end leading-tight opacity-80">
                         <span className="text-base text-gray-600 dark:text-gray-300">
                             {formatDate(now)}
@@ -42,6 +50,9 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                             {formatTime(now)}
                         </span>
                     </div>
+
+                    <NotificationMenu open={notificatinoMenuOpen} />
+
                 </div>
 
             </div>
