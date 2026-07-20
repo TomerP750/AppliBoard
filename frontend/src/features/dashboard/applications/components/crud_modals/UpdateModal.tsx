@@ -23,7 +23,7 @@ interface UpdateModalProps {
 }
 
 const selectClasses =
-    "w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100";
+    "w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-stone-800 dark:text-zinc-100";
 
 const selectErrorClasses =
     "border-red-500 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500";
@@ -214,17 +214,16 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 border-t border-zinc-200 bg-zinc-50 px-5 py-3.5 dark:border-zinc-800 dark:bg-zinc-950/60">
+                <div className="flex justify-end gap-3 px-5 py-3.5">
                     <Button
                         type="button"
                         variant="secondary"
                         onClick={onClose}
                         disabled={isPending}
-                        className="w-full"
                     >
                         Cancel
                     </Button>
-                    <Button type="submit" loading={isPending} className="w-full">
+                    <Button type="submit" loading={isPending} >
                         Save Changes
                     </Button>
                 </div>

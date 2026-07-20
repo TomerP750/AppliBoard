@@ -55,7 +55,7 @@ export function Modal({
 
     const modalClasses = [
         "relative w-full rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl",
-        "dark:border-zinc-800 dark:bg-zinc-900",
+        "dark:border-zinc-800 dark:bg-stone-900",
         sizeClasses[size],
         className,
     ]

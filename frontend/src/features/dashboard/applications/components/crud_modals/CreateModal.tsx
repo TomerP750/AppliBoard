@@ -93,7 +93,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         <select
                             defaultValue=""
                             {...register("status", { required: "Status is required" })}
-                            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-stone-800 dark:text-zinc-100"
                         >
                             <option value="" disabled>
                                 Select status
@@ -115,7 +115,7 @@ export function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         <select
                             defaultValue=""
                             {...register("position", { required: "Position is required" })}
-                            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100"
+                            className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40 dark:border-zinc-800 dark:bg-stone-800 dark:text-zinc-100"
                         >
                             <option value="" disabled>
                                 Select position
