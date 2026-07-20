@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { LucideIcon } from "lucide-react";
+import { BellIcon, type LucideIcon } from "lucide-react";
 import { formatDate, formatTime } from "../../../shared/util/format_dateTime";
-
+import { IconBadge } from "../../../shared/ui/IconBadge";
 
 type DashboardHeaderProps = {
     Icon: LucideIcon;
@@ -32,13 +32,16 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                 </div>
 
                 {/* Right */}
-                <div className="flex flex-col items-end leading-tight opacity-80">
-                    <span className="text-base text-gray-600 dark:text-gray-300">
-                        {formatDate(now)}
-                    </span>
-                    <span className="text-base font-mono text-gray-900 dark:text-gray-100">
-                        {formatTime(now)}
-                    </span>
+                <div className="flex items-center gap-5">
+                    <IconBadge countTheme="danger" Icon={BellIcon} count={0} />
+                    <div className="flex flex-col items-end leading-tight opacity-80">
+                        <span className="text-base text-gray-600 dark:text-gray-300">
+                            {formatDate(now)}
+                        </span>
+                        <span className="text-base font-mono text-gray-900 dark:text-gray-100">
+                            {formatTime(now)}
+                        </span>
+                    </div>
                 </div>
 
             </div>
