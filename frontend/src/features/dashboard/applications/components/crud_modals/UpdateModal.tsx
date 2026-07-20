@@ -148,7 +148,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
                     <div className="grid gap-4 md:grid-cols-2 md:gap-6">
                         
                         {/* Status */}
-                        <div className="flex flex-col gap-1.5 p-3 rounded-xl">
+                        <div className="flex flex-col gap-1.5 py-2 rounded-xl">
                             <label htmlFor="update-application-status" className={fieldLabelClasses}>
                                 <FileTextIcon size={16} className={fieldIconClasses} />
                                 Status
@@ -174,7 +174,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
                         </div>
 
                         {/* Position */}
-                        <div className="flex flex-col gap-1.5 p-3">
+                        <div className="flex flex-col gap-1.5 py-2">
                             <label htmlFor="update-application-position" className={fieldLabelClasses}>
                                 <BriefcaseIcon size={16} className={fieldIconClasses} />
                                 Position
