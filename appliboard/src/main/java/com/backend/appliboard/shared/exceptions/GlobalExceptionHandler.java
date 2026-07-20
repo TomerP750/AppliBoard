@@ -1,4 +1,4 @@
-package com.backend.appliboard.shared;
+package com.backend.appliboard.shared.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

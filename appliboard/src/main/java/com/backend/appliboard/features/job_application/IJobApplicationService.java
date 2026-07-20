@@ -4,8 +4,8 @@ import com.backend.appliboard.features.job_application.dto.CreateJobApplicationD
 import com.backend.appliboard.features.job_application.dto.JobApplicationFilterDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
-import com.backend.appliboard.shared.NotFoundException;
-import com.backend.appliboard.shared.UnauthorizedException;
+import com.backend.appliboard.shared.exceptions.NotFoundException;
+import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

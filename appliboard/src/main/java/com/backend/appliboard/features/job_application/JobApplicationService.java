@@ -8,8 +8,8 @@ import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
-import com.backend.appliboard.shared.NotFoundException;
-import com.backend.appliboard.shared.UnauthorizedException;
+import com.backend.appliboard.shared.exceptions.NotFoundException;
+import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,8 +18,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Service

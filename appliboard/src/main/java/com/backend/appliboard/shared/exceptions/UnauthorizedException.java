@@ -1,4 +1,4 @@
-package com.backend.appliboard.shared;
+package com.backend.appliboard.shared.exceptions;
 
 public class UnauthorizedException extends Exception {
     public UnauthorizedException(String message) {

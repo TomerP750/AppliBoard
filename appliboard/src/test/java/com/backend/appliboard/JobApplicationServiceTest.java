@@ -12,8 +12,8 @@ import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationD
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
-import com.backend.appliboard.shared.NotFoundException;
-import com.backend.appliboard.shared.UnauthorizedException;
+import com.backend.appliboard.shared.exceptions.NotFoundException;
+import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

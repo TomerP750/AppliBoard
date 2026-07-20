@@ -2,7 +2,6 @@ package com.backend.appliboard.infrastructures.security;
 
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserRepository;
-import com.backend.appliboard.shared.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
