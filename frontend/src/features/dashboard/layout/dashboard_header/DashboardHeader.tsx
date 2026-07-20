@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { BellIcon, type LucideIcon } from "lucide-react";
-import { formatDate, formatTime } from "../../../shared/util/format_dateTime";
-import { IconBadge } from "../../../shared/ui/IconBadge";
-import { NotificationMenu } from "./NotificationMenu";
+import { formatDate, formatTime } from "../../../../shared/util/format_dateTime";
+import { IconBadge } from "../../../../shared/ui/IconBadge";
+import { NotificationMenu } from "./notifications/NotificationMenu";
 
 type DashboardHeaderProps = {
     Icon: LucideIcon;
@@ -30,7 +30,7 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                 {/* Left */}
                 <div className="flex items-center gap-3 min-w-0">
                     <Icon strokeWidth={1.2} size={30} className=" text-gray-700 dark:text-gray-200 shrink-0" />
-                    <h1 className="text-3xl font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <h1 className="text-xl lg:text-3xl font-medium text-gray-900 dark:text-gray-100 truncate">
                         {title}
                     </h1>
                 </div>
@@ -42,11 +42,11 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                         Icon={BellIcon} count={0}
                         onClick={() => setNotificatinoMenuOpen(prev => !prev)}
                     />
-                    <div className="flex flex-col items-end leading-tight opacity-80">
-                        <span className="text-base text-gray-600 dark:text-gray-300">
+                    <div className="flex flex-col items-end leading-tight text-sm lg:text-base opacity-80">
+                        <span className="text-gray-600 dark:text-gray-300">
                             {formatDate(now)}
                         </span>
-                        <span className="text-base font-mono text-gray-900 dark:text-gray-100">
+                        <span className="font-mono text-gray-900 dark:text-gray-100">
                             {formatTime(now)}
                         </span>
                     </div>

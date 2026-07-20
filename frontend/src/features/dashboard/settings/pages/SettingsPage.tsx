@@ -1,7 +1,7 @@
 import { SettingsIcon } from "lucide-react";
 import { ChangePasswordForm } from "../components/ChangePasswordForm";
 import { PersonalDetailsForm } from "../components/PersonalDetailsForm";
-import { DashboardHeader } from "../../layout/DashboardHeader";
+import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import { DeleteAccount } from "../components/DeleteAccount";
 import { DisplaySection } from "../components/DisplaySection";
 

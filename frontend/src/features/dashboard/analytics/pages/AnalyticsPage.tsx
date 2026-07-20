@@ -1,5 +1,5 @@
 import { BarChart3, Briefcase, ClockIcon, Loader2 } from "lucide-react";
-import { DashboardHeader } from "../../layout/DashboardHeader";
+import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import { StatCard } from "../components/StatCard";
 import { WeeklySentChart } from "../components/WeeklySentChart";
 import { Status } from "../../applications/models/Status";

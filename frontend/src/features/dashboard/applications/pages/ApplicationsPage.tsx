@@ -5,7 +5,7 @@ import { usePaginationMetadata } from "../../../../shared/hooks/usePaginationMet
 import { Button } from "../../../../shared/ui/Button";
 import { Pagination } from "../../../../shared/ui/Pagination";
 import { SearchInput } from "../../../../shared/ui/SearchInput";
-import { DashboardHeader } from "../../layout/DashboardHeader";
+import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import jobApplicationService from "../api/jobApplicationService";
 import { ApplicationCard } from "../components/ApplicationCard";
 import { CreateModal } from "../components/crud_modals/CreateModal";

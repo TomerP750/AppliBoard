@@ -1,5 +1,5 @@
 import { BarChart3, FileText, Settings, Sparkles } from "lucide-react";
-import { DashboardHeader } from "../../layout/DashboardHeader";
+import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import { ActionButton } from "../components/ActionButton";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../authentication/contexts/AuthContext";
