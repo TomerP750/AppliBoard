@@ -6,15 +6,13 @@ import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
 import com.backend.appliboard.features.authentication.refresh_token.RefreshTokenCookieService;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
+import com.backend.appliboard.shared.exceptions.InvalidRefreshTokenException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 
 @RestController
@@ -52,6 +50,20 @@ public class AuthController {
                         HttpHeaders.SET_COOKIE,
                         cookie.toString()
                 )
+                .body(result.authResponse());
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponseDto> refresh(@CookieValue("refreshToken") String rawToken)
+            throws InvalidRefreshTokenException, NotFoundException {
+
+        InternalAuthResult result = authService.refreshToken(rawToken);
+
+        ResponseCookie cookie =
+                refreshTokenCookieService.create(result.refreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(result.authResponse());
     }
 

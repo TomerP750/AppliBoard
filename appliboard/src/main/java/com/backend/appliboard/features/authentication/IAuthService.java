@@ -1,10 +1,10 @@
 package com.backend.appliboard.features.authentication;
 
-import com.backend.appliboard.features.authentication.dto.AuthResponseDto;
 import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
+import com.backend.appliboard.shared.exceptions.InvalidRefreshTokenException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 
 public interface IAuthService {
@@ -13,6 +13,6 @@ public interface IAuthService {
 
     InternalAuthResult signup(SignupRequestDto dto) throws InvalidInputException, FoundException;
 
-    void refreshToken();
+    InternalAuthResult refreshToken(String rawToken) throws NotFoundException, InvalidRefreshTokenException;
 
 }

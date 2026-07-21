@@ -3,6 +3,7 @@ package com.backend.appliboard.features.authentication;
 import com.backend.appliboard.features.authentication.dto.AuthResponseDto;
 import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
+import com.backend.appliboard.features.authentication.refresh_token.RefreshToken;
 import com.backend.appliboard.features.authentication.refresh_token.RefreshTokenService;
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
@@ -13,6 +14,7 @@ import com.backend.appliboard.infrastructures.security.JwtService;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
+import com.backend.appliboard.shared.exceptions.InvalidRefreshTokenException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -102,9 +106,26 @@ public class AuthService implements IAuthService {
         return new InternalAuthResult(authResponseDto, refreshToken);
     }
 
-    @Override
-    public void refreshToken() {
+    public InternalAuthResult refreshToken(String rawToken) throws NotFoundException, InvalidRefreshTokenException {
 
+        RefreshToken storedToken = refreshTokenService.validate(rawToken);
+        String newRefreshToken = refreshTokenService.rotate(rawToken);
+
+        UUID userId = UUID.fromString(storedToken.getUserId());
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        String accessToken = jwtService.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole()
+        );
+
+        return buildInternalAuthResult(
+                accessToken,
+                newRefreshToken,
+                UserMapper.toUserDto(user)
+        );
     }
 
 }
