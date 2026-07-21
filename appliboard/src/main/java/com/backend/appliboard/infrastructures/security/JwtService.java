@@ -24,15 +24,18 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    private long expirationMs = 1000 * 60 * 60;
+//    private long expirationMs = 1000 * 60 * 60;
+
+    @Value("${jwt.access-expiration-ms}")
+    private long accessTokenExpirationMs;
 
     private SecretKey getSignInKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateToken(UUID userId, String email, Role role) {
+    public String generateAccessToken(UUID userId, String email, Role role) {
         Date now = new Date(System.currentTimeMillis());
-        Date expiration = new Date(now.getTime() + expirationMs);
+        Date expiration = new Date(now.getTime() + accessTokenExpirationMs);
 
         return Jwts.builder()
                 .issuer("AppliBoard")
@@ -41,6 +44,7 @@ public class JwtService {
                 .subject(email)
                 .claim("userId", userId.toString())
                 .claim("role", role.name())
+                .claim("type",TokenType.ACCESS)
                 .signWith(getSignInKey())
                 .compact();
     }
