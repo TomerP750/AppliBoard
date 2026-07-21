@@ -15,4 +15,6 @@ public interface IAuthService {
 
     InternalAuthResult refreshToken(String rawToken) throws NotFoundException, InvalidRefreshTokenException;
 
+    void logout(String rawToken) throws InvalidRefreshTokenException;
+
 }

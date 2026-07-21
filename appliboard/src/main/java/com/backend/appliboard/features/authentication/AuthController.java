@@ -68,4 +68,19 @@ public class AuthController {
     }
 
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@CookieValue("refreshToken") String rawToken) throws InvalidRefreshTokenException {
+
+        if (rawToken != null) {
+            authService.logout(rawToken);
+        }
+
+        return ResponseEntity.noContent()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        refreshTokenCookieService.clear().toString()
+                )
+                .build();
+
+    }
 }
