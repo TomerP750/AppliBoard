@@ -4,7 +4,6 @@ import com.backend.appliboard.features.user.dto.UserDto;
 
 public record AuthResponseDto(
         String accessToken,
-        String refreshToken,
         UserDto userDto
 ) {
 }

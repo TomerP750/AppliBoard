@@ -3,6 +3,7 @@ package com.backend.appliboard.features.authentication;
 import com.backend.appliboard.features.authentication.dto.AuthResponseDto;
 import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
+import com.backend.appliboard.features.authentication.refresh_token.RefreshTokenService;
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserMapper;
@@ -10,6 +11,7 @@ import com.backend.appliboard.features.user.UserRepository;
 import com.backend.appliboard.features.user.dto.UserDto;
 import com.backend.appliboard.infrastructures.security.JwtService;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
+import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -30,10 +32,11 @@ public class AuthService implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
-    public AuthResponseDto login(LoginRequestDto dto) throws NotFoundException {
+    public InternalAuthResult login(LoginRequestDto dto) throws NotFoundException {
 
         log.info("Entering Login");
 
@@ -43,25 +46,31 @@ public class AuthService implements IAuthService {
 
         PrincipalUser principal = (PrincipalUser) auth.getPrincipal();
 
-        String token = jwtService.generateToken(principal.getUserId(), principal.getEmail(), principal.getRole());
+        String accessToken = jwtService.generateAccessToken(principal.getUserId(), principal.getEmail(), principal.getRole());
 
         log.info("Logged In Successfully");
 
         User user = userRepository.findByEmail(dto.email()).orElseThrow(() -> new NotFoundException("User not found"));
         UserDto userDto = UserMapper.toUserDto(user);
 
-        return new AuthResponseDto(token, userDto);
+        String refreshToken = refreshTokenService.issue(user.getId());
+
+        return buildInternalAuthResult(accessToken, refreshToken, userDto);
 
     }
 
     @Override
     @Transactional
-    public AuthResponseDto signup(SignupRequestDto dto) throws InvalidInputException {
+    public InternalAuthResult signup(SignupRequestDto dto) throws InvalidInputException, FoundException {
 
         log.info("Signing User Up");
 
         if (!dto.password().equals(dto.confirmPassword())) {
             throw new InvalidInputException("Passwords do not match");
+        }
+
+        if (userRepository.existsByEmail(dto.email())) {
+            throw new FoundException("Email Already Exists");
         }
 
         User user = User.builder()
@@ -74,13 +83,23 @@ public class AuthService implements IAuthService {
 
         userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getId(), user.getEmail(), Role.USER);
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), Role.USER);
 
         UserDto userDto = UserMapper.toUserDto(user);
 
+        String refreshToken = refreshTokenService.issue(user.getId());
+
         log.info("User Signed Up Successfully");
 
-        return new AuthResponseDto(token, userDto);
+        return buildInternalAuthResult(accessToken, refreshToken, userDto);
+    }
+
+    private InternalAuthResult buildInternalAuthResult(String accessToken, String refreshToken, UserDto userDto) {
+        AuthResponseDto authResponseDto = new AuthResponseDto(
+                accessToken, userDto
+        );
+
+        return new InternalAuthResult(authResponseDto, refreshToken);
     }
 
     @Override

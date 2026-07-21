@@ -62,6 +62,13 @@ public class JwtService {
         }
     }
 
+    public TokenType extractTokenType(String token) {
+
+        String type = getClaims(token).get("type", String.class);
+
+        return TokenType.valueOf(type);
+    }
+
     public UUID extractUserId(String token) {
         try {
             return UUID.fromString(getClaims(token).get("userId", String.class));
@@ -75,7 +82,9 @@ public class JwtService {
         Date expiration = getClaims(token).getExpiration();
         Date now = new Date(System.currentTimeMillis());
 
-        return !expiration.before(now);
+        TokenType type = extractTokenType(token);
+
+        return !expiration.before(now) && type == TokenType.ACCESS;
     }
 
 }
