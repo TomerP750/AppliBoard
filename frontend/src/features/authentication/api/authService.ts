@@ -14,6 +14,14 @@ class AuthService {
         return (await axios.post<AuthResponseDto>(`${baseApiUrl}/api/auth/signup`, dto)).data;
     }
 
+    async refreshToken(): Promise<AuthResponseDto> {
+        return (await axios.post<AuthResponseDto>(`${baseApiUrl}/api/auth/refresh`)).data;
+    }
+
+    async logout(): Promise<void> {
+        await axios.post(`${baseApiUrl}/api/auth/logout`);
+    }
+
 } 
 
 const authService = new AuthService();

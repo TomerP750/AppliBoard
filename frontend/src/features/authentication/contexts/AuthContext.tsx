@@ -1,13 +1,14 @@
-import { createContext, useCallback, useContext, useMemo } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import type { LoginRequestDto } from "../models/LoginRequestDto";
 import type { SignupRequestDto } from "../models/SignupRequestDto";
 import authService from "../api/authService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AuthResponseDto } from "../models/AuthResponseDto";
-import userService from "../../dashboard/settings/api/userService";
 import type { UserDto } from "../../../shared/models/UserDto";
+import { tokenStore } from "./tokenStore";
+import { registerAuthInterceptor } from "../api/registerAuthInterceptor";
+import axios from "axios";
 
-const TOKEN_STORAGE_KEY = "token";
 const USER_QUERY_KEY = ["auth", "user"] as const;
 
 type AuthState = {
@@ -38,18 +39,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
      */
     const { data: user = null, isLoading } = useQuery<UserDto | null>({
         queryKey: USER_QUERY_KEY,
-        queryFn: () => userService.me(),
-        enabled: Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
+        queryFn: async () => {
+            try {
+                const response = await authService.refreshToken();
+                tokenStore.set(response.accessToken);
+                return response.userDto;
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.status === 401) {
+                    return null;
+                }
+                throw error;
+            }
+        },
         retry: false,
         staleTime: Infinity,
     });
+
+    useEffect(() => {
+        return registerAuthInterceptor(() => {
+            queryClient.setQueryData(USER_QUERY_KEY, null);
+        });
+    }, [queryClient]);
 
     /**
      * Persists the returned JWT and seeds the user cache from an auth response,
      * keeping login and signup in sync.
      */
-    const applyAuthResponse = useCallback(({ token, userDto }: AuthResponseDto) => {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    const applyAuthResponse = useCallback(({ accessToken, userDto }: AuthResponseDto) => {
+        tokenStore.set(accessToken);
         queryClient.setQueryData(USER_QUERY_KEY, userDto);
     }, [queryClient]);
 
@@ -71,8 +88,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
      * Logs the user out locally by removing the token and clearing cached user data.
      */
     const logout = useCallback(async () => {
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-        queryClient.setQueryData(USER_QUERY_KEY, null);
+        try {
+            await authService.logout();
+        } finally {
+            tokenStore.clear();
+            queryClient.setQueryData(USER_QUERY_KEY, null);
+        }
     }, [queryClient]);
 
     const ctx = useMemo<AuthContextValues>(

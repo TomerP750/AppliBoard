@@ -1,5 +1,6 @@
 package com.backend.appliboard.shared.exceptions;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -29,13 +30,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FoundException.class)
     public ResponseEntity<String> handleExistsException(FoundException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.FOUND);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-//    @ExceptionHandler(JwtException.class)
-//    public ResponseEntity<String> handleJwtException(JwtException e) {
-//        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-//    }
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<String> handleInvalidRefreshToken(
+            InvalidRefreshTokenException exception
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<String> handleJwtException(JwtException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handle(MethodArgumentNotValidException ex) {
