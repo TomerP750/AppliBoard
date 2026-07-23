@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
 import { Button } from "../../../shared/ui/Button";
@@ -13,13 +13,15 @@ export function LoginPage() {
 
     const { login: authLogin } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/dashboard";
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginRequestDto>();
 
     const { mutate: loginUser, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, LoginRequestDto>({
         mutationFn: (dto: LoginRequestDto) => authLogin(dto),
         onSuccess: () => {
-            navigate("/dashboard");
+            navigate(from, { replace: true });
         },
         onError: (err) => {
             toast.error(err.response?.data?.message ?? "Login failed. Please try again.");
