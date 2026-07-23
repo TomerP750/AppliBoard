@@ -1,6 +1,7 @@
 package com.backend.appliboard.features.notification;
 
 import com.backend.appliboard.features.notification.dto.NotificationDto;
+import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
@@ -23,7 +24,16 @@ public class NotificationService implements INotificationService {
     private final NotificationMapper notificationMapper;
 
     @Override
-    public void createNotification(UUID userId) {
+    public void createNotification(UUID userId, String jobApplicationName) throws NotFoundException {
+
+        User user = userService.fetchUserEntity(userId);
+        Notification.builder()
+                .message("14 Days passed since last updated this job application")
+                .jobApplicationName(jobApplicationName)
+                .notificationType(NotificationType.STALE_APPLICATION)
+                .isRead(false)
+                .user(user)
+                .build();
 
     }
 

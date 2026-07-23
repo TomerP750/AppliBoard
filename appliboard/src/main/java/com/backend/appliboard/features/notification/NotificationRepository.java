@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
 
-    long countByUserIdAndIsReadFalse(UUID userId);
+    Long countByUserIdAndIsReadFalse(UUID userId);
 
     Page<Notification> findByUserId(UUID userId, Pageable pageable);
 }

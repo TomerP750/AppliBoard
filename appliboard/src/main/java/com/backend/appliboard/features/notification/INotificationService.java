@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface INotificationService {
 
-    void createNotification(UUID userId);
+    void createNotification(UUID userId, String jobApplicationName) throws NotFoundException;
 
     Page<NotificationDto> allNotifications(UUID userId, Pageable pageable);
 
