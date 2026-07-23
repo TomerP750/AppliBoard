@@ -14,9 +14,20 @@ The project is designed around a clean dashboard experience for tracking job app
 - Browse applications with paginated results and adjustable page sizes for larger job searches.
 - View analytics for total applications, weekly applications sent, status breakdowns, and daily weekly activity.
 - Use a personalized dashboard with quick access to applications, analytics, and settings.
-- Sign up and log in with JWT-based authentication and user-specific application data.
+- Sign up and log in with short-lived JWT access tokens and rotating refresh-token sessions.
+- Stay signed in across page reloads, with expired access tokens refreshed automatically and failed requests retried once.
+- Keep dashboard pages protected from unauthenticated access, with authentication-aware loading and login redirects.
+- Log out securely by revoking the active refresh token and clearing local session state.
 - Update personal details, change password, and delete an account from the settings area.
 - Work in a responsive interface with dark-mode styling and reusable UI components.
+
+## 🔐 Authentication Flow
+
+- Access tokens are kept in memory and attached to authenticated API requests.
+- Refresh tokens are hashed in MongoDB and sent through an HTTP-only, SameSite cookie.
+- Refresh tokens rotate whenever a session is restored or an access token expires.
+- The frontend restores the current user on startup and redirects unauthenticated visitors away from protected dashboard routes.
+- Logging out revokes the refresh token, clears the cookie, and removes the cached user session.
 
 ## 📁 Folder Structure
 
@@ -24,7 +35,7 @@ The project is designed around a clean dashboard experience for tracking job app
 AppliBoard/
 ├── appliboard/                  # Spring Boot backend
 │   ├── src/main/java/com/backend/appliboard/
-│   │   ├── features/            # Authentication, users, applications, analytics
+│   │   ├── features/            # Authentication, refresh tokens, users, applications, analytics
 │   │   ├── infrastructures/     # Security and JWT infrastructure
 │   │   └── shared/              # Shared exceptions and global handling
 │   ├── src/main/resources/      # Backend configuration
@@ -66,6 +77,7 @@ AppliBoard/
 **Data & Infrastructure**
 
 - MySQL
+- MongoDB
 - Redis
 - Maven
 
