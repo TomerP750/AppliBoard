@@ -8,6 +8,7 @@ type ThemeState = {
 
 type ThemeContextValues = ThemeState & {
     setTheme: (theme: Theme) => void;
+    clearTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextValues | undefined>(undefined);
@@ -33,7 +34,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         document.documentElement.classList.toggle("dark", theme === "dark");
     }, [theme]);
 
-    const ctx = { theme, setTheme };
+    const clearTheme = () => {
+        localStorage.removeItem(THEME_STORAGE_KEY);
+    }
+
+    const ctx = { theme, setTheme, clearTheme };
 
     return (
         <ThemeContext.Provider value={ctx}>

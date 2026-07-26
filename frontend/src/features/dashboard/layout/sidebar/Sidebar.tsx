@@ -1,10 +1,10 @@
-import { NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, LogOut } from "lucide-react";
-import { navItems } from "./navItems";
-import { useAuth } from "../../../authentication/contexts/AuthContext";
-import { Badge } from "../../../../shared/ui/Badge";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../../../shared/context/ThemeContext";
+import { Badge } from "../../../../shared/ui/Badge";
+import { useAuth } from "../../../authentication/contexts/AuthContext";
 import { NavItemRow } from "./NavItemRow";
+import { navItems } from "./navItems";
 
 export function Sidebar() {
 
