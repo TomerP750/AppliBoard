@@ -11,6 +11,7 @@ import { PersonalDetailsForm } from "../features/dashboard/settings/components/P
 import { ChangePasswordForm } from "../features/dashboard/settings/components/ChangePasswordForm";
 import { DeleteAccount } from "../features/dashboard/settings/components/DeleteAccount";
 import { ProtectedRoute } from "../features/authentication/components/ProtectedRoute";
+import { AiSummaryPage } from "../features/dashboard/ai_summary/pages/AiSummaryPage";
 
 const AnalyticsPage = lazy(() => import("../features/dashboard/analytics/pages/AnalyticsPage"));
 const SettingsPage = lazy(() => import("../features/dashboard/settings/pages/SettingsPage"));
@@ -31,6 +32,7 @@ export function Routing() {
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<SuspenseWrapper><DashboardIndex /></SuspenseWrapper>} />
                     <Route path="analytics" element={<SuspenseWrapper><AnalyticsPage /></SuspenseWrapper>} />
+                    <Route path="ai-summary" element={<SuspenseWrapper><AiSummaryPage /></SuspenseWrapper>} />
                     <Route path="applications" element={<SuspenseWrapper><ApplicationsPage /></SuspenseWrapper>} />
                     <Route path="settings" element={<SuspenseWrapper><SettingsPage /></SuspenseWrapper>}>
                         <Route index element={<Navigate to="display" replace />} />

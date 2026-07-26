@@ -1,6 +1,14 @@
-import { Home, Briefcase, BarChart3, Settings } from "lucide-react";
+import { BarChart3, Briefcase, Home, Settings, WandSparkles, type LucideIcon } from "lucide-react";
 
-export const navItems = [
+export type NavItem = {
+    label: string;
+    to: string;
+    icon: LucideIcon;
+    hasUpdates?: boolean;
+};
+
+
+export const navItems: NavItem[] = [
     {
         label: "Home",
         to: "/dashboard",
@@ -10,6 +18,12 @@ export const navItems = [
         label: "Applications",
         to: "/dashboard/applications",
         icon: Briefcase,
+    },
+    {
+        label: "AI Summary",
+        to: "/dashboard/ai-summary",
+        icon: WandSparkles,
+        hasUpdates: true,
     },
     {
         label: "Analytics",
