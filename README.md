@@ -1,59 +1,68 @@
-# 📋 AppliBoard
+# AppliBoard
 
-## 🔎 Overview
+A full-stack job application tracker that helps candidates organize applications, monitor progress, and understand their job-search activity from one dashboard.
 
-AppliBoard is a full-stack job application tracking project built to help candidates organize their search with clarity and control. It brings applications, statuses, favorites, search, filtering, analytics, and account management into one focused workspace.
+AppliBoard was built as a portfolio project to demonstrate feature-based frontend architecture, REST API design, relational and document data storage, secure token-based authentication, and responsive UI development.
 
-The project is designed around a clean dashboard experience for tracking job applications in one place.
+## Features
 
-## ✨ Features
+### Application management
 
-- Track job applications with company name, city, role type, status, favorite state, and application date.
-- Manage applications through create, edit, delete, and favorite actions from a card-based dashboard.
-- Search and filter applications by company name, role, status, favorites, and newest or oldest application date.
-- Browse applications with paginated results and adjustable page sizes for larger job searches.
-- View analytics for total applications, weekly applications sent, status breakdowns, and daily weekly activity.
-- Use a personalized dashboard with quick access to applications, analytics, and settings.
-- Sign up and log in with short-lived JWT access tokens and rotating refresh-token sessions.
-- Stay signed in across page reloads, with expired access tokens refreshed automatically and failed requests retried once.
-- Keep dashboard pages protected from unauthenticated access, with authentication-aware loading and login redirects.
-- Log out securely by revoking the active refresh token and clearing local session state.
-- Update personal details, change password, and delete an account from the settings area.
-- Work in a responsive interface with dark-mode styling and reusable UI components.
+- Create, edit, and delete job applications.
+- Record the company, city, position type, status, application date, and personal notes.
+- Mark important applications as favorites.
+- View notes and stale-application indicators directly from application cards.
 
-## 🔐 Authentication Flow
+### Search and organization
 
-- Access tokens are kept in memory and attached to authenticated API requests.
-- Refresh tokens are hashed in MongoDB and sent through an HTTP-only, SameSite cookie.
-- Refresh tokens rotate whenever a session is restored or an access token expires.
-- The frontend restores the current user on startup and redirects unauthenticated visitors away from protected dashboard routes.
-- Logging out revokes the refresh token, clears the cookie, and removes the cached user session.
+- Search applications by company name.
+- Filter by status, position type, and favorite state.
+- Sort by newest or oldest application date.
+- Navigate paginated results and choose the page size.
 
-## 📁 Folder Structure
+### Dashboard and analytics
 
-```text
-AppliBoard/
-├── appliboard/                  # Spring Boot backend
-│   ├── src/main/java/com/backend/appliboard/
-│   │   ├── features/            # Authentication, refresh tokens, users, applications, analytics
-│   │   ├── infrastructures/     # Security and JWT infrastructure
-│   │   └── shared/              # Shared exceptions and global handling
-│   ├── src/main/resources/      # Backend configuration
-│   └── src/test/java/           # Backend tests
-├── frontend/                    # React frontend
-│   └── src/
-│       ├── features/            # Home, auth, dashboard, applications, analytics, settings
-│       ├── layout/              # App layout and routing
-│       └── shared/              # Reusable UI, hooks, models, utilities, context
-└── README.md
-```
+- View a personalized dashboard with quick links to the main areas of the app.
+- Review recent activity generated when applications are created, updated, or deleted.
+- Track total applications, applications sent this week, status distribution, and weekly activity.
+- Visualize application data with responsive charts.
 
-## 🛠️ Tech Stack
+### Authentication and account management
 
-**Frontend**
+- Create an account, sign in, and sign out.
+- Protect dashboard routes from unauthenticated access.
+- Restore authenticated sessions after a page refresh.
+- Update personal details, change the account password, or delete the account.
+- Switch between light and dark themes.
 
-- React 19
-- TypeScript
+### Notifications
+
+The notification foundation currently includes backend endpoints for paginated notifications, unread counts, and read-state updates, together with a dashboard notification menu. Automated stale-application reminder generation and live frontend API integration are still in progress.
+
+## Architecture
+
+The repository contains two applications:
+
+- `frontend` — a React single-page application organized by feature.
+- `appliboard` — a Spring Boot REST API organized into controller, service, repository, DTO, and domain layers.
+
+Application and user data are stored in MySQL. Refresh-token sessions are stored as hashed values in MongoDB. The frontend communicates with the API through Axios and uses TanStack Query to manage server state.
+
+## Authentication Flow
+
+1. The user signs up or logs in.
+2. The API returns a short-lived JWT access token and sets a refresh token in an HTTP-only, SameSite cookie.
+3. The frontend keeps the access token in memory and attaches it to protected requests.
+4. When an access token expires, the frontend requests a rotated token and retries the failed request once.
+5. Logging out revokes the refresh token, clears its cookie, and removes the local session state.
+
+Passwords are hashed with BCrypt, protected endpoints use stateless Spring Security, and users can access only their own application data.
+
+## Tech Stack
+
+### Frontend
+
+- React 19 and TypeScript
 - Vite
 - React Router
 - TanStack Query
@@ -63,7 +72,7 @@ AppliBoard/
 - Recharts
 - Lucide React
 
-**Backend**
+### Backend
 
 - Java 17
 - Spring Boot
@@ -71,17 +80,37 @@ AppliBoard/
 - Spring Security
 - Spring Data JPA
 - Spring Validation
-- JWT authentication
+- JWT
 - Lombok
+- Maven
 
-**Data & Infrastructure**
+### Data and testing
 
 - MySQL
 - MongoDB
-- Redis
-- Maven
-
-**Testing**
-
 - JUnit 5
 - Mockito
+
+## Project Structure
+
+```text
+AppliBoard/
+├── appliboard/
+│   ├── src/main/java/com/backend/appliboard/
+│   │   ├── features/            # Domain features and REST endpoints
+│   │   ├── infrastructures/     # Security and JWT infrastructure
+│   │   └── shared/              # Shared exceptions and error handling
+│   ├── src/main/resources/      # Spring configuration
+│   └── src/test/java/           # Backend tests
+├── frontend/
+│   └── src/
+│       ├── features/            # Feature-specific pages, components, and APIs
+│       ├── layout/              # Application routing
+│       └── shared/              # Shared UI, models, hooks, contexts, and utilities
+└── README.md
+```
+
+
+## Current Status
+
+Core application tracking, authentication, analytics, activity history, account settings, responsive navigation, and theme switching are implemented. The notification workflow remains under active development.
