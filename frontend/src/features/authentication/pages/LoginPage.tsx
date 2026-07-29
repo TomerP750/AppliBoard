@@ -40,7 +40,7 @@ export function LoginPage() {
             </h1>
             <form
                 onSubmit={handleSubmit(handleLogin)}
-                className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
+                className="w-md max-w-2xl space-y-5 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
             >
                 
                 <Input

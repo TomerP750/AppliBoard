@@ -7,7 +7,7 @@ export function DeviceMenu() {
         bottom-0 left-0 right-0 
         bg-white dark:bg-dark-background w-screen">
 
-            <ul className="min-w-0 grid grid-cols-4 text-zinc-900 dark:text-white">
+            <ul className="min-w-0 grid grid-cols-5 text-zinc-900 dark:text-white">
                 {navItems.map((ni) => {
                     const Icon = ni.icon;
                     return (

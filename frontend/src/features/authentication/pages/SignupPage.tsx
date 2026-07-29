@@ -38,7 +38,7 @@ export function SignupPage() {
             </h1>
             <form
                 onSubmit={handleSubmit(handleSignup)}
-                className="w-md max-w-2xl space-y-5 rounded-2xl border border-white/10 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
+                className="w-md max-w-2xl space-y-5 p-6 shadow-2xl backdrop-blur-lg sm:p-8"
             >
                 <div className="grid gap-5 sm:grid-cols-2">
                     
@@ -50,11 +50,9 @@ export function SignupPage() {
                         required
                         placeholder="John"
                         autoComplete="given-name"
-                        className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                        className="bg-transparent! text-white placeholder:text-zinc-300"
                         error={errors.firstName?.message?.toString()}
                     />
-
-
 
                     <Input
                         id="lastName"
@@ -64,7 +62,7 @@ export function SignupPage() {
                         required
                         placeholder="Doe"
                         autoComplete="family-name"
-                        className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                        className="bg-transparent! text-white placeholder:text-zinc-300"
                         error={errors.lastName?.message?.toString()}
                     />
 
@@ -81,7 +79,7 @@ export function SignupPage() {
                     required
                     placeholder="name@example.com"
                     autoComplete="email"
-                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    className="bg-transparent! text-white placeholder:text-zinc-300"
                     error={errors.email?.message?.toString()}
                 />
 
@@ -96,7 +94,7 @@ export function SignupPage() {
                     required
                     placeholder="Create a password"
                     autoComplete="new-password"
-                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    className="bg-transparent! text-white placeholder:text-zinc-300"
                     error={errors.password?.message?.toString()}
                 />
                 <Input
@@ -107,7 +105,7 @@ export function SignupPage() {
                     required={true}
                     placeholder="Re-enter your password"
                     autoComplete="new-password"
-                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    className="bg-transparent! text-white placeholder:text-zinc-300"
                     error={errors.confirmPassword?.message?.toString()}
                 />
                 <p className="text-center text-sm text-white/90">
