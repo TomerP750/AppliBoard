@@ -1,11 +1,13 @@
 import { CalendarDays, History, Sparkles, WandSparkles } from "lucide-react";
-import { Button } from "../../../../shared/ui/Button";
-import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../../../../../shared/ui/Button";
+import { DashboardHeader } from "../../../layout/dashboard_header/DashboardHeader";
 import { AnalysisSummary } from "../components/AnalysisSummary";
 import { dummyAiSummary } from "../data/dummyAiSummary";
 
-
 export function AiSummaryPage() {
+    const navigate = useNavigate();
+
     return (
         <section className="min-h-screen bg-zinc-100 p-4 pb-28 dark:bg-dark-background sm:p-6 md:pb-8 lg:p-8">
             <DashboardHeader Icon={WandSparkles} title="Monthly Analysis" />
@@ -41,6 +43,7 @@ export function AiSummaryPage() {
                             <Button
                                 variant="headless"
                                 leftIcon={<History className="size-4.5 text-indigo-200" />}
+                                onClick={() => navigate("/dashboard/ai-summary/history")}
                                 className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             >
                                 View previous summaries
