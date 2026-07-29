@@ -1,6 +1,7 @@
 import { CalendarDays, Sparkles, WandSparkles } from "lucide-react";
 import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import { AnalysisSummary } from "../components/AnalysisSummary";
+import { dummyAiSummary } from "../data/dummyAiSummary";
 
 
 export function AiSummaryPage() {
@@ -37,7 +38,7 @@ export function AiSummaryPage() {
                     </div>
                 </section>
 
-                <AnalysisSummary />
+                <AnalysisSummary analysis={dummyAiSummary} />
             </main>
         </section>
     );

@@ -1,27 +1,38 @@
-import { CheckCircle2, Lightbulb, TrendingUp } from "lucide-react";
+import { AlertCircle, CheckCircle2, Lightbulb, type LucideIcon } from "lucide-react";
+import { NoteType, type AiSummaryResponse } from "../models/AiSummaryResponse";
 
-const highlights = [
-    {
-        icon: TrendingUp,
-        title: "Strong momentum",
-        text: "Your application activity increased and remained consistent throughout the month.",
-        style: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300",
-    },
-    {
+type AnalysisSummaryProps = {
+    analysis: AiSummaryResponse;
+};
+
+const noteStyles: Record<
+    NoteType,
+    { label: string; icon: LucideIcon; container: string; iconStyle: string; labelStyle: string }
+> = {
+    [NoteType.STRENGTH]: {
+        label: "Strength",
         icon: CheckCircle2,
-        title: "Quality is improving",
-        text: "Applications with personalized notes received more positive responses.",
-        style: "bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-300",
+        container: "border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10",
+        iconStyle: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300",
+        labelStyle: "text-emerald-700 dark:text-emerald-300",
     },
-    {
+    [NoteType.OPPORTUNITY]: {
+        label: "Opportunity",
         icon: Lightbulb,
-        title: "Suggested next step",
-        text: "Follow up on pending applications after five business days.",
-        style: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300",
+        container: "border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10",
+        iconStyle: "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+        labelStyle: "text-amber-700 dark:text-amber-300",
     },
-];
+    [NoteType.CONCERN]: {
+        label: "Concern",
+        icon: AlertCircle,
+        container: "border-red-200 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10",
+        iconStyle: "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300",
+        labelStyle: "text-red-700 dark:text-red-300",
+    },
+};
 
-export function AnalysisSummary() {
+export function AnalysisSummary({ analysis }: AnalysisSummaryProps) {
     return (
         <article className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-sm shadow-zinc-200/50 dark:border-white/8 dark:bg-zinc-900/70 dark:shadow-none">
             <div className="border-b border-zinc-100 px-5 py-5 dark:border-zinc-800 sm:px-7">
@@ -42,25 +53,33 @@ export function AnalysisSummary() {
 
             <div className="px-5 py-6 sm:px-7 sm:py-7">
                 <p className="text-base leading-8 text-zinc-600 dark:text-zinc-300 sm:text-lg">
-                    You made steady progress this month, with stronger consistency and a noticeable improvement in
-                    response quality. Personalized applications performed best, especially those sent during the
-                    middle of the week. Your next opportunity is to follow up with employers more consistently and
-                    keep prioritizing roles that closely match your experience.
+                    {analysis.summaryParagraph}
                 </p>
 
-                <div className="mt-7 grid grid-cols-1 gap-3 md:grid-cols-3">
-                    {highlights.map(({ icon: Icon, title, text, style }) => (
-                        <section
-                            key={title}
-                            className="rounded-2xl border border-zinc-100 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-white/3"
-                        >
-                            <span className={`grid size-9 place-items-center rounded-xl ${style}`}>
-                                <Icon className="size-4.5" strokeWidth={1.8} />
-                            </span>
-                            <h3 className="mt-4 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
-                            <p className="mt-1.5 text-sm leading-6 text-zinc-500 dark:text-zinc-400">{text}</p>
-                        </section>
-                    ))}
+                <div className="mt-7 grid grid-cols-1 gap-3">
+                    {analysis.notes.map((note, index) => {
+                        const style = noteStyles[note.type];
+                        const Icon = style.icon;
+
+                        return (
+                            <section
+                                key={`${note.type}-${index}`}
+                                className={`flex items-start gap-4 rounded-2xl border p-4 ${style.container}`}
+                            >
+                                <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${style.iconStyle}`}>
+                                    <Icon className="size-4.5" strokeWidth={1.8} />
+                                </span>
+                                <div>
+                                    <h3 className={`text-xs font-semibold uppercase tracking-[0.14em] ${style.labelStyle}`}>
+                                        {style.label}
+                                    </h3>
+                                    <p className="mt-1.5 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
+                                        {note.content}
+                                    </p>
+                                </div>
+                            </section>
+                        );
+                    })}
                 </div>
             </div>
         </article>
