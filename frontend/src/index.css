@@ -10,10 +10,14 @@
   --color-dark-background: #070a12;
 }
 
-* {
+/* * {
   font-family: "outfit", sans-serif;
-}
+} */
 
 select {
   border: none !important;
+}
+
+body {
+  font-family: "Inter", sans-serif;
 }
