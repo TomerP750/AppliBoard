@@ -28,7 +28,7 @@ export function NavItemRow({ item }: NavItemRowProps) {
                 </span>
 
                 {item.hasUpdates && (
-                    <div className="ml-auto w-2 h-2 bg-brand-primary rounded-full" />
+                    <div title="New Summary Available" className="ml-auto w-2 h-2 bg-brand-primary rounded-full" />
                 )}
             </div>
         </NavLink>

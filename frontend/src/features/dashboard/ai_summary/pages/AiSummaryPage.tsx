@@ -1,4 +1,5 @@
-import { CalendarDays, Sparkles, WandSparkles } from "lucide-react";
+import { CalendarDays, History, Sparkles, WandSparkles } from "lucide-react";
+import { Button } from "../../../../shared/ui/Button";
 import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import { AnalysisSummary } from "../components/AnalysisSummary";
 import { dummyAiSummary } from "../data/dummyAiSummary";
@@ -28,13 +29,23 @@ export function AiSummaryPage() {
                             </p>
                         </div>
 
-                        <button
-                            type="button"
-                            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-black/20 transition-colors hover:bg-indigo-50 sm:w-auto"
-                        >
-                            <Sparkles className="size-4.5 text-indigo-600" />
-                            Analyze this month
-                        </button>
+                        <div className="flex w-full shrink-0 flex-col gap-2.5 sm:w-auto">
+                            <Button
+                                variant="headless"
+                                loading={false}
+                                leftIcon={<Sparkles className="size-4.5 text-indigo-600" />}
+                                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-lg shadow-black/20 transition-colors hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Analyze this month
+                            </Button>
+                            <Button
+                                variant="headless"
+                                leftIcon={<History className="size-4.5 text-indigo-200" />}
+                                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                            >
+                                View previous summaries
+                            </Button>
+                        </div>
                     </div>
                 </section>
 
