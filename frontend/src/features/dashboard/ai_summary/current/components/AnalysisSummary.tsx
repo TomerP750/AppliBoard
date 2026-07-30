@@ -1,5 +1,6 @@
 import type { AiSummaryResponse } from "../models/AiSummaryResponse";
 import { AnalysisNote } from "./AnalysisNote";
+import { TrendBadge } from "./TrendBadge";
 
 type AnalysisSummaryProps = {
     analysis: AiSummaryResponse;
@@ -18,9 +19,7 @@ export function AnalysisSummary({ analysis }: AnalysisSummaryProps) {
                             Your monthly summary
                         </h2>
                     </div>
-                    <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-                        Analysis complete
-                    </span>
+                    <TrendBadge trend={analysis.trend} />
                 </div>
             </div>
 

@@ -26,6 +26,7 @@ export const navItems: NavItem[] = [
         to: "/dashboard/ai-summary",
         icon: WandSparkles,
         hasUpdates: true,
+        end: false,
     },
     {
         label: "Analytics",

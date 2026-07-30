@@ -1,4 +1,4 @@
-import { NoteType } from "../../current/models/AiSummaryResponse";
+import { NoteType, SummaryTrend } from "../../current/models/AiSummaryResponse";
 import type { AiSummaryHistoryItem } from "../models/AiSummaryHistoryItem";
 
 export const dummyAiSummaryHistory: AiSummaryHistoryItem[] = [
@@ -14,6 +14,7 @@ export const dummyAiSummaryHistory: AiSummaryHistoryItem[] = [
             { type: NoteType.OPPORTUNITY, content: "Prioritize roles matching your recent experience." },
             { type: NoteType.CONCERN, content: "Four applications remained pending without follow-up." },
         ],
+        trend: SummaryTrend.UP,
     },
     {
         id: "summary-may-2026",
@@ -26,6 +27,7 @@ export const dummyAiSummaryHistory: AiSummaryHistoryItem[] = [
             { type: NoteType.STRENGTH, content: "More applications included personalized notes." },
             { type: NoteType.OPPORTUNITY, content: "Spread applications more evenly across each week." },
         ],
+        trend: SummaryTrend.NEUTRAL,
     },
     {
         id: "summary-april-2026",
@@ -39,5 +41,6 @@ export const dummyAiSummaryHistory: AiSummaryHistoryItem[] = [
             { type: NoteType.OPPORTUNITY, content: "Narrow your search to the most relevant roles." },
             { type: NoteType.CONCERN, content: "The application-to-response ratio was below your target." },
         ],
+        trend: SummaryTrend.DOWN,
     },
 ];

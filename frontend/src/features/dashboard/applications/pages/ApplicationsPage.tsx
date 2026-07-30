@@ -12,6 +12,7 @@ import { CreateModal } from "../components/crud_modals/CreateModal";
 import { EmptyApplications } from "../components/EmptyApplications";
 import { FilterMenu } from "../components/FilterMenu";
 import { useApplicationsFilters } from "../hooks/useApplicationsFilters";
+import { LoadingPage } from "../../../../shared/ui/LoadingPage";
 
 
 export default function ApplicationsPage() {
@@ -109,7 +110,7 @@ export default function ApplicationsPage() {
                 />
 
                 {isLoading ? (
-                    <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">{requestedName ? "Searching applications..." : "Loading applications..."}</p>
+                    <LoadingPage title="Loading applications..."/>
                 ) : isError ? (
                     <p className="mt-6 text-sm text-rose-600 dark:text-rose-400">Could not load applications.</p>
                 ) : empty ? (

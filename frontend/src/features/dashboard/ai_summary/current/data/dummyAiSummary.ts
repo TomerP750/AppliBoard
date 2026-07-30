@@ -1,4 +1,4 @@
-import { NoteType, type AiSummaryResponse } from "../models/AiSummaryResponse";
+import { NoteType, SummaryTrend, type AiSummaryResponse } from "../models/AiSummaryResponse";
 
 export const dummyAiSummary: AiSummaryResponse = {
     summaryParagraph:
@@ -17,4 +17,5 @@ export const dummyAiSummary: AiSummaryResponse = {
             content: "Several pending applications have not received a follow-up after five business days.",
         },
     ],
+    trend: SummaryTrend.UP,
 };
