@@ -12,7 +12,7 @@ export function NavItemRow({ item }: NavItemRowProps) {
         <NavLink
             key={item.to}
             to={item.to}
-            end
+            end={item.end ?? true}
             className={({ isActive }) =>
                 `group flex items-center px-3 py-2 rounded-lg transition text-sm font-medium ${isActive
                     ? "relative before:absolute before:left-0 before:top-0 before:h-full before:w-0.5 before:bg-brand-primary bg-zinc-100 text-zinc-950 dark:bg-white/10 dark:text-white"

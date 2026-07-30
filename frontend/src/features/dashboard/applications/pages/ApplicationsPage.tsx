@@ -56,7 +56,10 @@ export default function ApplicationsPage() {
 
                     <Button
                         className="rounded-none!"
-                        onClick={() => setAddModalOpen(true)}
+                        onClick={() => {
+                            setIsFilterMenuOpen(false);
+                            setAddModalOpen(true);
+                        }}
                         leftIcon={<Plus
                             size={16} />}>
                         Add Application
@@ -113,9 +116,9 @@ export default function ApplicationsPage() {
                     <EmptyApplications />
                 ) : (
                     <>
-                        <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
-                            Total applications{" "}
-                            <span className="ml-1 font-semibold text-zinc-900 dark:text-white">
+                        <p className="mt-6 text-xs text-indigo-200 uppercase tracking-[0.16em]">
+                            Total applications: 
+                            <span className="ml-1 font-semibold">
                                 {applications?.page.totalElements}
                             </span>
                         </p>

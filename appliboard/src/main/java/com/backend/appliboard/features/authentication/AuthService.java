@@ -131,8 +131,6 @@ public class AuthService implements IAuthService {
     @Override
     public void logout(String rawToken) throws InvalidRefreshTokenException {
 
-        RefreshToken refreshToken = refreshTokenService.validate(rawToken);
-
         refreshTokenService.revoke(rawToken);
     }
 

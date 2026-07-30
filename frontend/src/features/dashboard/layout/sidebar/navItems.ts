@@ -5,6 +5,8 @@ export type NavItem = {
     to: string;
     icon: LucideIcon;
     hasUpdates?: boolean;
+    /** Set to false for items whose route has children, so they stay active on nested paths. */
+    end?: boolean;
 };
 
 
@@ -34,5 +36,6 @@ export const navItems: NavItem[] = [
         label: "Settings",
         to: "/dashboard/settings",
         icon: Settings,
+        end: false,
     },
 ];

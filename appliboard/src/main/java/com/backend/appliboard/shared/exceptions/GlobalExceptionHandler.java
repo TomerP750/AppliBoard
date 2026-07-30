@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -26,6 +27,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleNotFoundException(FoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(FoundException.class)
@@ -54,6 +60,11 @@ public class GlobalExceptionHandler {
                         .map(err -> err.getField() + " -> " + err.getDefaultMessage())
                         .toList()
         );
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<String> handleMissingCookie(MissingRequestCookieException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token is missing");
     }
 
     @ExceptionHandler(AuthenticationException.class)

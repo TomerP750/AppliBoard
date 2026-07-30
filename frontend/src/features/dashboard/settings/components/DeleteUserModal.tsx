@@ -20,7 +20,7 @@ export function DeleteUserModal({ isOpen, onClose }: DeleteUserModalProps) {
     const { mutate: deleteUser, isPending } = useMutation<void, AxiosError<ApiErrorResponse>, void>({
         mutationFn: () => userService.deleteUser(),
         onSuccess: () => {
-            navigate("/");
+            navigate("/auth/login");
             onClose();
             toast.success("User deleted successfully.");
         },

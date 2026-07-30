@@ -54,7 +54,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDto> refresh(@CookieValue("refreshToken") String rawToken)
+    public ResponseEntity<AuthResponseDto> refresh(@CookieValue(name = "refreshToken") String rawToken)
             throws InvalidRefreshTokenException, NotFoundException {
 
         InternalAuthResult result = authService.refreshToken(rawToken);
@@ -69,9 +69,10 @@ public class AuthController {
 
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue("refreshToken") String rawToken) throws InvalidRefreshTokenException {
+    public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken", required = false) String rawToken)
+            throws InvalidRefreshTokenException {
 
-        if (rawToken != null) {
+        if (rawToken != null && !rawToken.isBlank()) {
             authService.logout(rawToken);
         }
 
