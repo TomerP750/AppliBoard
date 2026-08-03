@@ -30,7 +30,7 @@ export function DashboardHeader({ Icon, title }: DashboardHeaderProps) {
                 {/* Left */}
                 <div className="flex items-center gap-3 min-w-0">
                     <Icon strokeWidth={1.2} size={30} className=" text-gray-700 dark:text-gray-200 shrink-0" />
-                    <h1 className="text-xl lg:text-3xl font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <h1 className="uppercase text-sm tracking-[0.15em] font-medium text-gray-900 dark:text-gray-100 truncate">
                         {title}
                     </h1>
                 </div>

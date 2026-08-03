@@ -1,12 +1,20 @@
 import type { AiSummaryResponse } from "../models/AiSummaryResponse";
 import { AnalysisNote } from "./AnalysisNote";
+import { EmptyAnalysis } from "./EmptyAnalysis";
 import { TrendBadge } from "./TrendBadge";
 
 type AnalysisSummaryProps = {
-    analysis: AiSummaryResponse;
+    analysis: AiSummaryResponse | null;
 };
 
 export function AnalysisSummary({ analysis }: AnalysisSummaryProps) {
+
+    if (!analysis) {
+        return (
+            <EmptyAnalysis />
+        );
+    }
+
     return (
         <article className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-sm shadow-zinc-200/50 dark:border-white/8 dark:bg-zinc-900/70 dark:shadow-none">
             <div className="border-b border-zinc-100 px-5 py-5 dark:border-zinc-800 sm:px-7">

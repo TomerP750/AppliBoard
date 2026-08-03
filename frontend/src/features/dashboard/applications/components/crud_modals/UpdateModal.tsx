@@ -104,7 +104,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
                             </div>
                         </div>
 
-                        <div className="hidden max-w-56 rounded-xl border border-zinc-200 bg-white/80 px-3 py-2 text-right text-xs text-zinc-500 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400 sm:block">
+                        <div className="hidden max-w-56 rounded-xl px-3 py-2 text-right text-xs text-zinc-500 shadow-sm backdrop-blur dark:text-zinc-400 sm:block">
                             <p className="font-medium uppercase tracking-wide">Editing</p>
                             <p className="mt-0.5 truncate text-sm font-semibold normal-case tracking-normal text-zinc-950 dark:text-zinc-50">
                                 {application.name}
