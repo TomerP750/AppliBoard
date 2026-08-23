@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import type { Position } from "../models/Position";
 import type { Status } from "../models/Status";
 import { getSearchParamNumber } from "../utils/getSearchParamNumber";
-import type { SearchJobApplicationsParams } from "../api/jobApplicationService";
+import type { AllJobApplicationsParams } from "../api/jobApplicationService";
 
 const DEFAULT_APPLICATIONS_PAGE = 0;
 const DEFAULT_APPLICATIONS_PAGE_SIZE = 12;
@@ -34,7 +34,7 @@ export function useApplicationsFilters() {
         ? requestedPageSizeParam
         : DEFAULT_APPLICATIONS_PAGE_SIZE;
 
-    const searchApplicationsParams: SearchJobApplicationsParams = {
+    const allJobApplicationsParams: AllJobApplicationsParams = {
         name: requestedName || undefined,
         statuses: requestedStatuses.length ? requestedStatuses : undefined,
         positions: requestedPositions.length ? requestedPositions : undefined,
@@ -149,7 +149,7 @@ export function useApplicationsFilters() {
         requestedSort,
         requestedPage,
         requestedPageSize,
-        searchApplicationsParams,
+        allJobApplicationsParams,
         APPLICATIONS_PAGE_SIZE_OPTIONS,
         DEFAULT_APPLICATIONS_PAGE,
         DEFAULT_APPLICATIONS_PAGE_SIZE,

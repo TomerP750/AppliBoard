@@ -20,7 +20,7 @@ export default function ApplicationsPage() {
     const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
 
-    const { searchApplicationsParams,
+    const { allJobApplicationsParams,
         requestedName,
         showFavoritesOnly,
         requestedStatuses,
@@ -37,8 +37,8 @@ export default function ApplicationsPage() {
         updatePositionFilter } = useApplicationsFilters();
 
     const { data: applications, isLoading, isError } = useQuery({
-        queryKey: ["applications", searchApplicationsParams],
-        queryFn: () => jobApplicationService.searchJobApplications(searchApplicationsParams),
+        queryKey: ["applications", allJobApplicationsParams],
+        queryFn: () => jobApplicationService.allJobApplications(allJobApplicationsParams),
         staleTime: 1000 * 60 * 5
     });
 

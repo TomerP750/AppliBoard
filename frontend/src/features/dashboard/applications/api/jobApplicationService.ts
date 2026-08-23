@@ -7,7 +7,7 @@ import type { JobApplicationDto } from "../models/JobApplicationDto";
 import type { Position } from "../models/Position";
 import type { Status } from "../models/Status";
 
-export type SearchJobApplicationsParams = {
+export type AllJobApplicationsParams = {
     name?: string;
     statuses?: Status[];
     positions?: Position[];
@@ -19,12 +19,8 @@ export type SearchJobApplicationsParams = {
 
 class JobApplicationService {
 
-    async allJobApplications(page: number = 0, size: number = 10): Promise<PageResponse<JobApplicationDto>> {
-        return (await axios.get(`${baseApiUrl}/api/ja/all?page=${page}&size=${size}`)).data;
-    }
-
-    async searchJobApplications(params: SearchJobApplicationsParams): Promise<PageResponse<JobApplicationDto>> {
-        return (await axios.get(`${baseApiUrl}/api/ja/search`, {
+    async allJobApplications(params: AllJobApplicationsParams = {}): Promise<PageResponse<JobApplicationDto>> {
+        return (await axios.get(`${baseApiUrl}/api/ja/all`, {
             params,
             paramsSerializer: {
                 indexes: null,
