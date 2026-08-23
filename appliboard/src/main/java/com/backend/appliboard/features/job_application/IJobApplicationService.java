@@ -13,9 +13,12 @@ import java.util.UUID;
 
 public interface IJobApplicationService {
 
-    Page<JobApplicationDto> allJobApplications(UUID userId, Pageable pageable);
-
-    Page<JobApplicationDto> searchJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable);
+    /**
+     * Returns a page of job applications for the specified user.
+     * When {@code filterDto} is null or all of its fields are empty, every application for the user is returned.
+     * Otherwise only applications matching the provided name, statuses, positions, or favorite flag are returned.
+     */
+    Page<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filterDto, Pageable pageable);
 
     JobApplicationDto oneJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException;
 

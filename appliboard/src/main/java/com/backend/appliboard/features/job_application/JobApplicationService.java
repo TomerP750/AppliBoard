@@ -31,32 +31,24 @@ public class JobApplicationService implements IJobApplicationService {
 
 
     @Override
-    public Page<JobApplicationDto> allJobApplications(UUID userId, Pageable pageable) {
-
+    public Page<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
         log.info("Fetching Job Applications");
 
-        Page<JobApplication> applications = jobApplicationRepository.findByUserId(userId, pageable);
+        Specification<JobApplication> specification = JobApplicationSpecifications.belongsToUser(userId);
+
+        if (filters != null) {
+            specification = specification
+                    .and(JobApplicationSpecifications.nameContains(filters.name()))
+                    .and(JobApplicationSpecifications.hasStatuses(filters.statuses()))
+                    .and(JobApplicationSpecifications.hasPositions(filters.positions()))
+                    .and(JobApplicationSpecifications.hasFavorite(filters.isFavorite()));
+        }
+
+        Page<JobApplication> applications = jobApplicationRepository.findAll(specification, pageable);
 
         log.info("Fetched Job Applications");
 
         return applications.map(JobApplicationMapper::toDto);
-    }
-
-    @Override
-    public Page<JobApplicationDto> searchJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
-        log.info("Searching Job Applications");
-
-        Specification<JobApplication> specification = JobApplicationSpecifications.belongsToUser(userId)
-                .and(JobApplicationSpecifications.nameContains(filters.name()))
-                .and(JobApplicationSpecifications.hasStatuses(filters.statuses()))
-                .and(JobApplicationSpecifications.hasPositions(filters.positions()))
-                .and(JobApplicationSpecifications.hasFavorite(filters.isFavorite()));
-
-        Page<JobApplication> filteredApplications = jobApplicationRepository.findAll(specification, pageable);
-
-        log.info("Searched Job Applications");
-
-        return filteredApplications.map(JobApplicationMapper::toDto);
     }
 
     @Override

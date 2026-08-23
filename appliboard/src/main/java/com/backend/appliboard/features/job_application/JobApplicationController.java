@@ -37,29 +37,18 @@ public class JobApplicationController {
 
     @GetMapping("/all")
     public Page<JobApplicationDto> allJobApplications(@AuthenticationPrincipal PrincipalUser user,
+                                                      @RequestParam(name = "name", required = false) String name,
+                                                      @RequestParam(name = "statuses", required = false) List<Status> statuses,
+                                                      @RequestParam(name = "positions", required = false) List<Position> positions,
+                                                      @RequestParam(name = "favorites", required = false) Boolean favorites,
+                                                      @RequestParam(name = "sort", defaultValue = "newest") String sort,
                                                       @RequestParam(name = "page", defaultValue = "0") int page,
                                                       @RequestParam(name = "size", defaultValue = "10") int size) {
 
-        Pageable pageable = createApplicationsPageable(page, size, "newest");
-        UUID userId = user.getUserId();
-        return jobApplicationService.allJobApplications(userId, pageable);
-    }
-
-    @GetMapping("/search")
-    public Page<JobApplicationDto> searchJobApplications(@AuthenticationPrincipal PrincipalUser user,
-                                                         @RequestParam(name = "name", required = false) String name,
-                                                         @RequestParam(name = "statuses", required = false) List<Status> statuses,
-                                                         @RequestParam(name = "positions", required = false) List<Position> positions,
-                                                         @RequestParam(name = "favorites", required = false) Boolean favorites,
-                                                         @RequestParam(name = "sort", defaultValue = "newest") String sort,
-                                                         @RequestParam(name = "page", defaultValue = "0") int page,
-                                                         @RequestParam(name = "size", defaultValue = "10") int size) {
-
         Pageable pageable = createApplicationsPageable(page, size, sort);
         JobApplicationFilterDto filters = new JobApplicationFilterDto(name, statuses, positions, favorites);
-
         UUID userId = user.getUserId();
-        return jobApplicationService.searchJobApplications(userId, filters, pageable);
+        return jobApplicationService.allJobApplications(userId, filters, pageable);
     }
 
     @GetMapping("/{jobApplicationId}")
