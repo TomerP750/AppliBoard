@@ -9,6 +9,8 @@ public record AnalyticsDto(
         Long totalApplicationsSent,
         Long weeklyApplicationsSent,
         Map<Status, Long> countByStatus,
-        Map<DayOfWeek, Long> weeklyApplicationsByDay
+        Map<DayOfWeek, Long> weeklyApplicationsByDay,
+        Long totalMonthlySent,
+        Map<Integer, Long> totalMonthlyResponses
 ) {
 }

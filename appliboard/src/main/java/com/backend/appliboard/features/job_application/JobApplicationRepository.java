@@ -19,6 +19,13 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
             Instant startOfNextWeek
     );
 
+    Long countByUserIdAndAppliedAtGreaterThanEqualAndAppliedAtLessThanAndStatusNot(
+            UUID userId,
+            Instant startOfMonth,
+            Instant startOfNextMonth,
+            Status pendingStatus
+    );
+
     @Query("""
             SELECT j.status AS status, COUNT(j) AS count
             FROM JobApplication j
@@ -41,6 +48,22 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
             @Param("startOfNextWeek") Instant startOfNextWeek
     );
 
+    @Query("""
+            SELECT FUNCTION('DAYOFMONTH', j.appliedAt) AS dayOfMonth, COUNT(j) AS count
+            FROM JobApplication j
+            WHERE j.user.id = :userId
+            AND j.appliedAt >= :startOfMonth
+            AND j.appliedAt < :startOfNextMonth
+            AND j.status <> :pendingStatus
+            GROUP BY FUNCTION('DAYOFMONTH', j.appliedAt)
+            """)
+    List<DayOfMonthCount> countResponsesByDayForCurrentMonth(
+            @Param("userId") UUID userId,
+            @Param("startOfMonth") Instant startOfMonth,
+            @Param("startOfNextMonth") Instant startOfNextMonth,
+            @Param("pendingStatus") Status pendingStatus
+    );
+
     interface StatusCount {
         Status getStatus();
 
@@ -49,6 +72,12 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
 
     interface DayCount {
         Integer getDayOfWeek();
+
+        Long getCount();
+    }
+
+    interface DayOfMonthCount {
+        Integer getDayOfMonth();
 
         Long getCount();
     }

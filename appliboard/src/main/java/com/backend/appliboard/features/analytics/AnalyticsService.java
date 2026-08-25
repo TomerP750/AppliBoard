@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 @Service
@@ -29,7 +30,9 @@ public class AnalyticsService implements IAnalyticsService {
                 getTotalApplicationSent(userId),
                 getWeeklyApplicationsSent(userId),
                 getCountByStatus(userId),
-                getWeeklyApplicationsByDay(userId)
+                getWeeklyApplicationsByDay(userId),
+                getTotalMonthlySent(userId),
+                getTotalMonthlyResponses(userId)
         );
     }
 
@@ -48,6 +51,35 @@ public class AnalyticsService implements IAnalyticsService {
         );
     }
 
+    private Long getTotalMonthlySent(UUID userId) {
+        Instant startOfMonth = getStartOfCurrentMonth();
+        Instant startOfNextMonth = getStartOfNextMonth(startOfMonth);
+
+        return jobApplicationRepository.countByUserIdAndAppliedAtGreaterThanEqualAndAppliedAtLessThanAndStatusNot(
+                userId,
+                startOfMonth,
+                startOfNextMonth,
+                Status.PENDING
+        );
+    }
+
+    private Map<Integer, Long> getTotalMonthlyResponses(UUID userId) {
+        Instant startOfMonth = getStartOfCurrentMonth();
+        Instant startOfNextMonth = getStartOfNextMonth(startOfMonth);
+        Map<Integer, Long> countByDay = createEmptyMonthCountMap();
+
+        for (JobApplicationRepository.DayOfMonthCount dayCount : jobApplicationRepository.countResponsesByDayForCurrentMonth(
+                userId,
+                startOfMonth,
+                startOfNextMonth,
+                Status.PENDING
+        )) {
+            countByDay.put(dayCount.getDayOfMonth(), dayCount.getCount());
+        }
+
+        return countByDay;
+    }
+
     private Map<Status, Long> getCountByStatus(UUID userId) {
         Map<Status, Long> countByStatus = createEmptyStatusCountMap();
         addSavedStatusCounts(userId, countByStatus);
@@ -55,6 +87,7 @@ public class AnalyticsService implements IAnalyticsService {
         return countByStatus;
     }
 
+    //TODO add cache with redis
     private Map<DayOfWeek, Long> getWeeklyApplicationsByDay(UUID userId) {
         Instant startOfWeek = getStartOfCurrentWeek();
         Instant startOfNextWeek = getStartOfNextWeek(startOfWeek);
@@ -100,10 +133,32 @@ public class AnalyticsService implements IAnalyticsService {
                 .toInstant();
     }
 
+    private Instant getStartOfCurrentMonth() {
+        ZoneId zoneId = ZoneId.systemDefault();
+        LocalDate firstOfMonth = LocalDate.now(zoneId).withDayOfMonth(1);
+
+        return firstOfMonth.atStartOfDay(zoneId).toInstant();
+    }
+
+    private Instant getStartOfNextMonth(Instant startOfMonth) {
+        return startOfMonth.atZone(ZoneId.systemDefault())
+                .plusMonths(1)
+                .toInstant();
+    }
+
     private Map<DayOfWeek, Long> createEmptyWeekCountMap() {
         Map<DayOfWeek, Long> countByDay = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             countByDay.put(dayOfWeek, 0L);
+        }
+
+        return countByDay;
+    }
+
+    private Map<Integer, Long> createEmptyMonthCountMap() {
+        Map<Integer, Long> countByDay = new TreeMap<>();
+        for (int day = 1; day <= 31; day++) {
+            countByDay.put(day, 0L);
         }
 
         return countByDay;

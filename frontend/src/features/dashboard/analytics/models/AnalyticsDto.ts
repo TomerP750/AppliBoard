@@ -15,5 +15,7 @@ export interface AnalyticsDto {
     weeklyApplicationsSent: number;
     countByStatus: Record<Status, number>;
     weeklyApplicationsByDay: Record<DayOfWeek, number>;
-    
+    totalMonthlySent: number;
+    totalMonthlyResponses: Record<number, number>;
+
 }

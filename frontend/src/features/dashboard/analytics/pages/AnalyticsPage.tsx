@@ -1,7 +1,8 @@
-import { BarChart3, Briefcase, ClockIcon, Loader2 } from "lucide-react";
+import { BarChart3, Briefcase, ClockIcon, Loader2, MessageSquare } from "lucide-react";
 import { DashboardHeader } from "../../layout/dashboard_header/DashboardHeader";
 import { StatCard } from "../components/StatCard";
 import { WeeklySentChart } from "../components/WeeklySentChart";
+import { MonthlyResponsesChart } from "../components/MonthlyResponsesChart";
 import { Status } from "../../applications/models/Status";
 import { useQuery } from "@tanstack/react-query";
 import analyticsService from "../api/analyticsService";
@@ -25,7 +26,7 @@ export default function AnalyticsPage() {
     </div>
     );
 
-    const { totalApplicationsSent, weeklyApplicationsByDay, weeklyApplicationsSent, countByStatus }: AnalyticsDto = analytics;
+    const { totalApplicationsSent, weeklyApplicationsByDay, weeklyApplicationsSent, totalMonthlySent, totalMonthlyResponses, countByStatus }: AnalyticsDto = analytics;
 
     return (
         <section className="min-h-screen p-6 pb-24 md:pb-6 bg-zinc-100 dark:bg-dark-background">
@@ -60,6 +61,17 @@ export default function AnalyticsPage() {
                 </span>
                 
                 <WeeklySentChart weeklyApplicationsByDay={weeklyApplicationsByDay}  />
+
+                <span className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
+                        <MessageSquare className="w-5 h-5" /> Responses this month:
+                        <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            {totalMonthlySent}
+                        </span>
+                    </h2>
+                </span>
+
+                <MonthlyResponsesChart totalMonthlyResponses={totalMonthlyResponses} />
             </section>
 
 
