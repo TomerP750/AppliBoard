@@ -5,6 +5,7 @@ import com.backend.appliboard.features.job_application.JobApplicationRepository;
 import com.backend.appliboard.features.job_application.Status;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -25,6 +26,7 @@ public class AnalyticsService implements IAnalyticsService {
     private final JobApplicationRepository jobApplicationRepository;
 
     @Override
+    @Cacheable(cacheNames = "analytics", key = "#userId")
     public AnalyticsDto getAnalytics(UUID userId) {
         return new AnalyticsDto(
                 getTotalApplicationSent(userId),

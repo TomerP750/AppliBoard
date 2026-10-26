@@ -9,6 +9,9 @@ import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +35,7 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @Cacheable(cacheNames = "users", key = "#userId")
     public UserDto me(UUID userId) throws NotFoundException {
         User user = fetchUserEntity(userId);
         return UserMapper.toUserDto(user);
@@ -39,6 +43,10 @@ public class UserService implements IUserService{
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "principal", key = "#userId"),
+            @CacheEvict(cacheNames = "user-me", key = "#userId")
+    })
     public void updateUser(UUID userId, UpdateUserDto dto) throws NotFoundException, UnauthorizedException, FoundException {
 
         User user = fetchUserEntity(userId);
