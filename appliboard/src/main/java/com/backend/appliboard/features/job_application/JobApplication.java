@@ -35,6 +35,7 @@ public class JobApplication {
     private Status status;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 32)
     private Position position;
 
     private Boolean isFavorite;

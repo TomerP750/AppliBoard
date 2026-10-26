@@ -87,7 +87,7 @@ public class AnalyticsService implements IAnalyticsService {
         return countByStatus;
     }
 
-    //TODO add cache with redis
+
     private Map<DayOfWeek, Long> getWeeklyApplicationsByDay(UUID userId) {
         Instant startOfWeek = getStartOfCurrentWeek();
         Instant startOfNextWeek = getStartOfNextWeek(startOfWeek);

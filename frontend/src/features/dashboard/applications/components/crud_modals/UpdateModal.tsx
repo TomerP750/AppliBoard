@@ -72,6 +72,7 @@ export function UpdateModal({ application, isOpen, onClose }: UpdateModalProps) 
     });
 
     const handleUpdate = (dto: UpdateJobApplicationDto) => {
+        console.log(dto);
         updateJobApplication(dto);
     };
 
