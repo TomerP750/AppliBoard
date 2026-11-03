@@ -18,6 +18,9 @@ const AnalyticsPage = lazy(() => import("../features/dashboard/analytics/pages/A
 const SettingsPage = lazy(() => import("../features/dashboard/settings/pages/SettingsPage"));
 const ApplicationsPage = lazy(() => import("../features/dashboard/applications/pages/ApplicationsPage"));
 const DashboardIndex = lazy(() => import("../features/dashboard/index/pages/DashboardIndex"));
+const CvHelperPage = lazy(() => import("../features/cv_helper/pages/CvHelperPage"));
+const CreateCvPage = lazy(() => import("../features/cv_helper/pages/CreateCvPage"));
+const AdjustCvPage = lazy(() => import("../features/cv_helper/pages/AdjustCvPage"));
 
 export function Routing() {
     return (
@@ -33,6 +36,11 @@ export function Routing() {
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route index element={<SuspenseWrapper><DashboardIndex /></SuspenseWrapper>} />
                     <Route path="analytics" element={<SuspenseWrapper><AnalyticsPage /></SuspenseWrapper>} />
+                    <Route path="cv-helper">
+                        <Route index element={<SuspenseWrapper><CvHelperPage /></SuspenseWrapper>} />
+                        <Route path="create" element={<SuspenseWrapper><CreateCvPage /></SuspenseWrapper>} />
+                        <Route path="adjust" element={<SuspenseWrapper><AdjustCvPage /></SuspenseWrapper>} />
+                    </Route>
                     <Route path="ai-summary" element={<SuspenseWrapper><AiSummaryPage /></SuspenseWrapper>} />
                     <Route path="ai-summary/history" element={<SuspenseWrapper><AiSummaryHistoryPage /></SuspenseWrapper>} />
                     <Route path="applications" element={<SuspenseWrapper><ApplicationsPage /></SuspenseWrapper>} />
