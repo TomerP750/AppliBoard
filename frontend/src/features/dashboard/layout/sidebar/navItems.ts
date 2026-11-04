@@ -1,4 +1,4 @@
-import { BarChart3, Briefcase, Home, Settings, WandSparkles, type LucideIcon } from "lucide-react";
+import { BarChart3, Briefcase, BriefcaseBusiness, Home, Notebook, Settings, WandSparkles, type LucideIcon } from "lucide-react";
 
 export type NavItem = {
     label: string;
@@ -27,6 +27,17 @@ export const navItems: NavItem[] = [
         icon: WandSparkles,
         hasUpdates: true,
         end: false,
+    },
+    {
+        label: "CV Helper",
+        to: "/dashboard/cv-helper",
+        icon: Notebook,
+        end: false,
+    },
+    {
+        label: "Daily Jobs Listing",
+        to: "/dashboard/daily",
+        icon: BriefcaseBusiness,
     },
     {
         label: "Analytics",
