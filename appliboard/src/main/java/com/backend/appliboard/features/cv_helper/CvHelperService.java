@@ -1,5 +1,6 @@
 package com.backend.appliboard.features.cv_helper;
 
+import com.backend.appliboard.features.cv_helper.dto.CreateNewCvRequest;
 import com.backend.appliboard.features.cv_helper.dto.CvAdjustRequest;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,12 @@ public class CvHelperService {
 
     public String adjustCv(CvAdjustRequest request) throws InvalidInputException {
         String originalText = extractCvText(request.cvPdf());
-        validateCvText(originalText);
+        if (!isValidCvText(originalText)) {
+            String message = originalText.isBlank()
+                    ? "No readable text was found. Upload a text-based CV PDF."
+                    : "The CV contains too much text";
+            throw new InvalidInputException(message);
+        }
 
         String layoutInstructions = getLayoutInstructions(request.cvLayout());
         String userMessage = buildAdjustmentMessage(
@@ -45,6 +51,10 @@ public class CvHelperService {
         );
 
         return generateAdjustedCv(userMessage);
+    }
+
+    public String createNewCvFromScratch(CreateNewCvRequest request) {
+        return "";
     }
 
     private String extractCvText(MultipartFile cvPdf) {
@@ -59,16 +69,8 @@ public class CvHelperService {
                 .collect(Collectors.joining("\n\n"));
     }
 
-    private void validateCvText(String originalText) throws InvalidInputException {
-        if (originalText.isBlank()) {
-            throw new InvalidInputException(
-                    "No readable text was found. Upload a text-based CV PDF."
-            );
-        }
-
-        if (originalText.length() > 40_000) {
-            throw new InvalidInputException("The CV contains too much text");
-        }
+    private boolean isValidCvText(String originalText) {
+        return !originalText.isBlank() && originalText.length() <= 40_000;
     }
 
     private String getLayoutInstructions(CvLayout requestedLayout) {
