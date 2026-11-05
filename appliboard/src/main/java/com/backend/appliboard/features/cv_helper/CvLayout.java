@@ -1,4 +1,4 @@
-package com.backend.appliboard.features.my_cv_helper;
+package com.backend.appliboard.features.cv_helper;
 
 public enum CvLayout {
     SINGLE_COLUMN,

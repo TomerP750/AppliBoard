@@ -1,4 +1,4 @@
-package com.backend.appliboard.features.my_cv_helper.dto;
+package com.backend.appliboard.features.cv_helper.dto;
 
 import java.util.Set;
 
