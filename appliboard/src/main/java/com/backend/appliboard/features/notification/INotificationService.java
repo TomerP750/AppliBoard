@@ -1,6 +1,7 @@
 package com.backend.appliboard.features.notification;
 
 import com.backend.appliboard.features.notification.dto.NotificationDto;
+import com.backend.appliboard.features.notification.event.StaleApplicationEvent;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public interface INotificationService {
 
-    void createNotification(UUID userId, String jobApplicationName) throws NotFoundException;
+    void createNotification(StaleApplicationEvent event) throws NotFoundException;
 
     Page<NotificationDto> allNotifications(UUID userId, Pageable pageable);
 
