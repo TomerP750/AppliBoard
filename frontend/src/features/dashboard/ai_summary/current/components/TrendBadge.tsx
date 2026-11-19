@@ -1,8 +1,8 @@
-import type { SummaryTrend } from "../models/AiSummaryResponse";
+import type { ReviewTrend } from "../models/ReviewTrend";
 import { getTrendStyle } from "../../shared/utils/getTrendStyle";
 
 type TrendBadgeProps = {
-    trend: SummaryTrend;
+    trend: ReviewTrend;
 };
 
 export function TrendBadge({ trend }: TrendBadgeProps) {
@@ -12,7 +12,7 @@ export function TrendBadge({ trend }: TrendBadgeProps) {
         <span
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${container}`}
         >
-            <Icon className={`size-4 ${iconStyle}`} strokeWidth={2} />
+            <Icon className={`size-4 ${iconStyle}`} strokeWidth={2} aria-hidden="true" />
             {label}
         </span>
     );

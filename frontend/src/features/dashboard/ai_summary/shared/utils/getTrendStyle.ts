@@ -1,5 +1,5 @@
 import { TrendingDown, TrendingUp, Minus, type LucideIcon } from "lucide-react";
-import { SummaryTrend } from "../../current/models/AiSummaryResponse";
+import { ReviewTrend } from "../../current/models/ReviewTrend";
 
 export type TrendStyle = {
     label: string;
@@ -10,11 +10,11 @@ export type TrendStyle = {
     hover: string;
 };
 
-export function getTrendStyle(trend: SummaryTrend): TrendStyle {
+export function getTrendStyle(trend: ReviewTrend): TrendStyle {
     switch (trend) {
-        case SummaryTrend.UP:
+        case ReviewTrend.UP:
             return {
-                label: "Trending up",
+                label: "More than last week",
                 icon: TrendingUp,
                 container:
                     "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300",
@@ -22,9 +22,9 @@ export function getTrendStyle(trend: SummaryTrend): TrendStyle {
                 accent: "bg-emerald-500",
                 hover: "hover:border-emerald-300 hover:shadow-emerald-200/50 dark:hover:border-emerald-500/40",
             };
-        case SummaryTrend.DOWN:
+        case ReviewTrend.DOWN:
             return {
-                label: "Trending down",
+                label: "Fewer than last week",
                 icon: TrendingDown,
                 container:
                     "border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300",
@@ -34,7 +34,7 @@ export function getTrendStyle(trend: SummaryTrend): TrendStyle {
             };
         default:
             return {
-                label: "Holding steady",
+                label: "Same as last week",
                 icon: Minus,
                 container:
                     "border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-white/15 dark:bg-white/5 dark:text-white",
