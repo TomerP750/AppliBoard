@@ -11,7 +11,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "notifications")
+@Table(name = "notifications",
+        indexes = @Index(name = "idx_notification_jobapp_created",
+                columnList = "jobApplicationId, createdAt"))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,6 +27,8 @@ public class Notification {
     private UUID id;
 
     private String message;
+
+    private UUID jobApplicationId;
 
     private String jobApplicationName;
 

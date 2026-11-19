@@ -11,7 +11,9 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "job_applications")
+@Table(name = "job_applications",
+        indexes = @Index(name = "idx_jobapp_status_updated",
+                columnList = "status, updatedAt"))
 @Getter
 @Setter
 @NoArgsConstructor

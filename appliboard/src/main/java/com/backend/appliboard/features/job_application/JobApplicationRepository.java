@@ -1,5 +1,6 @@
 package com.backend.appliboard.features.job_application;
 
+import com.backend.appliboard.features.notification.event.StaleApplicationEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,28 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
             Instant startOfMonth,
             Instant startOfNextMonth,
             Status pendingStatus
+    );
+
+    /**
+     * Applications not updated since {@code cutoff}, in one of {@code activeStatuses},
+     * that have no notification created since their last update (prevents daily duplicates).
+     * Selects only the fields the event needs (no entity loading, no join to users).
+     */
+    @Query("""
+            SELECT new com.backend.appliboard.features.notification.event.StaleApplicationEvent(
+                       j.user.id, j.id, j.name, j.updatedAt)
+            FROM JobApplication j
+            WHERE j.updatedAt < :cutoff
+              AND j.status IN :activeStatuses
+              AND NOT EXISTS (
+                  SELECT n FROM Notification n
+                  WHERE n.jobApplicationId = j.id
+                    AND n.createdAt >= j.updatedAt
+              )
+            """)
+    List<StaleApplicationEvent> findStaleWithoutNotification(
+            @Param("cutoff") Instant cutoff,
+            @Param("activeStatuses") List<Status> activeStatuses
     );
 
     @Query("""
