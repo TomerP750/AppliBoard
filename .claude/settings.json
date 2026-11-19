@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "ask": [
+      "Bash",
+      "PowerShell",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(npm install *)",
+      "Bash(npm i *)",
+      "Bash(npm ci *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm update *)",
+      "Bash(npx *)",
+      "Bash(pip install *)",
+      "Bash(winget *)",
+      "Bash(choco *)",
+      "Bash(docker *)",
+      "Bash(docker-compose *)",
+      "Bash(git push *)",
+      "Bash(gh workflow run *)",
+      "Bash(gh pr merge *)",
+      "PowerShell(npm install *)",
+      "PowerShell(npm i *)",
+      "PowerShell(npm ci *)",
+      "PowerShell(npm uninstall *)",
+      "PowerShell(npm update *)",
+      "PowerShell(npx *)",
+      "PowerShell(pip install *)",
+      "PowerShell(winget *)",
+      "PowerShell(choco *)",
+      "PowerShell(docker *)",
+      "PowerShell(docker-compose *)",
+      "PowerShell(git push *)",
+      "PowerShell(gh workflow run *)",
+      "PowerShell(gh pr merge *)",
+      "Read(**/.env)",
+      "Read(**/.env.*)"
+    ]
+  }
+}
