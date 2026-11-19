@@ -41,7 +41,7 @@ export function ActionButton({ title, Icon, onClick, color, description }: Actio
             overflow-hidden rounded-xl border border-black/10 
             bg-white p-5 shadow-sm transition 
             hover:scale-105 
-            dark:border-white/10 dark:bg-[#0d111d]"
+            dark:border-white/10 dark:bg-dark-surface"
         >
             <div className={`absolute -right-10 -bottom-10 h-28 w-28 rounded-full blur-3xl ${accentClasses.glow}`} />
             <Icon

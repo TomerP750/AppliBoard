@@ -23,12 +23,12 @@ export function MonthlyResponsesChart({ totalMonthlyResponses }: MonthlyResponse
                         allowDecimals={false}
                         label={{ value: "Responses", position: "top", offset: 14, dx: 28 }}
                     />
-                    <CartesianGrid stroke="#ccc" />
+                    <CartesianGrid stroke="var(--chart-grid)" />
                     <Tooltip
                         formatter={(value) => [value, "Responses"]}
                         labelFormatter={(day) => `Day ${day}`}
                     />
-                    <Line type="monotone" dataKey="responses" stroke="#22c55e" dot />
+                    <Line type="monotone" dataKey="responses" stroke="var(--color-brand-accent)" dot />
                 </LineChart>
             </ResponsiveContainer>
         </figure>
