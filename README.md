@@ -1,96 +1,139 @@
 # AppliBoard
 
-> A full-stack job application tracker for organizing opportunities, monitoring progress, and understanding job-search activity.
+> A full-stack job application tracker with AI-written weekly reviews, scheduled stale-application reminders, and analytics. It helps job seekers keep their search organized, consistent and moving forward.
+
+**React 19 · TypeScript · Spring Boot 4 · Java 17 · Spring Security + JWT · Spring AI (Anthropic) · MySQL · MongoDB**
 
 ## Overview
 
-AppliBoard brings application tracking, search, analytics, activity history, and account management into a single responsive dashboard. The project demonstrates feature-based frontend organization, layered REST API design, secure token-based authentication, and persistence across relational and document databases.
+Job seekers apply to many positions across many sites and quickly lose track of where they applied, what stage each application is in, and which ones went silent. AppliBoard brings application tracking, search, analytics, activity history, AI insights and account management into one responsive dashboard.
+
+The project focuses on clean, production-style engineering:
+
+- Feature-based modules on both the frontend and the backend.
+- A layered REST API (controller → service interface → implementation → repository) with DTOs and mappers at the boundary.
+- Secure token-based authentication with rotating refresh tokens.
+- Persistence across a relational database (MySQL) and a document database (MongoDB).
+- AI integration that is validated, fails safely, and never invents the numbers it reports.
 
 ## Key Features
 
-- **Application management** — Create, edit, delete, and favorite job applications while recording company, location, position, status, date, and notes.
-- **Search and filtering** — Search by company, filter by status, position, or favorites, and sort by application date.
-- **Pagination** — Browse large application collections with configurable page sizes.
-- **Dashboard** — Access key areas quickly and review recent create, update, and delete activity.
-- **Analytics** — Monitor totals, weekly submissions, status distribution, and daily activity through responsive charts.
-- **Stale tracking** — Identify applications that have not been updated recently.
-- **Authentication** — Sign up, sign in, restore sessions, and access protected dashboard routes.
-- **Account settings** — Update personal details, change passwords, delete accounts, and select a light or dark theme.
-- **Responsive interface** — Use desktop sidebar navigation or a mobile-friendly bottom menu.
+### Job search tracking
 
-## Notification Status
+- **Application management**: create, edit, delete and favorite job applications, recording company, location, position, status, date and notes.
+- **Search, filter and sort**: search by company, filter by status, position or favorites, and sort by application date.
+- **Pagination**: browse large application lists with configurable page sizes.
+- **Dashboard and activity feed**: quick actions plus a history of recent create, update and delete activity.
+- **Analytics**: totals, weekly submissions, status distribution, and daily and monthly activity in responsive Recharts charts.
 
-Notification infrastructure is under development. The backend supports paginated results, unread counts, and read-state updates, while the dashboard includes the initial notification menu. Automated stale-application reminders and live frontend integration are planned next.
+### AI weekly review
 
-## Architecture
+A weekly AI review of the user's application consistency, built with **Spring AI** and **Anthropic**.
 
-The React client communicates with a layered Spring Boot REST API through Axios, with TanStack Query managing server state. MySQL stores application data, while MongoDB stores hashed refresh-token sessions.
+- **Numbers come from code, words come from the AI.** The backend computes the stats itself (applications per day, weekly total, the previous week's total, active days, longest streak and an up/down/neutral trend), and the model only writes the summary and notes around them.
+- **Structured, validated output.** The AI response is mapped to a typed DTO and checked with Bean Validation: a non-blank summary with a length limit and 1–5 notes, each tagged `GOOD`, `NEUTRAL` or `IMPROVE`. Invalid notes are dropped, and an unusable answer is rejected.
+- **One review per week.** A review window resets every Sunday at 08:00 and analyzes the full Sunday-to-Saturday week before it. A service-level check and a unique database index on (user, window) prevent duplicates, including concurrent requests.
+- **No database connection held during the AI call.** Review generation deliberately runs outside a transaction, because the model call can take several seconds.
+- **Safe failure.** If AI is not configured or the call fails, the API returns `503 Service Unavailable` with a friendly message instead of internal details.
+- **Review history**: a paginated list of past weekly reviews.
+- **Frontend**: a Weekly Review page and a History page built with TanStack Query, with loading, error and retry states.
+
+### Stale-application reminders
+
+- A **daily scheduled job** (`@Scheduled`, 09:00 server time) finds active applications (pending, in progress or interview scheduled) that haven't been updated for **14 days**.
+- For each one it sends an email reminder and creates an in-app notification.
+- **Idempotent by design**: the query skips any application that already has a notification since its last update, so a reminder is never sent twice. One failing item is logged and doesn't stop the rest of the run.
+- Email delivery goes through an `EmailSender` interface. The current implementation (`LoggingEmailSender`) logs the email, so a real provider can be added without changing callers.
+- The notification API supports paginated results, unread counts and marking notifications as read.
+
+### Accounts and UI
+
+- **Authentication**: sign up, sign in, restore sessions and protect dashboard routes.
+- **Account settings**: update personal details, change password, delete the account, and choose a light or dark theme.
+- **Responsive interface**: desktop sidebar navigation and a mobile bottom menu.
+- **Route-level code splitting** with `React.lazy` and `Suspense`.
 
 ## Security and Session Management
 
-- Short-lived JWT access tokens are stored in memory.
-- Refresh tokens are hashed in MongoDB and delivered through HTTP-only, SameSite cookies.
-- Expired sessions are refreshed automatically, with failed requests retried once.
-- Refresh tokens rotate during session restoration and token renewal.
-- BCrypt secures passwords, and Spring Security protects user-specific resources.
-- Logout revokes the active refresh token and clears both cookie and client session state.
+- Short-lived JWT access tokens are kept in memory on the client.
+- Refresh tokens are hashed in MongoDB and sent in HTTP-only, SameSite cookies.
+- Refresh tokens rotate on session restore and token renewal.
+- Expired sessions are refreshed automatically, and the failed request is retried once.
+- Logout revokes the active refresh token and clears the cookie and the client session state.
+- Passwords are hashed with BCrypt, and Spring Security scopes every resource to the authenticated user.
+- A global exception handler maps domain exceptions to consistent HTTP responses (400, 401, 404, 409, 503).
+
+## Architecture
+
+```text
+React SPA (Vite, TypeScript)
+        │  Axios + TanStack Query
+        ▼
+Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifications, weekly reviews)
+        │            ──▶ MongoDB  (hashed refresh-token sessions)
+        ├── @Scheduled job        (stale applications → notification + email reminder)
+        └── Spring AI (Anthropic) (weekly review, CV adjustment)
+```
 
 ## Technology Stack
 
-### Frontend
+| Layer | Technologies |
+| --- | --- |
+| **Frontend** | React 19, TypeScript, Vite, React Router, TanStack Query, React Hook Form, Axios, Tailwind CSS, Recharts, Lucide React |
+| **Backend** | Java 17, Spring Boot 4, Spring MVC, Spring Security, Spring Data JPA, Spring Data MongoDB, Spring Validation, Spring AI, JWT, Lombok, Maven |
+| **Data** | MySQL, MongoDB |
+| **Testing** | JUnit 5, Mockito |
+| **CI** | GitHub Actions (backend unit tests and build, triggered manually) |
 
-- React 19
-- TypeScript
-- Vite
-- React Router
-- TanStack Query
-- React Hook Form
-- Axios
-- Tailwind CSS
-- Recharts
-- Lucide React
+## Testing
 
-### Backend
+The backend has JUnit 5 and Mockito unit tests for the core services and the weekly review logic:
 
-- Java 17
-- Spring Boot
-- Spring MVC
-- Spring Security
-- Spring Data JPA
-- Spring Validation
-- JWT
-- Lombok
-- Maven
+- `JobApplicationServiceTest` and `UserServiceTest`
+- `WeeklyReviewServiceTest`: generation, duplicate prevention and history
+- `WeeklyReviewWindowTest`: window boundaries, tested with a fixed `Clock`
+- `WeeklyConsistencyStatsTest`: totals, active days, streaks and trend
+- `WeeklyReviewAiWriterTest`: AI output validation and failure handling
 
-### Data
-
-- MySQL
-- MongoDB
-
-### Testing
-
-- JUnit 5
-- Mockito
+```bash
+cd appliboard
+./mvnw test
+```
 
 ## Project Structure
 
 ```text
 AppliBoard/
-├── appliboard/                         # Spring Boot REST API
+├── appliboard/                          # Spring Boot REST API
 │   ├── src/main/java/com/backend/appliboard/
-│   │   ├── features/                  # Auth, users, applications, analytics, activity, notifications
-│   │   ├── infrastructures/           # JWT and Spring Security
-│   │   └── shared/                    # Exceptions and global error handling
-│   ├── src/main/resources/            # Backend configuration
-│   └── src/test/java/                 # Backend tests
-├── frontend/                          # React single-page application
+│   │   ├── features/                   # authentication, user, job_application, analytics,
+│   │   │                               # activity, notification, weekly_review, cv_helper
+│   │   ├── infrastructures/            # JWT, Spring Security and AI configuration
+│   │   └── shared/                     # exceptions and global error handling
+│   ├── src/main/resources/             # configuration and AI prompt templates
+│   └── src/test/java/                  # unit tests
+├── frontend/                           # React single-page application
 │   └── src/
-│       ├── features/                  # Home, authentication, dashboard, applications, analytics, settings
-│       ├── layout/                    # Application routing
-│       └── shared/                    # Reusable UI, models, contexts, and utilities
+│       ├── features/                   # home, authentication, dashboard (applications,
+│       │                               # analytics, ai_summary, settings), cv_helper
+│       ├── layout/                     # application routing
+│       └── shared/                     # reusable UI, models, contexts and utilities
+├── docs/PRD.md                         # product requirements and roadmap
 └── README.md
 ```
 
 ## Project Status
 
-Application tracking, authentication, analytics, activity history, account settings, responsive navigation, and theme support are implemented. The notification workflow remains in active development.
+| Area | Status |
+| --- | --- |
+| Authentication, application management, search and pagination | Done |
+| Dashboard, activity feed and analytics | Done |
+| Account settings, theming and responsive navigation | Done |
+| AI weekly review and history | Done |
+| Stale-application reminder job and notification API | Done |
+| Notification menu connected to the live API | In progress |
+| Real email provider (currently a logging sender) | Planned |
+| CV helper: AI CV adjustment from an uploaded PDF and a job description | In progress: the backend endpoint is in place and the frontend UI is not connected yet |
+| CV helper: create a new CV from scratch | Planned |
+
+See [`docs/PRD.md`](docs/PRD.md) for the full requirements and roadmap.
