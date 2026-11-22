@@ -6,6 +6,8 @@ import com.backend.appliboard.features.weekly_review.WeeklyReviewAiWriter;
 import com.backend.appliboard.features.weekly_review.dto.AiWeeklyReviewResult;
 import com.backend.appliboard.features.weekly_review.dto.ReviewNoteDto;
 import com.backend.appliboard.shared.exceptions.AiUnavailableException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,12 +50,15 @@ public class WeeklyReviewAiWriterTest {
     @Mock
     private ObjectProvider<ChatClient> chatClientProvider;
 
+    /** A real validator, so the tests check the actual rules on the DTOs. */
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
+
     private WeeklyReviewAiWriter weeklyReviewAiWriter;
     private WeeklyConsistencyStats stats;
 
     @BeforeEach
     public void setUp() {
-        weeklyReviewAiWriter = new WeeklyReviewAiWriter(chatClientProvider);
+        weeklyReviewAiWriter = new WeeklyReviewAiWriter(chatClientProvider, VALIDATOR);
 
         Map<DayOfWeek, Long> countByDay = new EnumMap<>(DayOfWeek.class);
         countByDay.put(DayOfWeek.MONDAY, 2L);
@@ -78,6 +83,7 @@ public class WeeklyReviewAiWriterTest {
                 null,
                 new ReviewNoteDto("No type", null),
                 new ReviewNoteDto("   ", ReviewNoteType.NEUTRAL),
+                new ReviewNoteDto("x".repeat(501), ReviewNoteType.NEUTRAL),
                 IMPROVE_NOTE
         );
         stubAiResult(new AiWeeklyReviewResult("A steady week.", notes));
@@ -154,6 +160,12 @@ public class WeeklyReviewAiWriterTest {
                 arguments(named("empty notes", new AiWeeklyReviewResult("A steady week.", List.of()))),
                 arguments(named("only unusable notes", new AiWeeklyReviewResult(
                         "A steady week.", List.of(new ReviewNoteDto("No type", null))
+                ))),
+                arguments(named("summary too long", new AiWeeklyReviewResult(
+                        "x".repeat(2001), List.of(GOOD_NOTE)
+                ))),
+                arguments(named("more than 5 notes", new AiWeeklyReviewResult(
+                        "A steady week.", List.of(GOOD_NOTE, GOOD_NOTE, GOOD_NOTE, IMPROVE_NOTE, IMPROVE_NOTE, IMPROVE_NOTE)
                 )))
         );
     }

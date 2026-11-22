@@ -4,6 +4,8 @@ import com.backend.appliboard.features.weekly_review.dto.AiWeeklyReviewResult;
 import com.backend.appliboard.features.weekly_review.dto.ReviewNoteDto;
 import com.backend.appliboard.infrastructures.config.AiConfig;
 import com.backend.appliboard.shared.exceptions.AiUnavailableException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -18,6 +20,7 @@ import java.time.DayOfWeek;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +35,12 @@ public class WeeklyReviewAiWriter {
     private static final String WEEKLY_REVIEW_PROMPT = loadWeeklyReviewPrompt();
     private static final String AI_CALL_FAILED_MESSAGE =
             "The AI couldn't write your weekly review right now. Please try again later.";
+    private static final String INVALID_REVIEW_MESSAGE =
+            "The AI returned an incomplete weekly review. Please try again.";
 
     /** Optional until an AI API key is configured; see {@link AiConfig}. */
     private final ObjectProvider<ChatClient> chatClientProvider;
+    private final Validator validator;
 
     private static String loadWeeklyReviewPrompt() {
         try {
@@ -47,9 +53,9 @@ public class WeeklyReviewAiWriter {
 
     /**
      * @param stats the analyzed week's consistency numbers
-     * @return the AI summary and notes, with empty or untyped notes removed
-     * @throws AiUnavailableException if AI is not configured, the AI call fails, or the AI returns
-     *                                no summary or no usable notes
+     * @return the AI summary and notes, with invalid notes removed
+     * @throws AiUnavailableException if AI is not configured, the AI call fails, or the AI's answer
+     *                                breaks the rules on {@link AiWeeklyReviewResult}
      */
     public AiWeeklyReviewResult writeReview(WeeklyConsistencyStats stats) {
         ChatClient chatClient = AiConfig.requireChatClient(chatClientProvider);
@@ -100,23 +106,51 @@ public class WeeklyReviewAiWriter {
         return day.getDisplayName(TextStyle.FULL, Locale.ENGLISH);
     }
 
+    /** Drops invalid notes, then checks the whole answer against the DTO's validation rules. */
     private AiWeeklyReviewResult requireUsableResult(AiWeeklyReviewResult result) {
-        if (result == null || result.summary() == null || result.summary().isBlank()) {
-            throw new AiUnavailableException("The AI returned an empty weekly review. Please try again.");
+        if (result == null) {
+            throw new AiUnavailableException(INVALID_REVIEW_MESSAGE);
         }
 
-        List<ReviewNoteDto> usableNotes = result.notes() == null
-                ? List.of()
-                : result.notes().stream().filter(this::isUsableNote).toList();
+        AiWeeklyReviewResult cleanedResult = new AiWeeklyReviewResult(
+                trimSummary(result.summary()),
+                keepValidNotes(result.notes())
+        );
+        requireValid(cleanedResult);
 
-        if (usableNotes.isEmpty()) {
-            throw new AiUnavailableException("The AI returned a weekly review without notes. Please try again.");
-        }
-
-        return new AiWeeklyReviewResult(result.summary().trim(), usableNotes);
+        return cleanedResult;
     }
 
-    private boolean isUsableNote(ReviewNoteDto note) {
-        return note != null && note.type() != null && note.content() != null && !note.content().isBlank();
+    private String trimSummary(String summary) {
+        return summary == null ? null : summary.trim();
+    }
+
+    private List<ReviewNoteDto> keepValidNotes(List<ReviewNoteDto> notes) {
+        if (notes == null) {
+            return List.of();
+        }
+
+        return notes.stream().filter(this::isValidNote).toList();
+    }
+
+    private boolean isValidNote(ReviewNoteDto note) {
+        return note != null && validator.validate(note).isEmpty();
+    }
+
+    private void requireValid(AiWeeklyReviewResult result) {
+        Set<ConstraintViolation<AiWeeklyReviewResult>> violations = validator.validate(result);
+        if (violations.isEmpty()) {
+            return;
+        }
+
+        log.warn("The AI returned an invalid weekly review: {}", describeViolations(violations));
+        throw new AiUnavailableException(INVALID_REVIEW_MESSAGE);
+    }
+
+    private String describeViolations(Set<ConstraintViolation<AiWeeklyReviewResult>> violations) {
+        return violations.stream()
+                .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
+                .sorted()
+                .collect(Collectors.joining(", "));
     }
 }
