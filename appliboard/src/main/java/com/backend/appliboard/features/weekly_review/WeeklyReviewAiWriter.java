@@ -2,8 +2,10 @@ package com.backend.appliboard.features.weekly_review;
 
 import com.backend.appliboard.features.weekly_review.dto.AiWeeklyReviewResult;
 import com.backend.appliboard.features.weekly_review.dto.ReviewNoteDto;
+import com.backend.appliboard.infrastructures.config.AiConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +28,8 @@ public class WeeklyReviewAiWriter {
 
     private static final String WEEKLY_REVIEW_PROMPT = loadWeeklyReviewPrompt();
 
-    private final ChatClient chatClient;
+    /** Optional until an AI API key is configured; see {@link AiConfig}. */
+    private final ObjectProvider<ChatClient> chatClientProvider;
 
     private static String loadWeeklyReviewPrompt() {
         try {
@@ -40,10 +43,10 @@ public class WeeklyReviewAiWriter {
     /**
      * @param stats the analyzed week's consistency numbers
      * @return the AI summary and notes, with empty or untyped notes removed
-     * @throws IllegalStateException if the AI returns no summary or no usable notes
+     * @throws IllegalStateException if AI is not configured, or the AI returns no summary or no usable notes
      */
     public AiWeeklyReviewResult writeReview(WeeklyConsistencyStats stats) {
-        AiWeeklyReviewResult result = chatClient.prompt()
+        AiWeeklyReviewResult result = AiConfig.requireChatClient(chatClientProvider).prompt()
                 .system(WEEKLY_REVIEW_PROMPT)
                 .user(buildStatsMessage(stats))
                 .call()

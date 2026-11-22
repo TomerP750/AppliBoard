@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
+@ConditionalOnKafkaEnabled
 public class KafkaTopicConfig {
 
     public static final String STALE_APPLICATION_TOPIC = "stale-application-events";

@@ -2,9 +2,11 @@ package com.backend.appliboard.features.cv_helper;
 
 import com.backend.appliboard.features.cv_helper.dto.CreateNewCvRequest;
 import com.backend.appliboard.features.cv_helper.dto.CvAdjustRequest;
+import com.backend.appliboard.infrastructures.config.AiConfig;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.core.io.ClassPathResource;
@@ -22,7 +24,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CvHelperService {
 
-    private final ChatClient chatClient;
+    /** Optional until an AI API key is configured; see {@link AiConfig}. */
+    private final ObjectProvider<ChatClient> chatClientProvider;
 
     private static final String CV_ADJUST_PROMPT = loadAdjustPrompt();
 
@@ -120,7 +123,7 @@ public class CvHelperService {
     }
 
     private String generateAdjustedCv(String userMessage) {
-        String adjustedCv = chatClient.prompt()
+        String adjustedCv = AiConfig.requireChatClient(chatClientProvider).prompt()
                 .system(CV_ADJUST_PROMPT)
                 .user(userMessage)
                 .call()

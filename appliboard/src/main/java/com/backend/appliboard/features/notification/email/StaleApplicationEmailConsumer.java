@@ -3,6 +3,7 @@ package com.backend.appliboard.features.notification.email;
 import com.backend.appliboard.features.notification.event.StaleApplicationEvent;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
+import com.backend.appliboard.infrastructures.config.ConditionalOnKafkaEnabled;
 import com.backend.appliboard.infrastructures.config.KafkaTopicConfig;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.time.Instant;
  * @see com.backend.appliboard.features.notification.StaleApplicationEventConsumer the in-app consumer
  */
 @Component
+@ConditionalOnKafkaEnabled
 @Slf4j
 @RequiredArgsConstructor
 public class StaleApplicationEmailConsumer {

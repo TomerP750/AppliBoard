@@ -3,6 +3,7 @@ package com.backend.appliboard.features.notification;
 import com.backend.appliboard.features.job_application.JobApplicationRepository;
 import com.backend.appliboard.features.job_application.Status;
 import com.backend.appliboard.features.notification.event.StaleApplicationEvent;
+import com.backend.appliboard.infrastructures.config.ConditionalOnKafkaEnabled;
 import com.backend.appliboard.infrastructures.config.KafkaTopicConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.List;
  * @see JobApplicationRepository#findStaleWithoutNotification(Instant, List)
  */
 @Service
+@ConditionalOnKafkaEnabled
 @Slf4j
 @RequiredArgsConstructor
 public class StaleApplicationReminderService {

@@ -28,6 +28,7 @@ import java.util.Map;
  * listener container factory automatically.
  */
 @Configuration
+@ConditionalOnKafkaEnabled
 public class KafkaErrorHandlingConfig {
 
     private static final long RETRY_INTERVAL_MS = 1000L;

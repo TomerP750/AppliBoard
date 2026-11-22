@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
@@ -42,12 +43,15 @@ public class WeeklyReviewAiWriterTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ChatClient chatClient;
 
+    @Mock
+    private ObjectProvider<ChatClient> chatClientProvider;
+
     private WeeklyReviewAiWriter weeklyReviewAiWriter;
     private WeeklyConsistencyStats stats;
 
     @BeforeEach
     public void setUp() {
-        weeklyReviewAiWriter = new WeeklyReviewAiWriter(chatClient);
+        weeklyReviewAiWriter = new WeeklyReviewAiWriter(chatClientProvider);
 
         Map<DayOfWeek, Long> countByDay = new EnumMap<>(DayOfWeek.class);
         countByDay.put(DayOfWeek.MONDAY, 2L);
@@ -82,8 +86,19 @@ public class WeeklyReviewAiWriterTest {
     }
 
     @Test
+    public void writeReview_ShouldThrowIllegalStateException_WhenAiIsNotConfigured() {
+        when(chatClientProvider.getIfAvailable()).thenReturn(null);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> weeklyReviewAiWriter.writeReview(stats));
+
+        assertTrue(exception.getMessage().contains("not configured"));
+    }
+
+    @Test
     public void writeReview_ShouldSendComputedNumbersInUserMessage() {
         ArgumentCaptor<String> userMessageCaptor = ArgumentCaptor.forClass(String.class);
+        when(chatClientProvider.getIfAvailable()).thenReturn(chatClient);
         when(chatClient.prompt()
                 .system(anyString())
                 .user(userMessageCaptor.capture())
@@ -124,6 +139,7 @@ public class WeeklyReviewAiWriterTest {
     }
 
     private void stubAiResult(AiWeeklyReviewResult aiResult) {
+        when(chatClientProvider.getIfAvailable()).thenReturn(chatClient);
         when(chatClient.prompt()
                 .system(anyString())
                 .user(anyString())
