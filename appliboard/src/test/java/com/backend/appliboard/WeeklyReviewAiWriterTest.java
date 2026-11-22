@@ -5,6 +5,7 @@ import com.backend.appliboard.features.weekly_review.WeeklyConsistencyStats;
 import com.backend.appliboard.features.weekly_review.WeeklyReviewAiWriter;
 import com.backend.appliboard.features.weekly_review.dto.AiWeeklyReviewResult;
 import com.backend.appliboard.features.weekly_review.dto.ReviewNoteDto;
+import com.backend.appliboard.shared.exceptions.AiUnavailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Named.named;
@@ -86,10 +88,10 @@ public class WeeklyReviewAiWriterTest {
     }
 
     @Test
-    public void writeReview_ShouldThrowIllegalStateException_WhenAiIsNotConfigured() {
+    public void writeReview_ShouldThrowAiUnavailableException_WhenAiIsNotConfigured() {
         when(chatClientProvider.getIfAvailable()).thenReturn(null);
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
+        AiUnavailableException exception = assertThrows(AiUnavailableException.class,
                 () -> weeklyReviewAiWriter.writeReview(stats));
 
         assertTrue(exception.getMessage().contains("not configured"));
@@ -119,10 +121,28 @@ public class WeeklyReviewAiWriterTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("unusableAiResults")
-    public void writeReview_ShouldThrowIllegalStateException_WhenAiResultIsUnusable(AiWeeklyReviewResult aiResult) {
+    public void writeReview_ShouldThrowAiUnavailableException_WhenAiResultIsUnusable(AiWeeklyReviewResult aiResult) {
         stubAiResult(aiResult);
 
-        assertThrows(IllegalStateException.class, () -> weeklyReviewAiWriter.writeReview(stats));
+        assertThrows(AiUnavailableException.class, () -> weeklyReviewAiWriter.writeReview(stats));
+    }
+
+    @Test
+    public void writeReview_ShouldThrowAiUnavailableExceptionWithCause_WhenAiCallFails() {
+        RuntimeException providerFailure = new RuntimeException("401 invalid x-api-key");
+        when(chatClientProvider.getIfAvailable()).thenReturn(chatClient);
+        when(chatClient.prompt()
+                .system(anyString())
+                .user(anyString())
+                .call()
+                .entity(AiWeeklyReviewResult.class)
+        ).thenThrow(providerFailure);
+
+        AiUnavailableException exception = assertThrows(AiUnavailableException.class,
+                () -> weeklyReviewAiWriter.writeReview(stats));
+
+        assertEquals(providerFailure, exception.getCause());
+        assertFalse(exception.getMessage().contains("x-api-key"));
     }
 
     private static Stream<Arguments> unusableAiResults() {

@@ -17,6 +17,7 @@ import com.backend.appliboard.features.weekly_review.dto.AiWeeklyReviewResult;
 import com.backend.appliboard.features.weekly_review.dto.ReviewNoteDto;
 import com.backend.appliboard.features.weekly_review.dto.WeeklyReviewDto;
 import com.backend.appliboard.features.weekly_review.dto.WeeklyReviewStatusDto;
+import com.backend.appliboard.shared.exceptions.AiUnavailableException;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.support.TestFixtures;
@@ -231,9 +232,9 @@ public class WeeklyReviewServiceTest {
     public void generateReview_ShouldNotSave_WhenAiWriterFails() throws Exception {
         stubStatsQueries(1L);
         when(weeklyReviewAiWriter.writeReview(any(WeeklyConsistencyStats.class)))
-                .thenThrow(new IllegalStateException("The AI returned an empty weekly review"));
+                .thenThrow(new AiUnavailableException("The AI returned an empty weekly review. Please try again."));
 
-        assertThrows(IllegalStateException.class, () -> weeklyReviewService.generateReview(USER_ID));
+        assertThrows(AiUnavailableException.class, () -> weeklyReviewService.generateReview(USER_ID));
 
         verify(weeklyReviewRepository, never()).saveAndFlush(any());
     }

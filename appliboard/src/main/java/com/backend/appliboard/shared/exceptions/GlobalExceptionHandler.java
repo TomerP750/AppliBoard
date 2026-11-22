@@ -67,6 +67,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token is missing");
     }
 
+    /** The real cause is logged where the exception is thrown; the client only gets a safe message. */
+    @ExceptionHandler(AiUnavailableException.class)
+    public ResponseEntity<String> handleAiUnavailableException(AiUnavailableException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<String> handleAuthException(AuthenticationException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);

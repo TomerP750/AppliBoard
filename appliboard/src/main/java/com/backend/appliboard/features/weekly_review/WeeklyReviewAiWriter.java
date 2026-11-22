@@ -3,7 +3,9 @@ package com.backend.appliboard.features.weekly_review;
 import com.backend.appliboard.features.weekly_review.dto.AiWeeklyReviewResult;
 import com.backend.appliboard.features.weekly_review.dto.ReviewNoteDto;
 import com.backend.appliboard.infrastructures.config.AiConfig;
+import com.backend.appliboard.shared.exceptions.AiUnavailableException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.ClassPathResource;
@@ -22,11 +24,14 @@ import java.util.stream.Collectors;
  * Turns computed weekly consistency stats into a written review using the AI model.
  * The AI only writes text; every number comes from {@link WeeklyConsistencyStats}.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WeeklyReviewAiWriter {
 
     private static final String WEEKLY_REVIEW_PROMPT = loadWeeklyReviewPrompt();
+    private static final String AI_CALL_FAILED_MESSAGE =
+            "The AI couldn't write your weekly review right now. Please try again later.";
 
     /** Optional until an AI API key is configured; see {@link AiConfig}. */
     private final ObjectProvider<ChatClient> chatClientProvider;
@@ -43,16 +48,26 @@ public class WeeklyReviewAiWriter {
     /**
      * @param stats the analyzed week's consistency numbers
      * @return the AI summary and notes, with empty or untyped notes removed
-     * @throws IllegalStateException if AI is not configured, or the AI returns no summary or no usable notes
+     * @throws AiUnavailableException if AI is not configured, the AI call fails, or the AI returns
+     *                                no summary or no usable notes
      */
     public AiWeeklyReviewResult writeReview(WeeklyConsistencyStats stats) {
-        AiWeeklyReviewResult result = AiConfig.requireChatClient(chatClientProvider).prompt()
-                .system(WEEKLY_REVIEW_PROMPT)
-                .user(buildStatsMessage(stats))
-                .call()
-                .entity(AiWeeklyReviewResult.class);
+        ChatClient chatClient = AiConfig.requireChatClient(chatClientProvider);
+        return requireUsableResult(requestReview(chatClient, stats));
+    }
 
-        return requireUsableResult(result);
+    /** Wraps any provider or parsing failure so the client gets a safe message, not internals. */
+    private AiWeeklyReviewResult requestReview(ChatClient chatClient, WeeklyConsistencyStats stats) {
+        try {
+            return chatClient.prompt()
+                    .system(WEEKLY_REVIEW_PROMPT)
+                    .user(buildStatsMessage(stats))
+                    .call()
+                    .entity(AiWeeklyReviewResult.class);
+        } catch (RuntimeException exception) {
+            log.error("The weekly review AI call failed", exception);
+            throw new AiUnavailableException(AI_CALL_FAILED_MESSAGE, exception);
+        }
     }
 
     private String buildStatsMessage(WeeklyConsistencyStats stats) {
@@ -87,7 +102,7 @@ public class WeeklyReviewAiWriter {
 
     private AiWeeklyReviewResult requireUsableResult(AiWeeklyReviewResult result) {
         if (result == null || result.summary() == null || result.summary().isBlank()) {
-            throw new IllegalStateException("The AI returned an empty weekly review");
+            throw new AiUnavailableException("The AI returned an empty weekly review. Please try again.");
         }
 
         List<ReviewNoteDto> usableNotes = result.notes() == null
@@ -95,7 +110,7 @@ public class WeeklyReviewAiWriter {
                 : result.notes().stream().filter(this::isUsableNote).toList();
 
         if (usableNotes.isEmpty()) {
-            throw new IllegalStateException("The AI returned a weekly review without notes");
+            throw new AiUnavailableException("The AI returned a weekly review without notes. Please try again.");
         }
 
         return new AiWeeklyReviewResult(result.summary().trim(), usableNotes);
