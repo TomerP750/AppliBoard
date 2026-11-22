@@ -1,6 +1,6 @@
 # AppliBoard
 
-Full-stack job application tracker: React 19 + TypeScript SPA (`frontend/`) and a Spring Boot 4 / Java 17 REST API (`appliboard/`) with MySQL, MongoDB, Kafka and Spring AI.
+Full-stack job application tracker: React 19 + TypeScript SPA (`frontend/`) and a Spring Boot 4 / Java 17 REST API (`appliboard/`) with MySQL, MongoDB and Spring AI.
 Product scope, features and roadmap: `docs/PRD.md` (read it when a task touches product behavior).
 
 ## Critical rules
@@ -14,7 +14,7 @@ In particular, unless I ask in the current chat:
 - **Do not run tests or builds.** When you finish, say which checks *could* be run and let me decide.
 - Do not commit, push, merge or open PRs. Never commit to `main`; never force-push.
 - Do not run Docker or trigger or edit CI workflows.
-- Do not delete files or data (DB rows, tables, Kafka topics).
+- Do not delete files or data (DB rows, tables, collections).
 - Never read, print, log, commit or hardcode secrets (`.env`, JWT secret, DB passwords, API keys).
 
 These are also enforced in `.claude/settings.json`.

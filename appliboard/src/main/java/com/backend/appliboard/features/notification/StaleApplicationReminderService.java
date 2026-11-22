@@ -2,12 +2,10 @@ package com.backend.appliboard.features.notification;
 
 import com.backend.appliboard.features.job_application.JobApplicationRepository;
 import com.backend.appliboard.features.job_application.Status;
-import com.backend.appliboard.features.notification.event.StaleApplicationEvent;
-import com.backend.appliboard.infrastructures.config.ConditionalOnKafkaEnabled;
-import com.backend.appliboard.infrastructures.config.KafkaTopicConfig;
+import com.backend.appliboard.features.job_application.dto.StaleApplication;
+import com.backend.appliboard.features.notification.email.StaleApplicationEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +14,15 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Producer side of the stale-application reminder flow.
+ * Daily job that reminds users about job applications they haven't updated for {@link #STALE_AFTER}:
+ * a mock reminder email plus an in-app {@link Notification}.
  * <p>
- * Once a day it finds job applications the user hasn't updated for {@link #STALE_AFTER}
- * and publishes a {@link StaleApplicationEvent} for each one to the
- * {@link KafkaTopicConfig#STALE_APPLICATION_TOPIC} topic. It does not create notifications
- * itself; a Kafka consumer turns each event into a {@link Notification}.
- * <p>
- * Duplicates are prevented by the query: an application is skipped if a notification
- * was already created for it after its last update.
+ * Duplicates are prevented by the query: an application is skipped once a notification
+ * exists for it since its last update.
  *
  * @see JobApplicationRepository#findStaleWithoutNotification(Instant, List)
  */
 @Service
-@ConditionalOnKafkaEnabled
 @Slf4j
 @RequiredArgsConstructor
 public class StaleApplicationReminderService {
@@ -42,38 +35,35 @@ public class StaleApplicationReminderService {
             List.of(Status.PENDING, Status.IN_PROGRESS, Status.INTERVIEW_SCHEDULED);
 
     private final JobApplicationRepository jobApplicationRepository;
-    private final KafkaTemplate<String, StaleApplicationEvent> kafkaTemplate;
+    private final INotificationService notificationService;
+    private final StaleApplicationEmailService staleApplicationEmailService;
 
     /**
-     * Runs every day at 09:00 (server time). Finds stale, active applications that haven't
-     * been notified yet and publishes one event per application.
+     * Runs every day at 09:00 (server time) and reminds the user about each stale, active
+     * application that hasn't been notified yet.
      */
     @Scheduled(cron = "0 0 9 * * *")
-    public void createReminderNotificationForStaleApplications() {
+    public void sendStaleApplicationReminders() {
         Instant cutoff = Instant.now().minus(STALE_AFTER);
-
-        List<StaleApplicationEvent> events =
+        List<StaleApplication> staleApplications =
                 jobApplicationRepository.findStaleWithoutNotification(cutoff, ACTIVE_STATUSES);
 
-        log.info("Found {} stale applications to notify", events.size());
+        log.info("Found {} stale applications to remind", staleApplications.size());
 
-        events.forEach(this::publish);
+        staleApplications.forEach(this::remind);
     }
 
     /**
-     * Sends one event to Kafka without blocking. The message key is the user id, so all
-     * events of the same user land on the same partition and keep their order.
-     * A failed send is only logged; the application is picked up again on the next run,
-     * because no notification was created for it.
-     *
-     * @param event the stale application to publish
+     * Emails first, then creates the notification. The notification marks the application as done,
+     * so if anything fails it is picked up again on the next run (the email is not sent twice).
+     * A failure is logged and doesn't stop the other applications from being reminded.
      */
-    private void publish(StaleApplicationEvent event) {
-        kafkaTemplate.send(KafkaTopicConfig.STALE_APPLICATION_TOPIC, event.userId().toString(), event)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Failed to publish stale event for application {}", event.jobApplicationId(), ex);
-                    }
-                });
+    private void remind(StaleApplication staleApplication) {
+        try {
+            staleApplicationEmailService.sendReminder(staleApplication);
+            notificationService.createNotification(staleApplication);
+        } catch (Exception e) {
+            log.error("Failed to remind about stale application {}", staleApplication.jobApplicationId(), e);
+        }
     }
 }

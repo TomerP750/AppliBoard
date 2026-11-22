@@ -39,7 +39,7 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 | F4 | **Dashboard & activity** | Done | Quick actions and recent create/update/delete activity feed. |
 | F5 | **Analytics** | Done | Totals, weekly submissions, status distribution, daily/monthly activity charts. |
 | F6 | **Account settings** | Done | Update profile, change password, delete account, light/dark theme. |
-| F7 | **Notifications** | In progress | Paginated list, unread count, mark as read (done). Stale-application detection publishes `StaleApplicationEvent` to Kafka; consumers create in-app notifications and email reminders. Remaining: real email sender (currently `LoggingEmailSender`), live frontend integration, error handling/DLT hardening. |
+| F7 | **Notifications** | In progress | Paginated list, unread count, mark as read (done). A daily scheduled job finds stale applications and creates an in-app notification and an email reminder for each. Remaining: real email sender (currently `LoggingEmailSender`), live frontend integration. |
 | F8 | **CV helper (AI)** | In progress | Upload CV (PDF, ≤5 MB), adjust it to a job description, create a new CV with a chosen layout, using Spring AI (OpenAI / Anthropic). |
 | F9 | **AI summary** | Planned | AI summary of the job search with trends and history (frontend currently uses dummy data). |
 | F10 | **Responsive UI** | Done | Desktop sidebar, mobile bottom menu, accessible light/dark themes. |
@@ -47,7 +47,7 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 ## Non-functional requirements
 
 - **Security:** users may access only their own resources; no secrets in code or logs; validate all input on the server.
-- **Reliability:** Kafka consumers must not block a partition on a bad message; notification creation should be idempotent.
+- **Reliability:** scheduled jobs must not send the same reminder twice, and one failing item must not stop the rest of the run.
 - **Performance:** list endpoints are paginated; no unbounded queries.
 - **Accessibility:** WCAG AA contrast, keyboard support, labeled controls (see `frontend/AGENTS.md`).
 - **Maintainability:** feature-based modules, interface + implementation services, DTOs and mappers at the API boundary, global exception handling.
@@ -57,13 +57,13 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 ```text
 React SPA (Vite, TS) ──Axios/TanStack Query──▶ Spring Boot REST API ──▶ MySQL   (app data, JPA)
                                                       │              ──▶ MongoDB (refresh tokens)
-                                                      ├── Kafka (stale-application events → notification & email consumers)
+                                                      ├── @Scheduled job (stale applications → notification & email)
                                                       └── Spring AI (OpenAI / Anthropic) for CV features
 ```
 
 ## Roadmap
 
-1. **Kafka notifications:** finish email reminders and error handling; connect the notification menu to the live API.
+1. **Notifications:** connect the notification menu to the live API; add a real email sender.
 2. **CV helper:** complete the adjust and create flows end to end.
 3. **AI summary:** replace dummy data with a real backend endpoint.
 4. **Tests and CI:** broaden coverage (notifications, analytics, auth); run CI on push/PR.

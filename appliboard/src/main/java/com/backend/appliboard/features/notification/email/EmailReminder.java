@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Record of a stale-application reminder email that was sent.
  * <p>
- * Lets the email consumer deduplicate on its own, independent of the in-app notification:
+ * Lets the email reminder deduplicate on its own, independent of the in-app notification:
  * an application is emailed at most once per stale period (i.e. once after each update).
  */
 @Entity

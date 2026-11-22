@@ -1,6 +1,6 @@
 ---
 name: backend-test
-description: Write thorough, non-repetitive JUnit 5 + Mockito tests for the AppliBoard Spring Boot backend - services, mappers, DTO validation, Kafka consumers/producers and controllers - following JobApplicationServiceTest. Use when asked to add, extend or improve backend tests, test a feature or class, or raise backend coverage.
+description: Write thorough, non-repetitive JUnit 5 + Mockito tests for the AppliBoard Spring Boot backend - services, scheduled jobs, mappers, DTO validation and controllers - following JobApplicationServiceTest. Use when asked to add, extend or improve backend tests, test a feature or class, or raise backend coverage.
 ---
 
 # Backend tests
@@ -25,18 +25,17 @@ The project has no in-memory database or Testcontainers, so stick to tests that 
 | Service (`*Service`) | Unit | `@ExtendWith(MockitoExtension.class)`, `@Mock` dependencies, `@InjectMocks` the real service |
 | Mapper (`*Mapper.toDto`) | Pure unit | No mocks; build an entity, assert every DTO field and computed field (e.g. `isStale` on both sides of the 14-day boundary) |
 | Request DTO validation | Pure unit | `Validation.buildDefaultValidatorFactory().getValidator()`; one valid case + one per constraint |
-| Kafka consumer | Unit | Call the listener method directly with an event; mock the repositories and services it uses |
-| Kafka producer / scheduler (e.g. `StaleApplicationReminderService`) | Unit | `@Mock KafkaTemplate<String, Event>`, verify `send(topic, key, event)` with captors |
+| Scheduled job (e.g. `StaleApplicationReminderService`) | Unit | Call the `@Scheduled` method directly; mock the repository and services; verify each item is processed and one failure doesn't stop the rest |
 | Controller (only when asked, or for non-trivial request mapping/validation) | `@WebMvcTest(XController.class)` + `MockMvc` (`spring-boot-starter-webmvc-test` is present) | `@MockitoBean` the service; check status codes, JSON body, `@Valid` → 400 |
 | Repository JPQL (`@Query`) | **Not possible without a test database.** List these as not covered and suggest H2 or Testcontainers. Don't add them yourself. |
 
-`AppliboardApplicationTests.contextLoads` needs MySQL, MongoDB and Kafka running, which is why CI runs only the listed unit tests. Don't add more `@SpringBootTest` tests.
+`AppliboardApplicationTests.contextLoads` needs MySQL and MongoDB running, which is why CI runs only the listed unit tests. Don't add more `@SpringBootTest` tests.
 
 ## 2. Coverage checklist (per public method)
 
 Cover each item that applies. Each one is its own test or one parameterized case.
 
-- **Happy path:** the returned value (every DTO field via an assertion helper) **and** the side effects (`save`, `deleteById`, `activityService.createActivity(..., ActivityType.X)`, `kafkaTemplate.send`, email sent).
+- **Happy path:** the returned value (every DTO field via an assertion helper) **and** the side effects (`save`, `deleteById`, `activityService.createActivity(..., ActivityType.X)`, notification created, email sent).
 - **Captured arguments:** use `ArgumentCaptor` to check what was saved or sent, field by field. A plain `verify(repo).save(any())` isn't enough.
 - **Not found:** each `NotFoundException` path (missing entity, missing user).
 - **Ownership:** another user gets `UnauthorizedException` on every method that checks it.

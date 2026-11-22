@@ -19,7 +19,7 @@ Only read and edit code. Don't run builds, tests, servers, migrations or git unl
    | User-owned records with CRUD, filters, paging | `features/job_application/` | `features/dashboard/applications/` |
    | Read-only stats or aggregates | `features/analytics/` | `features/dashboard/analytics/` |
    | Feed or list of events | `features/activity/` | `features/dashboard/index/` |
-   | Async or event-driven (Kafka) | `features/notification/` | `features/dashboard/layout/dashboard_header/notifications/` |
+   | Scheduled / background job | `features/notification/` | `features/dashboard/layout/dashboard_header/notifications/` |
    | AI / file upload | `features/cv_helper/` | `features/cv_helper/` |
 
 3. If anything is unclear (the domain fields, relations, whether it needs a dashboard page or a sidebar entry), ask before creating files.

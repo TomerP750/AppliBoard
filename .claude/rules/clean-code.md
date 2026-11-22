@@ -38,7 +38,7 @@ Don't create an interface or abstraction for something that has one implementati
   ```java
   public void sendStaleApplicationReminders() {
       List<JobApplication> staleApplications = findStaleApplications();
-      staleApplications.forEach(this::publishStaleApplicationEvent);
+      staleApplications.forEach(this::remind);
   }
   ```
 

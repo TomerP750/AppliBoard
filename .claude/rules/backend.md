@@ -11,6 +11,6 @@ paths:
 - Every query for user data must be scoped to the authenticated user (`PrincipalUser`).
 - List endpoints are paginated.
 - Secrets come from `${ENV_VAR}` placeholders in `application.properties`. Never hardcode or log them.
-- Kafka: topics are declared in `infrastructures/config/KafkaTopicConfig.java`; error handling lives in `KafkaErrorHandlingConfig.java`. Consumers must be idempotent and must not block a partition on a bad message.
+- Scheduled jobs (`@Scheduled`, e.g. `StaleApplicationReminderService`) must be idempotent across runs, and one failing item must not stop the rest of the run.
 - Tests: JUnit 5 + Mockito, following `JobApplicationServiceTest`. To write tests, follow the `backend-test` skill. Write tests when asked; run them only when asked.
 - Don't add or change dependencies in `pom.xml` unless asked.
