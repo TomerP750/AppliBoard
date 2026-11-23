@@ -29,7 +29,7 @@ The project has no in-memory database or Testcontainers, so stick to tests that 
 | Controller (only when asked, or for non-trivial request mapping/validation) | `@WebMvcTest(XController.class)` + `MockMvc` (`spring-boot-starter-webmvc-test` is present) | `@MockitoBean` the service; check status codes, JSON body, `@Valid` → 400 |
 | Repository JPQL (`@Query`) | **Not possible without a test database.** List these as not covered and suggest H2 or Testcontainers. Don't add them yourself. |
 
-`AppliboardApplicationTests.contextLoads` needs MySQL and MongoDB running, which is why CI runs only the listed unit tests. Don't add more `@SpringBootTest` tests.
+`AppliboardApplicationTests.contextLoads` needs MySQL running, which is why CI runs only the listed unit tests. Don't add more `@SpringBootTest` tests.
 
 ## 2. Coverage checklist (per public method)
 

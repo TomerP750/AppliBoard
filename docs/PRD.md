@@ -33,7 +33,7 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 
 | # | Feature | Status | Requirements |
 | --- | --- | --- | --- |
-| F1 | **Authentication** | Done | Sign up, log in, log out, session restore. Short-lived JWT access token in memory; hashed rotating refresh token in MongoDB delivered via HTTP-only SameSite cookie; one automatic retry after refresh; BCrypt passwords. |
+| F1 | **Authentication** | In progress | Sign up, log in, log out (done). Short-lived JWT access token in memory; BCrypt passwords. Remaining: refresh tokens and session restore through an external identity provider (e.g. AWS Cognito); the previous MongoDB refresh-token store was removed. |
 | F2 | **Application management** | Done | Create, edit, delete, favorite. Fields: company, location, position, status, date, notes. |
 | F3 | **Search, filter, sort, paginate** | Done | Search by company; filter by status, position, favorites; sort by date; configurable page size. |
 | F4 | **Dashboard & activity** | Done | Quick actions and recent create/update/delete activity feed. |
@@ -56,7 +56,6 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 
 ```text
 React SPA (Vite, TS) ──Axios/TanStack Query──▶ Spring Boot REST API ──▶ MySQL   (app data, JPA)
-                                                      │              ──▶ MongoDB (refresh tokens)
                                                       ├── @Scheduled job (stale applications → notification & email)
                                                       └── Spring AI (OpenAI / Anthropic) for CV features
 ```
@@ -67,3 +66,4 @@ React SPA (Vite, TS) ──Axios/TanStack Query──▶ Spring Boot REST API �
 2. **CV helper:** complete the adjust and create flows end to end.
 3. **AI summary:** replace dummy data with a real backend endpoint.
 4. **Tests and CI:** broaden coverage (notifications, analytics, auth); run CI on push/PR.
+5. **Authentication:** add refresh tokens and session restore through an external identity provider (e.g. AWS Cognito).

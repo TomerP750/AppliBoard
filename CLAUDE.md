@@ -1,6 +1,6 @@
 # AppliBoard
 
-Full-stack job application tracker: React 19 + TypeScript SPA (`frontend/`) and a Spring Boot 4 / Java 17 REST API (`appliboard/`) with MySQL, MongoDB and Spring AI.
+Full-stack job application tracker: React 19 + TypeScript SPA (`frontend/`) and a Spring Boot 4 / Java 17 REST API (`appliboard/`) with MySQL and Spring AI.
 Product scope, features and roadmap: `docs/PRD.md` (read it when a task touches product behavior).
 
 ## Critical rules

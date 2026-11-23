@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -39,15 +38,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(InvalidRefreshTokenException.class)
-    public ResponseEntity<String> handleInvalidRefreshToken(
-            InvalidRefreshTokenException exception
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(exception.getMessage());
-    }
-
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<String> handleJwtException(JwtException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -60,11 +50,6 @@ public class GlobalExceptionHandler {
                         .map(err -> err.getField() + " -> " + err.getDefaultMessage())
                         .toList()
         );
-    }
-
-    @ExceptionHandler(MissingRequestCookieException.class)
-    public ResponseEntity<String> handleMissingCookie(MissingRequestCookieException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token is missing");
     }
 
     /** The real cause is logged where the exception is thrown; the client only gets a safe message. */

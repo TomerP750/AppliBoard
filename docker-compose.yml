@@ -12,12 +12,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/AppliBoard
-      SPRING_MONGODB_URI: mongodb://mongodb:27017/AppliBoard
-      SPRING_AI_OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     depends_on:
       mysql:
-        condition: service_healthy
-      mongodb:
         condition: service_healthy
   
 

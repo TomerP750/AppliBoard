@@ -2,7 +2,7 @@
 
 > A full-stack job application tracker with AI-written weekly reviews, scheduled stale-application reminders, and analytics. It helps job seekers keep their search organized, consistent and moving forward.
 
-**React 19 · TypeScript · Spring Boot 4 · Java 17 · Spring Security + JWT · Spring AI (Anthropic) · MySQL · MongoDB**
+**React 19 · TypeScript · Spring Boot 4 · Java 17 · Spring Security + JWT · Spring AI (Anthropic) · MySQL**
 
 ## Overview
 
@@ -12,8 +12,8 @@ The project focuses on clean, production-style engineering:
 
 - Feature-based modules on both the frontend and the backend.
 - A layered REST API (controller → service interface → implementation → repository) with DTOs and mappers at the boundary.
-- Secure token-based authentication with rotating refresh tokens.
-- Persistence across a relational database (MySQL) and a document database (MongoDB).
+- Secure token-based authentication with short-lived JWT access tokens.
+- Relational persistence with MySQL and Spring Data JPA.
 - AI integration that is validated, fails safely, and never invents the numbers it reports.
 
 ## Key Features
@@ -56,10 +56,8 @@ A weekly AI review of the user's application consistency, built with **Spring AI
 ## Security and Session Management
 
 - Short-lived JWT access tokens are kept in memory on the client.
-- Refresh tokens are hashed in MongoDB and sent in HTTP-only, SameSite cookies.
-- Refresh tokens rotate on session restore and token renewal.
-- Expired sessions are refreshed automatically, and the failed request is retried once.
-- Logout revokes the active refresh token and clears the cookie and the client session state.
+- Refresh tokens and session restore are being moved to an external identity provider (e.g. AWS Cognito). Until then, a session ends when the access token expires or the page reloads.
+- Logout clears the client session state.
 - Passwords are hashed with BCrypt, and Spring Security scopes every resource to the authenticated user.
 - A global exception handler maps domain exceptions to consistent HTTP responses (400, 401, 404, 409, 503).
 
@@ -70,7 +68,6 @@ React SPA (Vite, TypeScript)
         │  Axios + TanStack Query
         ▼
 Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifications, weekly reviews)
-        │            ──▶ MongoDB  (hashed refresh-token sessions)
         ├── @Scheduled job        (stale applications → notification + email reminder)
         └── Spring AI (Anthropic) (weekly review, CV adjustment)
 ```
@@ -80,8 +77,8 @@ Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifica
 | Layer | Technologies |
 | --- | --- |
 | **Frontend** | React 19, TypeScript, Vite, React Router, TanStack Query, React Hook Form, Axios, Tailwind CSS, Recharts, Lucide React |
-| **Backend** | Java 17, Spring Boot 4, Spring MVC, Spring Security, Spring Data JPA, Spring Data MongoDB, Spring Validation, Spring AI, JWT, Lombok, Maven |
-| **Data** | MySQL, MongoDB |
+| **Backend** | Java 17, Spring Boot 4, Spring MVC, Spring Security, Spring Data JPA, Spring Validation, Spring AI, JWT, Lombok, Maven |
+| **Data** | MySQL |
 | **Testing** | JUnit 5, Mockito |
 | **CI** | GitHub Actions (backend unit tests and build, triggered manually) |
 

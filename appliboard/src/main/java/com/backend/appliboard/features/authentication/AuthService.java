@@ -3,8 +3,6 @@ package com.backend.appliboard.features.authentication;
 import com.backend.appliboard.features.authentication.dto.AuthResponseDto;
 import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
-import com.backend.appliboard.features.authentication.refresh_token.RefreshToken;
-import com.backend.appliboard.features.authentication.refresh_token.RefreshTokenService;
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserMapper;
@@ -14,7 +12,6 @@ import com.backend.appliboard.infrastructures.security.JwtService;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
-import com.backend.appliboard.shared.exceptions.InvalidRefreshTokenException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -36,11 +31,10 @@ public class AuthService implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private final RefreshTokenService refreshTokenService;
 
     @Override
     @Transactional
-    public InternalAuthResult login(LoginRequestDto dto) throws NotFoundException {
+    public AuthResponseDto login(LoginRequestDto dto) throws NotFoundException {
 
         log.info("Entering Login");
 
@@ -57,15 +51,12 @@ public class AuthService implements IAuthService {
         User user = userRepository.findByEmail(dto.email()).orElseThrow(() -> new NotFoundException("User not found"));
         UserDto userDto = UserMapper.toUserDto(user);
 
-        String refreshToken = refreshTokenService.issue(user.getId());
-
-        return buildInternalAuthResult(accessToken, refreshToken, userDto);
-
+        return new AuthResponseDto(accessToken, userDto);
     }
 
     @Override
     @Transactional
-    public InternalAuthResult signup(SignupRequestDto dto) throws InvalidInputException, FoundException {
+    public AuthResponseDto signup(SignupRequestDto dto) throws InvalidInputException, FoundException {
 
         log.info("Signing User Up");
 
@@ -91,47 +82,9 @@ public class AuthService implements IAuthService {
 
         UserDto userDto = UserMapper.toUserDto(user);
 
-        String refreshToken = refreshTokenService.issue(user.getId());
-
         log.info("User Signed Up Successfully");
 
-        return buildInternalAuthResult(accessToken, refreshToken, userDto);
-    }
-
-    private InternalAuthResult buildInternalAuthResult(String accessToken, String refreshToken, UserDto userDto) {
-        AuthResponseDto authResponseDto = new AuthResponseDto(
-                accessToken, userDto
-        );
-
-        return new InternalAuthResult(authResponseDto, refreshToken);
-    }
-
-    public InternalAuthResult refreshToken(String rawToken) throws NotFoundException, InvalidRefreshTokenException {
-
-        RefreshToken storedToken = refreshTokenService.validate(rawToken);
-        String newRefreshToken = refreshTokenService.rotate(rawToken);
-
-        UUID userId = UUID.fromString(storedToken.getUserId());
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-
-        String accessToken = jwtService.generateAccessToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        return buildInternalAuthResult(
-                accessToken,
-                newRefreshToken,
-                UserMapper.toUserDto(user)
-        );
-    }
-
-    @Override
-    public void logout(String rawToken) throws InvalidRefreshTokenException {
-
-        refreshTokenService.revoke(rawToken);
+        return new AuthResponseDto(accessToken, userDto);
     }
 
 }

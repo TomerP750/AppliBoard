@@ -3,85 +3,34 @@ package com.backend.appliboard.features.authentication;
 import com.backend.appliboard.features.authentication.dto.AuthResponseDto;
 import com.backend.appliboard.features.authentication.dto.LoginRequestDto;
 import com.backend.appliboard.features.authentication.dto.SignupRequestDto;
-import com.backend.appliboard.features.authentication.refresh_token.RefreshTokenCookieService;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
-import com.backend.appliboard.shared.exceptions.InvalidRefreshTokenException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpHeaders;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
-    private final RefreshTokenCookieService refreshTokenCookieService;
+    private final IAuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto dto) throws NotFoundException {
-
-        InternalAuthResult result = authService.login(dto);
-
-        ResponseCookie cookie = refreshTokenCookieService.create(result.refreshToken());
-
-        return ResponseEntity.ok()
-                .header(
-                        HttpHeaders.SET_COOKIE,
-                        cookie.toString()
-                )
-                .body(result.authResponse());
+        return ResponseEntity.ok(authService.login(dto));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponseDto> signup(@Valid @RequestBody SignupRequestDto dto) throws InvalidInputException, FoundException {
-
-        InternalAuthResult result = authService.signup(dto);
-
-        ResponseCookie cookie = refreshTokenCookieService.create(result.refreshToken());
-
-        return ResponseEntity.ok()
-                .header(
-                        HttpHeaders.SET_COOKIE,
-                        cookie.toString()
-                )
-                .body(result.authResponse());
+        return ResponseEntity.ok(authService.signup(dto));
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDto> refresh(@CookieValue(name = "refreshToken") String rawToken)
-            throws InvalidRefreshTokenException, NotFoundException {
-
-        InternalAuthResult result = authService.refreshToken(rawToken);
-
-        ResponseCookie cookie =
-                refreshTokenCookieService.create(result.refreshToken());
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(result.authResponse());
-    }
-
-
+    /** Access tokens are stateless, so there is no server-side session to end yet. */
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken", required = false) String rawToken)
-            throws InvalidRefreshTokenException {
-
-        if (rawToken != null && !rawToken.isBlank()) {
-            authService.logout(rawToken);
-        }
-
-        return ResponseEntity.noContent()
-                .header(
-                        HttpHeaders.SET_COOKIE,
-                        refreshTokenCookieService.clear().toString()
-                )
-                .build();
-
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.noContent().build();
     }
 }
