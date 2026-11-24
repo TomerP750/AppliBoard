@@ -13,10 +13,14 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/AppliBoard
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       mysql:
         condition: service_healthy
-  
+      redis:
+        condition: service_started
+
 
   frontend: 
     build:
@@ -47,6 +51,15 @@ services:
     #   retries: 20
     #   start_period: 30s
 
+  redis:
+    image: redis:7.4
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
 volumes:
   mysql_data:
+  redis_data:
 

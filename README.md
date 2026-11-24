@@ -46,6 +46,15 @@ A weekly AI review of the user's application consistency, built with **Spring AI
 - Email delivery goes through an `EmailSender` interface. The current implementation (`LoggingEmailSender`) logs the email, so a real provider can be added without changing callers.
 - The notification API supports paginated results, unread counts and marking notifications as read.
 
+### Redis caching (in progress)
+
+Job application reads are being cached in **Redis** (cache-aside: return the cached value on a hit, load from MySQL and cache it on a miss).
+
+- **Per-user keys**: `appliboard::<cache>::<userId>:...`, so one user can never read another user's cached data.
+- **JSON values** with type info limited to the app's own classes, and short TTLs (5 min for lists, 10 min for a single application).
+- **Per-user invalidation**: a write only clears that user's cached lists, not everyone's. Each filter, sort and page combination is its own key, so they're cleared with a pattern delete (`<userId>:*`) using `SCAN` in batches, after the transaction commits.
+- **Why `SCAN` and not per-user version numbers**: the app reads far more than it writes, and the keyspace is small. `SCAN` costs a little on each (rare) write and nothing extra on reads, while a version number adds a Redis lookup to every read. If the app became write-heavy or the keyspace grew large, I would switch to a per-user version number in the cache key: an `INCR` per write (O(1)), with old entries expiring through the TTL. `KEYS` is never used, because it blocks Redis while it scans.
+
 ### Accounts and UI
 
 - **Authentication**: sign up, sign in, restore sessions and protect dashboard routes.
@@ -129,6 +138,7 @@ AppliBoard/
 | AI weekly review and history | Done |
 | Stale-application reminder job and notification API | Done |
 | Notification menu connected to the live API | In progress |
+| Redis caching for job applications | In progress: the Redis config is in place and the service isn't cached yet |
 | Real email provider (currently a logging sender) | Planned |
 | CV helper: AI CV adjustment from an uploaded PDF and a job description | In progress: the backend endpoint is in place and the frontend UI is not connected yet |
 | CV helper: create a new CV from scratch | Planned |
