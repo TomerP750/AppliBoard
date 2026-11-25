@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public final class JobApplicationSpecifications {
 
+    private static final char LIKE_ESCAPE = '!';
+
     private JobApplicationSpecifications() {
     }
 
@@ -22,9 +24,21 @@ public final class JobApplicationSpecifications {
 
             return criteriaBuilder.like(
                     criteriaBuilder.lower(root.get("name")),
-                    "%" + name.trim().toLowerCase() + "%"
+                    "%" + escapeLikeWildcards(name.trim().toLowerCase()) + "%",
+                    LIKE_ESCAPE
             );
         };
+    }
+
+    /**
+     * Makes {@code %} and {@code _} in user input match literally instead of acting as LIKE wildcards.
+     * '!' is the escape character because a backslash needs extra escaping in MySQL string literals.
+     */
+    private static String escapeLikeWildcards(String value) {
+        return value
+                .replace(String.valueOf(LIKE_ESCAPE), LIKE_ESCAPE + String.valueOf(LIKE_ESCAPE))
+                .replace("%", LIKE_ESCAPE + "%")
+                .replace("_", LIKE_ESCAPE + "_");
     }
 
     public static Specification<JobApplication> hasStatuses(List<Status> statuses) {
