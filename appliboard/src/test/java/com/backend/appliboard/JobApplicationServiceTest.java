@@ -3,6 +3,7 @@ package com.backend.appliboard;
 import com.backend.appliboard.features.activity.ActivityService;
 import com.backend.appliboard.features.activity.ActivityType;
 import com.backend.appliboard.features.job_application.JobApplication;
+import com.backend.appliboard.features.job_application.JobApplicationCacheEvictor;
 import com.backend.appliboard.features.job_application.JobApplicationRepository;
 import com.backend.appliboard.features.job_application.JobApplicationService;
 import com.backend.appliboard.features.job_application.Position;
@@ -14,6 +15,7 @@ import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationD
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
+import com.backend.appliboard.shared.dto.PageResponse;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +50,7 @@ import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,6 +63,9 @@ public class JobApplicationServiceTest {
 
     @Mock
     private JobApplicationRepository jobApplicationRepository;
+
+    @Mock
+    private JobApplicationCacheEvictor jobApplicationCacheEvictor;
 
     @Mock
     private UserService userService;
@@ -108,10 +114,10 @@ public class JobApplicationServiceTest {
                 eq(pageable)
         )).thenReturn(pageOf(jobApplication));
 
-        Page<JobApplicationDto> result = jobApplicationService.allJobApplications(USER_ID, emptyFilters(), pageable);
+        PageResponse<JobApplicationDto> result = jobApplicationService.allJobApplications(USER_ID, emptyFilters(), pageable);
 
-        assertEquals(1, result.getTotalElements());
-        assertMatchesJobApplication(result.getContent().get(0));
+        assertEquals(1, result.page().totalElements());
+        assertMatchesJobApplication(result.content().get(0));
     }
 
     @Test
@@ -127,10 +133,23 @@ public class JobApplicationServiceTest {
                 eq(pageable)
         )).thenReturn(pageOf(jobApplication));
 
-        Page<JobApplicationDto> result = jobApplicationService.allJobApplications(USER_ID, filters, pageable);
+        PageResponse<JobApplicationDto> result = jobApplicationService.allJobApplications(USER_ID, filters, pageable);
 
-        assertEquals(1, result.getTotalElements());
-        assertMatchesJobApplication(result.getContent().get(0));
+        assertEquals(1, result.page().totalElements());
+        assertMatchesJobApplication(result.content().get(0));
+    }
+
+    @Test
+    public void allJobApplications_ShouldCopyPageMetadata_WhenPageIsReturned() {
+        Pageable secondPage = PageRequest.of(1, 1);
+        when(jobApplicationRepository.findAll(
+                ArgumentMatchers.<Specification<JobApplication>>any(),
+                eq(secondPage)
+        )).thenReturn(new PageImpl<>(List.of(jobApplication), secondPage, 3));
+
+        PageResponse<JobApplicationDto> result = jobApplicationService.allJobApplications(USER_ID, emptyFilters(), secondPage);
+
+        assertEquals(new PageResponse.PageMetadata(1, 1, 3, 3), result.page());
     }
 
     @Test
@@ -159,6 +178,7 @@ public class JobApplicationServiceTest {
         assertEquals(user, savedApplication.getUser());
         assertFalse(savedApplication.getIsFavorite());
         verify(activityService).createActivity(user, dto.name(), ActivityType.CREATED);
+        verify(jobApplicationCacheEvictor).evictUserApplicationPages(USER_ID);
     }
 
     @Test
@@ -166,6 +186,7 @@ public class JobApplicationServiceTest {
         when(userService.fetchUserEntity(USER_ID)).thenThrow(new NotFoundException("User not found"));
 
         assertThrows(NotFoundException.class, () -> jobApplicationService.createJobApplication(USER_ID, createDto()));
+        verifyNoInteractions(jobApplicationCacheEvictor);
     }
 
     @Test
@@ -191,6 +212,7 @@ public class JobApplicationServiceTest {
         assertEquals("Initial note", jobApplication.getNote());
         verify(jobApplicationRepository).save(jobApplication);
         verify(activityService).createActivity(user, "Updated Company", ActivityType.UPDATED);
+        verify(jobApplicationCacheEvictor).evictUserApplicationPages(USER_ID);
     }
 
     @Test
@@ -202,6 +224,7 @@ public class JobApplicationServiceTest {
 
         verify(jobApplicationRepository).deleteById(JOB_APPLICATION_ID);
         verify(activityService).createActivity(user, jobApplication.getName(), ActivityType.DELETED);
+        verify(jobApplicationCacheEvictor).evictUserApplicationPages(USER_ID);
     }
 
     @ParameterizedTest(name = "isFavorite {0} -> {1}")
@@ -216,6 +239,7 @@ public class JobApplicationServiceTest {
         assertEquals(!initiallyFavorite, result);
         assertEquals(!initiallyFavorite, jobApplication.getIsFavorite());
         verify(jobApplicationRepository).save(jobApplication);
+        verify(jobApplicationCacheEvictor).evictUserApplicationPages(USER_ID);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -224,6 +248,7 @@ public class JobApplicationServiceTest {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> call.execute(jobApplicationService, USER_ID));
+        verifyNoInteractions(jobApplicationCacheEvictor);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -232,6 +257,7 @@ public class JobApplicationServiceTest {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
 
         assertThrows(UnauthorizedException.class, () -> call.execute(jobApplicationService, OTHER_USER_ID));
+        verifyNoInteractions(jobApplicationCacheEvictor);
     }
 
     /**

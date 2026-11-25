@@ -4,9 +4,9 @@ import com.backend.appliboard.features.job_application.dto.CreateJobApplicationD
 import com.backend.appliboard.features.job_application.dto.JobApplicationFilterDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
+import com.backend.appliboard.shared.dto.PageResponse;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
@@ -17,8 +17,9 @@ public interface IJobApplicationService {
      * Returns a page of job applications for the specified user.
      * When {@code filterDto} is null or all of its fields are empty, every application for the user is returned.
      * Otherwise only applications matching the provided name, statuses, positions, or favorite flag are returned.
+     * Results are cached per user, filters and page.
      */
-    Page<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filterDto, Pageable pageable);
+    PageResponse<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filterDto, Pageable pageable);
 
     JobApplicationDto oneJobApplication(UUID userId, UUID jobApplicationId) throws NotFoundException, UnauthorizedException;
 

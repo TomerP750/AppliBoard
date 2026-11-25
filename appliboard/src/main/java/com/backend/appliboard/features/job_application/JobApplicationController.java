@@ -5,11 +5,11 @@ import com.backend.appliboard.features.job_application.dto.JobApplicationFilterD
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
+import com.backend.appliboard.shared.dto.PageResponse;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,7 +36,7 @@ public class JobApplicationController {
     }
 
     @GetMapping("/all")
-    public Page<JobApplicationDto> allJobApplications(@AuthenticationPrincipal PrincipalUser user,
+    public PageResponse<JobApplicationDto> allJobApplications(@AuthenticationPrincipal PrincipalUser user,
                                                       @RequestParam(name = "name", required = false) String name,
                                                       @RequestParam(name = "statuses", required = false) List<Status> statuses,
                                                       @RequestParam(name = "positions", required = false) List<Position> positions,

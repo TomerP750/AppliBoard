@@ -15,7 +15,6 @@ import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 import java.time.Duration;
-import java.util.Map;
 
 /**
  * Redis cache setup.
@@ -27,36 +26,29 @@ import java.util.Map;
 public class RedisConfig {
 
     private static final String KEY_PREFIX = "appliboard::";
-    private static final Duration DEFAULT_TTL = Duration.ofMinutes(10);
-    private static final Duration JOB_APPLICATIONS_TTL = Duration.ofMinutes(5);
-    private static final Duration JOB_APPLICATION_TTL = Duration.ofMinutes(10);
+    private static final Duration CACHE_TTL = Duration.ofMinutes(5);
     private static final int SCAN_BATCH_SIZE = 1000;
 
     /**
-     * Writes to Redis without locking. Pattern deletes use SCAN in batches instead of KEYS,
-     * so clearing one user's entries doesn't block Redis.
+     * The cache writer deletes by pattern with SCAN in batches instead of the default KEYS, so clearing
+     * one user's entries never blocks Redis.
+     * {@code transactionAware()} runs cache puts and evictions after the DB transaction commits, so a
+     * rolled-back write leaves the cache as it was.
      */
     @Bean
-    public RedisCacheWriter redisCacheWriter(RedisConnectionFactory connectionFactory) {
-        return RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory, BatchStrategies.scan(SCAN_BATCH_SIZE));
-    }
+    public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        RedisCacheWriter scanningCacheWriter =
+                RedisCacheWriter.nonLockingRedisCacheWriter(connectionFactory, BatchStrategies.scan(SCAN_BATCH_SIZE));
 
-    @Bean
-    public RedisCacheManager cacheManager(RedisCacheWriter redisCacheWriter) {
-        RedisCacheConfiguration defaults = defaultCacheConfiguration();
-
-        return RedisCacheManager.builder(redisCacheWriter)
-                .cacheDefaults(defaults)
-                .withInitialCacheConfigurations(Map.of(
-                        CacheNames.JOB_APPLICATIONS, defaults.entryTtl(JOB_APPLICATIONS_TTL),
-                        CacheNames.JOB_APPLICATION, defaults.entryTtl(JOB_APPLICATION_TTL)
-                ))
+        return RedisCacheManager.builder(scanningCacheWriter)
+                .cacheDefaults(cacheConfiguration())
+                .transactionAware()
                 .build();
     }
 
-    private RedisCacheConfiguration defaultCacheConfiguration() {
+    private RedisCacheConfiguration cacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(DEFAULT_TTL)
+                .entryTtl(CACHE_TTL)
                 .disableCachingNullValues()
                 .computePrefixWith(cacheName -> KEY_PREFIX + cacheName + "::")
                 .serializeKeysWith(SerializationPair.fromSerializer(new StringRedisSerializer()))

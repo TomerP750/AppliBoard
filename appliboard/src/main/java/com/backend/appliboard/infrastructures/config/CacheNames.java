@@ -6,11 +6,9 @@ package com.backend.appliboard.infrastructures.config;
  */
 public final class CacheNames {
 
-    /** Pages of a user's job applications (list endpoint). */
+    /** Pages of a user's job applications, one entry per filter/sort/page (key: userId:filters:pageable). */
     public static final String JOB_APPLICATIONS = "jobApplications";
-
-    /** A single job application. */
-    public static final String JOB_APPLICATION = "jobApplication";
+    public static final String ANALYTICS = "analytics";
 
     private CacheNames() {
     }

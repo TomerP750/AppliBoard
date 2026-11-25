@@ -8,10 +8,13 @@ import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.UpdateJobApplicationDto;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserService;
+import com.backend.appliboard.infrastructures.config.CacheNames;
+import com.backend.appliboard.shared.dto.PageResponse;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,29 +29,25 @@ import java.util.UUID;
 public class JobApplicationService implements IJobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
+    private final JobApplicationCacheEvictor jobApplicationCacheEvictor;
     private final UserService userService;
     private final ActivityService activityService;
 
 
+    /**
+     * Cached per user, filters and page. On a miss MySQL filters, sorts and pages with Specifications.
+     * The writes below clear the user's cached pages through {@link JobApplicationCacheEvictor}.
+     */
     @Override
-    public Page<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
+    @Cacheable(cacheNames = CacheNames.JOB_APPLICATIONS, key = "#userId + ':' + #filters + ':' + #pageable")
+    public PageResponse<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
         log.info("Fetching Job Applications");
 
-        Specification<JobApplication> specification = JobApplicationSpecifications.belongsToUser(userId);
-
-        if (filters != null) {
-            specification = specification
-                    .and(JobApplicationSpecifications.nameContains(filters.name()))
-                    .and(JobApplicationSpecifications.hasStatuses(filters.statuses()))
-                    .and(JobApplicationSpecifications.hasPositions(filters.positions()))
-                    .and(JobApplicationSpecifications.hasFavorite(filters.isFavorite()));
-        }
-
-        Page<JobApplication> applications = jobApplicationRepository.findAll(specification, pageable);
+        Page<JobApplication> applications = jobApplicationRepository.findAll(userApplicationsMatching(userId, filters), pageable);
 
         log.info("Fetched Job Applications");
 
-        return applications.map(JobApplicationMapper::toDto);
+        return PageResponse.from(applications.map(JobApplicationMapper::toDto));
     }
 
     @Override
@@ -84,7 +83,7 @@ public class JobApplicationService implements IJobApplicationService {
         log.info("Created Job Application");
 
         activityService.createActivity(user, jobApplication.getName(), ActivityType.CREATED);
-
+        jobApplicationCacheEvictor.evictUserApplicationPages(userId);
     }
 
     @Override
@@ -123,8 +122,7 @@ public class JobApplicationService implements IJobApplicationService {
 
         User user = userService.fetchUserEntity(userId);
         activityService.createActivity(user, jobApplication.getName(), ActivityType.UPDATED);
-
-
+        jobApplicationCacheEvictor.evictUserApplicationPages(userId);
     }
 
     @Override
@@ -145,7 +143,7 @@ public class JobApplicationService implements IJobApplicationService {
 
         User user = userService.fetchUserEntity(userId);
         activityService.createActivity(user, jobApplication.getName(), ActivityType.DELETED);
-
+        jobApplicationCacheEvictor.evictUserApplicationPages(userId);
     }
 
     @Override
@@ -162,12 +160,26 @@ public class JobApplicationService implements IJobApplicationService {
         jobApplicationRepository.save(jobApplication);
 
         log.info("Toggled");
+        jobApplicationCacheEvictor.evictUserApplicationPages(userId);
         return jobApplication.getIsFavorite();
     }
 
     private JobApplication fetchJobApplicationEntity(UUID jobApplicationId) throws NotFoundException {
         return jobApplicationRepository.findById(jobApplicationId)
                 .orElseThrow(() -> new NotFoundException("Not found"));
+    }
+
+    private static Specification<JobApplication> userApplicationsMatching(UUID userId, JobApplicationFilterDto filters) {
+        Specification<JobApplication> specification = JobApplicationSpecifications.belongsToUser(userId);
+        if (filters == null) {
+            return specification;
+        }
+
+        return specification
+                .and(JobApplicationSpecifications.nameContains(filters.name()))
+                .and(JobApplicationSpecifications.hasStatuses(filters.statuses()))
+                .and(JobApplicationSpecifications.hasPositions(filters.positions()))
+                .and(JobApplicationSpecifications.hasFavorite(filters.isFavorite()));
     }
 
 }
