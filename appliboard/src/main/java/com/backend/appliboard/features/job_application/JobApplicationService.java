@@ -28,20 +28,21 @@ import java.util.UUID;
 public class JobApplicationService implements IJobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
-    private final JobApplicationPageCache jobApplicationPageCache;
     private final UserService userService;
     private final ActivityService activityService;
     private final ApplicationEventPublisher eventPublisher;
 
 
     /**
-     * Cached in Redis per user, filters and page. On a miss MySQL filters, sorts and pages with Specifications.
-     * The writes below clear the user's cached pages.
+     * MySQL filters, sorts and pages the user's applications with Specifications.
      */
     @Override
     public PageResponse<JobApplicationDto> allJobApplications(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
-        return jobApplicationPageCache.getOrLoad(userId, filters, pageable,
-                () -> loadJobApplicationsPage(userId, filters, pageable));
+        log.info("Fetching Job Applications");
+
+        Page<JobApplication> applications = jobApplicationRepository.findAll(userApplicationsMatching(userId, filters), pageable);
+
+        return PageResponse.from(applications.map(JobApplicationMapper::toDto));
     }
 
     @Override
@@ -77,7 +78,6 @@ public class JobApplicationService implements IJobApplicationService {
         log.info("Created Job Application");
 
         activityService.createActivity(user, jobApplication.getName(), ActivityType.CREATED);
-        jobApplicationPageCache.evictUser(userId);
         publishApplicationsChanged(userId);
     }
 
@@ -117,7 +117,6 @@ public class JobApplicationService implements IJobApplicationService {
 
         User user = userService.fetchUserEntity(userId);
         activityService.createActivity(user, jobApplication.getName(), ActivityType.UPDATED);
-        jobApplicationPageCache.evictUser(userId);
         if (dto.status() != null) {
             publishApplicationsChanged(userId);
         }
@@ -141,7 +140,6 @@ public class JobApplicationService implements IJobApplicationService {
 
         User user = userService.fetchUserEntity(userId);
         activityService.createActivity(user, jobApplication.getName(), ActivityType.DELETED);
-        jobApplicationPageCache.evictUser(userId);
         publishApplicationsChanged(userId);
     }
 
@@ -159,7 +157,6 @@ public class JobApplicationService implements IJobApplicationService {
         jobApplicationRepository.save(jobApplication);
 
         log.info("Toggled");
-        jobApplicationPageCache.evictUser(userId);
         return jobApplication.getIsFavorite();
     }
 
@@ -173,14 +170,6 @@ public class JobApplicationService implements IJobApplicationService {
     private JobApplication fetchJobApplicationEntity(UUID jobApplicationId) throws NotFoundException {
         return jobApplicationRepository.findById(jobApplicationId)
                 .orElseThrow(() -> new NotFoundException("Not found"));
-    }
-
-    private PageResponse<JobApplicationDto> loadJobApplicationsPage(UUID userId, JobApplicationFilterDto filters, Pageable pageable) {
-        log.info("Fetching Job Applications");
-
-        Page<JobApplication> applications = jobApplicationRepository.findAll(userApplicationsMatching(userId, filters), pageable);
-
-        return PageResponse.from(applications.map(JobApplicationMapper::toDto));
     }
 
     private static Specification<JobApplication> userApplicationsMatching(UUID userId, JobApplicationFilterDto filters) {

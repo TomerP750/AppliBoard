@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A page of results that can be cached as JSON and read back ({@link Page} can't be deserialized).
+ * A page of results as a plain record, which can also be read back from JSON ({@link Page} can't be deserialized).
  * Its JSON matches what {@code PageSerializationMode.VIA_DTO} returns, so API clients see no difference.
  */
 public record PageResponse<T>(List<T> content, PageMetadata page) {

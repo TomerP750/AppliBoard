@@ -3,8 +3,6 @@ package com.backend.appliboard;
 import com.backend.appliboard.features.activity.ActivityService;
 import com.backend.appliboard.features.activity.ActivityType;
 import com.backend.appliboard.features.job_application.JobApplication;
-import com.backend.appliboard.features.job_application.JobApplicationMapper;
-import com.backend.appliboard.features.job_application.JobApplicationPageCache;
 import com.backend.appliboard.features.job_application.JobApplicationRepository;
 import com.backend.appliboard.features.job_application.JobApplicationService;
 import com.backend.appliboard.features.job_application.JobApplicationsChangedEvent;
@@ -43,17 +41,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -69,9 +64,6 @@ public class JobApplicationServiceTest {
 
     @Mock
     private JobApplicationRepository jobApplicationRepository;
-
-    @Mock
-    private JobApplicationPageCache jobApplicationPageCache;
 
     @Mock
     private UserService userService;
@@ -117,21 +109,7 @@ public class JobApplicationServiceTest {
     }
 
     @Test
-    public void allJobApplications_ShouldReturnCachedPage_WithoutQueryingDatabase() {
-        PageResponse<JobApplicationDto> cachedPage = PageResponse.from(
-                new PageImpl<>(List.of(JobApplicationMapper.toDto(jobApplication)), pageable, 1)
-        );
-        when(jobApplicationPageCache.getOrLoad(eq(USER_ID), any(), eq(pageable), any())).thenReturn(cachedPage);
-
-        PageResponse<JobApplicationDto> result = jobApplicationService.allJobApplications(USER_ID, emptyFilters(), pageable);
-
-        assertSame(cachedPage, result);
-        verifyNoInteractions(jobApplicationRepository);
-    }
-
-    @Test
     public void allJobApplications_ShouldReturnMappedUserApplications_WhenFiltersAreEmpty() {
-        loadPagesFromDatabaseOnCacheMiss();
         when(jobApplicationRepository.findAll(
                 ArgumentMatchers.<Specification<JobApplication>>any(),
                 eq(pageable)
@@ -151,7 +129,6 @@ public class JobApplicationServiceTest {
                 List.of(Position.BACKEND),
                 false
         );
-        loadPagesFromDatabaseOnCacheMiss();
         when(jobApplicationRepository.findAll(
                 ArgumentMatchers.<Specification<JobApplication>>any(),
                 eq(pageable)
@@ -166,7 +143,6 @@ public class JobApplicationServiceTest {
     @Test
     public void allJobApplications_ShouldCopyPageMetadata_WhenPageIsReturned() {
         Pageable secondPage = PageRequest.of(1, 1);
-        loadPagesFromDatabaseOnCacheMiss();
         when(jobApplicationRepository.findAll(
                 ArgumentMatchers.<Specification<JobApplication>>any(),
                 eq(secondPage)
@@ -203,7 +179,6 @@ public class JobApplicationServiceTest {
         assertEquals(user, savedApplication.getUser());
         assertFalse(savedApplication.getIsFavorite());
         verify(activityService).createActivity(user, dto.name(), ActivityType.CREATED);
-        verify(jobApplicationPageCache).evictUser(USER_ID);
         verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
     }
 
@@ -212,7 +187,7 @@ public class JobApplicationServiceTest {
         when(userService.fetchUserEntity(USER_ID)).thenThrow(new NotFoundException("User not found"));
 
         assertThrows(NotFoundException.class, () -> jobApplicationService.createJobApplication(USER_ID, createDto()));
-        verifyNoInteractions(jobApplicationPageCache, eventPublisher);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -238,7 +213,6 @@ public class JobApplicationServiceTest {
         assertEquals("Initial note", jobApplication.getNote());
         verify(jobApplicationRepository).save(jobApplication);
         verify(activityService).createActivity(user, "Updated Company", ActivityType.UPDATED);
-        verify(jobApplicationPageCache).evictUser(USER_ID);
         verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
     }
 
@@ -252,7 +226,6 @@ public class JobApplicationServiceTest {
         jobApplicationService.updateJobApplication(USER_ID, JOB_APPLICATION_ID, dto);
 
         assertEquals(Status.PENDING, jobApplication.getStatus());
-        verify(jobApplicationPageCache).evictUser(USER_ID);
         verifyNoInteractions(eventPublisher);
     }
 
@@ -265,7 +238,6 @@ public class JobApplicationServiceTest {
 
         verify(jobApplicationRepository).deleteById(JOB_APPLICATION_ID);
         verify(activityService).createActivity(user, jobApplication.getName(), ActivityType.DELETED);
-        verify(jobApplicationPageCache).evictUser(USER_ID);
         verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
     }
 
@@ -281,7 +253,6 @@ public class JobApplicationServiceTest {
         assertEquals(!initiallyFavorite, result);
         assertEquals(!initiallyFavorite, jobApplication.getIsFavorite());
         verify(jobApplicationRepository).save(jobApplication);
-        verify(jobApplicationPageCache).evictUser(USER_ID);
         verifyNoInteractions(eventPublisher);
     }
 
@@ -291,7 +262,7 @@ public class JobApplicationServiceTest {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> call.execute(jobApplicationService, USER_ID));
-        verifyNoInteractions(jobApplicationPageCache, eventPublisher);
+        verifyNoInteractions(eventPublisher);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -300,7 +271,7 @@ public class JobApplicationServiceTest {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
 
         assertThrows(UnauthorizedException.class, () -> call.execute(jobApplicationService, OTHER_USER_ID));
-        verifyNoInteractions(jobApplicationPageCache, eventPublisher);
+        verifyNoInteractions(eventPublisher);
     }
 
     /**
@@ -334,12 +305,6 @@ public class JobApplicationServiceTest {
         assertEquals(jobApplication.getNote(), dto.note());
         assertEquals(jobApplication.getAppliedAt(), dto.appliedAt());
         assertFalse(dto.isStale());
-    }
-
-    /** Simulates a cache miss: the page cache calls the loader (the database query) it was given. */
-    private void loadPagesFromDatabaseOnCacheMiss() {
-        when(jobApplicationPageCache.getOrLoad(eq(USER_ID), any(), any(), any()))
-                .thenAnswer(invocation -> invocation.<Supplier<PageResponse<JobApplicationDto>>>getArgument(3).get());
     }
 
     private Page<JobApplication> pageOf(JobApplication application) {

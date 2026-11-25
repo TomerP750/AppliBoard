@@ -48,14 +48,13 @@ A weekly AI review of the user's application consistency, built with **Spring AI
 
 ### Redis caching
 
-The application list is cached in **Redis** with cache-aside, written with `StringRedisTemplate`: on a hit the cached page is returned, on a miss MySQL filters, sorts and pages with JPA Specifications and the page is cached.
+A user's analytics are cached in **Redis** with cache-aside, written with `StringRedisTemplate`: on a hit the cached figures are returned, on a miss they are aggregated in MySQL and cached. The application list is not cached: it's an indexed per-user query, and the user who reads it is the one who changes it, so a cache would rarely be hit.
 
-- **One Redis hash per user**: `appliboard::jobApplications::<userId>`, with one field per filters + page combination. The key is the user ID, so one user can never read another user's cached data.
-- **O(1) invalidation**: create, update, delete and favorite remove the user's whole hash with a single `DEL`, after the DB transaction commits. No key scans or pattern deletes, other users keep their cached pages, and a failed write leaves the cache as it was.
-- **Typed JSON**: pages are stored as JSON and read back with a typed `TypeReference`, so no class names are stored in Redis. Pages are cached as a `PageResponse` record because Spring's `Page` can't be read back from JSON. Its JSON shape matches the API's normal page format, so clients see no difference.
-- **Atomic write + TTL**: a page is stored with a small Lua script that runs `HSET` and `EXPIRE ... NX` as one Redis command, so the user's hash can never exist without a TTL. It expires 5 minutes after its first page was cached, so cached data (including the time-based "stale" flag) is never older than that. `EXPIRE ... NX` needs Redis 7 or later.
-- **Fails safe**: short Redis timeouts (1 s connect, 500 ms per command). If Redis is down or slow, reads fall back to MySQL and errors are only logged. A failed eviction is logged too, and the stale pages expire through the TTL.
-- **Known limit**: a list read that runs at the same moment as a write can store the pre-write page after the eviction (the usual cache-aside race). That page is stale for at most the 5-minute TTL. A per-user version number in the key would close this gap if it ever mattered.
+- **One key per user**: `appliboard::analytics::<userId>`, holding the analytics as JSON. The key is the user ID, so one user can never read another user's cached data.
+- **Period-aware TTL**: an entry expires after 10 minutes or when the current week or month ends, whichever comes first, so weekly and monthly figures never carry over into the next period. `SET` with an expiry is a single command, so a key can never exist without a TTL.
+- **Event-driven invalidation**: creating or deleting an application, or changing its status, publishes `JobApplicationsChangedEvent`. Deleting an account publishes `UserDeletedEvent`. `AnalyticsCache` listens with `@TransactionalEventListener(AFTER_COMMIT)` and deletes the user's key, so a rolled-back write leaves the cache as it was, and the job application feature doesn't depend on analytics.
+- **Fails safe**: short Redis timeouts (1 s connect, 500 ms per command). If Redis is down or slow, reads fall back to MySQL and errors are only logged. A failed eviction is logged too, and the stale entry expires through the TTL.
+- **Known limit**: a read that runs at the same moment as a write can store the old figures after the eviction (the usual cache-aside race). They are stale for at most the 10-minute TTL.
 
 ### Accounts and UI
 
@@ -98,7 +97,7 @@ Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifica
 The backend has JUnit 5 and Mockito unit tests for the core services and the weekly review logic:
 
 - `JobApplicationServiceTest` and `UserServiceTest`
-- `JobApplicationPageCacheTest`: cache hits, misses, TTL, eviction after commit, and falling back when Redis is down
+- `AnalyticsServiceTest` and `AnalyticsCacheTest`: analytics figures, cache hits, misses, period-aware TTL, eviction, and falling back when Redis is down
 - `WeeklyReviewServiceTest`: generation, duplicate prevention and history
 - `WeeklyReviewWindowTest`: window boundaries, tested with a fixed `Clock`
 - `WeeklyConsistencyStatsTest`: totals, active days, streaks and trend
