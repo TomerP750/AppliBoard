@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
-import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
+import { AuthFormCard } from "../components/AuthFormCard";
+import { AUTH_INPUT_CLASS_NAME } from "../utils/authStyles";
 import { useAuth } from "../contexts/AuthContext";
 import type { LoginRequestDto } from "../models/LoginRequestDto";
 
@@ -34,15 +35,13 @@ export function LoginPage() {
 
 
     return (
-        <section className="flex flex-col items-center justify-center h-screen">
-            <h1 className="mb-3 text-center text-2xl font-semibold tracking-tight dark:text-white sm:text-3xl">
-                Sign in to your account
-            </h1>
-            <form
-                onSubmit={handleSubmit(handleLogin)}
-                className="w-md max-w-2xl space-y-5 p-6 shadow-2xl backdrop-blur-sm sm:p-8"
-            >
-                
+        <AuthFormCard
+            title="Welcome back"
+            subtitle="Sign in to keep track of your applications."
+            onSubmit={handleSubmit(handleLogin)}
+            submit={{ label: "Sign in", isPending }}
+            switchLink={{ prompt: "Don't have an account?", linkTo: "/auth/signup", linkLabel: "Sign up" }}
+        >
                 <Input
                     id="email"
                     type="email"
@@ -54,11 +53,10 @@ export function LoginPage() {
                     required
                     placeholder="name@example.com"
                     autoComplete="email"
-                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    className={AUTH_INPUT_CLASS_NAME}
                     error={errors.email?.message?.toString()}
                 />
 
-               
                 <Input
                     id="password"
                     type="password"
@@ -70,21 +68,9 @@ export function LoginPage() {
                     required
                     placeholder="Enter your password"
                     autoComplete="current-password"
-                    className="border-white/25 bg-transparent! text-white placeholder:text-zinc-300"
+                    className={AUTH_INPUT_CLASS_NAME}
                     error={errors.password?.message?.toString()}
                 />
-                <p className="text-center text-sm text-white/90">
-                    Don't have account?{" "}
-                    <Link to="/auth/signup" className="font-semibold text-white underline underline-offset-4">
-                        Sign up
-                    </Link>
-                </p>
-
-                <Button type="submit" loading={isPending} disabled={isPending} className="w-full">
-                    Login
-                </Button>
-
-            </form>
-        </section>
+        </AuthFormCard>
     )
 }

@@ -1,8 +1,9 @@
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { AuthFormCard } from "../components/AuthFormCard";
+import { AUTH_INPUT_CLASS_NAME } from "../utils/authStyles";
 import type { SignupRequestDto } from "../models/SignupRequestDto";
 import { Input } from "../../../shared/ui/Input";
-import { Button } from "../../../shared/ui/Button";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import type { ApiErrorResponse } from "../../../shared/models/ApiErrorResponse";
@@ -32,16 +33,14 @@ export function SignupPage() {
     };
 
     return (
-        <section className="flex flex-col items-center justify-center h-screen">
-            <h1 className="mb-3 text-center text-2xl font-semibold tracking-tight dark:text-white sm:text-3xl">
-                Create an account
-            </h1>
-            <form
-                onSubmit={handleSubmit(handleSignup)}
-                className="w-md max-w-2xl space-y-5 p-6 shadow-2xl backdrop-blur-lg sm:p-8"
-            >
+        <AuthFormCard
+            title="Create your account"
+            subtitle="Start tracking your job applications in one place."
+            onSubmit={handleSubmit(handleSignup)}
+            submit={{ label: "Create account", isPending }}
+            switchLink={{ prompt: "Already have an account?", linkTo: "/auth/login", linkLabel: "Sign in" }}
+        >
                 <div className="grid gap-5 sm:grid-cols-2">
-                    
                     <Input
                         id="firstName"
                         type="text"
@@ -50,7 +49,7 @@ export function SignupPage() {
                         required
                         placeholder="John"
                         autoComplete="given-name"
-                        className="bg-transparent! text-white placeholder:text-zinc-300"
+                        className={AUTH_INPUT_CLASS_NAME}
                         error={errors.firstName?.message?.toString()}
                     />
 
@@ -62,7 +61,7 @@ export function SignupPage() {
                         required
                         placeholder="Doe"
                         autoComplete="family-name"
-                        className="bg-transparent! text-white placeholder:text-zinc-300"
+                        className={AUTH_INPUT_CLASS_NAME}
                         error={errors.lastName?.message?.toString()}
                     />
 
@@ -79,7 +78,7 @@ export function SignupPage() {
                     required
                     placeholder="name@example.com"
                     autoComplete="email"
-                    className="bg-transparent! text-white placeholder:text-zinc-300"
+                    className={AUTH_INPUT_CLASS_NAME}
                     error={errors.email?.message?.toString()}
                 />
 
@@ -94,9 +93,11 @@ export function SignupPage() {
                     required
                     placeholder="Create a password"
                     autoComplete="new-password"
-                    className="bg-transparent! text-white placeholder:text-zinc-300"
+                    className={AUTH_INPUT_CLASS_NAME}
+                    helperText="At least 6 characters"
                     error={errors.password?.message?.toString()}
                 />
+
                 <Input
                     id="confirmPassword"
                     type="password"
@@ -105,19 +106,9 @@ export function SignupPage() {
                     required={true}
                     placeholder="Re-enter your password"
                     autoComplete="new-password"
-                    className="bg-transparent! text-white placeholder:text-zinc-300"
+                    className={AUTH_INPUT_CLASS_NAME}
                     error={errors.confirmPassword?.message?.toString()}
                 />
-                <p className="text-center text-sm text-white/90">
-                    Already have an account?{" "}
-                    <Link to="/auth/login" className="font-semibold text-white underline underline-offset-4">
-                        Login
-                    </Link>
-                </p>
-                <Button loading={isPending} disabled={isPending} type="submit" className="w-full">
-                    Create account
-                </Button>
-            </form>
-        </section>
+        </AuthFormCard>
     )
 }
