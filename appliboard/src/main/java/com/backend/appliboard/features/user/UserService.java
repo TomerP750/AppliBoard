@@ -9,6 +9,7 @@ import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,10 +21,11 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserService implements IUserService{
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Page<UserDto> allUsers(Pageable pageable) {
@@ -76,6 +78,8 @@ public class UserService implements IUserService{
     public void deleteUser(UUID userId) throws NotFoundException, UnauthorizedException {
         userRepository.deleteById(userId);
         log.info("User deleted");
+
+        eventPublisher.publishEvent(new UserDeletedEvent(userId));
     }
 
     @Override

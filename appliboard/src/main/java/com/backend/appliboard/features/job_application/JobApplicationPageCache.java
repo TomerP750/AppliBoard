@@ -2,6 +2,7 @@ package com.backend.appliboard.features.job_application;
 
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
 import com.backend.appliboard.features.job_application.dto.JobApplicationFilterDto;
+import com.backend.appliboard.features.user.UserDeletedEvent;
 import com.backend.appliboard.shared.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.core.JacksonException;
@@ -80,6 +83,14 @@ public class JobApplicationPageCache {
      */
     public void evictUser(UUID userId) {
         runAfterCommit(() -> deleteUserPages(userId));
+    }
+
+    /**
+     * Clears the deleted user's cached pages once the account deletion has committed.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void onUserDeleted(UserDeletedEvent event) {
+        deleteUserPages(event.userId());
     }
 
     private PageResponse<JobApplicationDto> readPage(String userKey, String pageField) {

@@ -2,6 +2,7 @@ package com.backend.appliboard;
 
 import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
+import com.backend.appliboard.features.user.UserDeletedEvent;
 import com.backend.appliboard.features.user.UserRepository;
 import com.backend.appliboard.features.user.UserService;
 import com.backend.appliboard.features.user.dto.UpdateUserDto;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +33,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepositoryMock;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisherMock;
 
     @InjectMocks
     private UserService userServiceMock;
@@ -116,10 +121,11 @@ public class UserServiceTest {
     }
 
     @Test
-    public void deleteUser_ShouldDeleteUser_WhenUserIdIsValid() throws NotFoundException, UnauthorizedException {
+    public void deleteUser_ShouldDeleteUserAndPublishUserDeletedEvent_WhenUserIdIsValid() throws NotFoundException, UnauthorizedException {
         userServiceMock.deleteUser(userId);
 
         verify(userRepositoryMock).deleteById(userId);
+        verify(eventPublisherMock).publishEvent(new UserDeletedEvent(userId));
     }
 
     @Test

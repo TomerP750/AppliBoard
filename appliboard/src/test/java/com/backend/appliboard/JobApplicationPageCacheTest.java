@@ -4,6 +4,7 @@ import com.backend.appliboard.features.job_application.JobApplicationPageCache;
 import com.backend.appliboard.features.job_application.Position;
 import com.backend.appliboard.features.job_application.Status;
 import com.backend.appliboard.features.job_application.dto.JobApplicationDto;
+import com.backend.appliboard.features.user.UserDeletedEvent;
 import com.backend.appliboard.shared.dto.PageResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -133,6 +134,13 @@ public class JobApplicationPageCacheTest {
         verify(redisTemplate, never()).delete(USER_KEY);
 
         TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+        verify(redisTemplate).delete(USER_KEY);
+    }
+
+    @Test
+    public void onUserDeleted_ShouldDeleteTheDeletedUsersHash() {
+        pageCache.onUserDeleted(new UserDeletedEvent(USER_ID));
+
         verify(redisTemplate).delete(USER_KEY);
     }
 
