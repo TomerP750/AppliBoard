@@ -115,8 +115,7 @@ public class JobApplicationService implements IJobApplicationService {
 
         log.info("Job application updated");
 
-        User user = userService.fetchUserEntity(userId);
-        activityService.createActivity(user, jobApplication.getName(), ActivityType.UPDATED);
+        activityService.createActivity(jobApplication.getUser(), jobApplication.getName(), ActivityType.UPDATED);
         if (dto.status() != null) {
             publishApplicationsChanged(userId);
         }
@@ -138,8 +137,7 @@ public class JobApplicationService implements IJobApplicationService {
 
         log.info("Deleted Job Application");
 
-        User user = userService.fetchUserEntity(userId);
-        activityService.createActivity(user, jobApplication.getName(), ActivityType.DELETED);
+        activityService.createActivity(jobApplication.getUser(), jobApplication.getName(), ActivityType.DELETED);
         publishApplicationsChanged(userId);
     }
 

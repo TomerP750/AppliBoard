@@ -201,7 +201,6 @@ public class JobApplicationServiceTest {
                 null
         );
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
-        when(userService.fetchUserEntity(USER_ID)).thenReturn(user);
 
         jobApplicationService.updateJobApplication(USER_ID, JOB_APPLICATION_ID, dto);
 
@@ -214,6 +213,7 @@ public class JobApplicationServiceTest {
         verify(jobApplicationRepository).save(jobApplication);
         verify(activityService).createActivity(user, "Updated Company", ActivityType.UPDATED);
         verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
+        verifyNoInteractions(userService);
     }
 
     @Test
@@ -221,7 +221,6 @@ public class JobApplicationServiceTest {
             throws NotFoundException, UnauthorizedException {
         UpdateJobApplicationDto dto = new UpdateJobApplicationDto("Renamed Company", null, null, null, null, null);
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
-        when(userService.fetchUserEntity(USER_ID)).thenReturn(user);
 
         jobApplicationService.updateJobApplication(USER_ID, JOB_APPLICATION_ID, dto);
 
@@ -232,13 +231,13 @@ public class JobApplicationServiceTest {
     @Test
     public void deleteJobApplication_ShouldDeleteApplication_WhenUserOwnsIt() throws NotFoundException, UnauthorizedException {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
-        when(userService.fetchUserEntity(USER_ID)).thenReturn(user);
 
         jobApplicationService.deleteJobApplication(USER_ID, JOB_APPLICATION_ID);
 
         verify(jobApplicationRepository).deleteById(JOB_APPLICATION_ID);
         verify(activityService).createActivity(user, jobApplication.getName(), ActivityType.DELETED);
         verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
+        verifyNoInteractions(userService);
     }
 
     @ParameterizedTest(name = "isFavorite {0} -> {1}")

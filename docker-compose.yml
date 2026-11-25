@@ -52,14 +52,12 @@ services:
     #   start_period: 30s
 
   redis:
-    image: redis:7.4
+    image: redis:8.8.3-alpine
     ports:
-      - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis_data:/data
+      - "6380:6379"
+    # A pure cache: no persistence (MySQL is the source of truth), capped memory, least recently used keys evicted first.
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
 
 volumes:
   mysql_data:
-  redis_data:
 

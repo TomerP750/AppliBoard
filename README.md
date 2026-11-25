@@ -140,7 +140,7 @@ AppliBoard/
 | AI weekly review and history | Done |
 | Stale-application reminder job and notification API | Done |
 | Notification menu connected to the live API | In progress |
-| Redis caching for the application list | Done: unit tested; not yet tested against a running Redis |
+| Redis caching for analytics | Done: unit tested; not yet tested against a running Redis |
 | Real email provider (currently a logging sender) | Planned |
 | CV helper: AI CV adjustment from an uploaded PDF and a job description | In progress: the backend endpoint is in place and the frontend UI is not connected yet |
 | CV helper: create a new CV from scratch | Planned |
