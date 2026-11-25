@@ -62,7 +62,7 @@ Conventions (from `job_application`):
   - Endpoints follow the existing verbs: `GET /all` (paged: `page`, `size`, `sort` params → `Pageable`), `GET /{id}`, `POST /create`, `PUT /update/{id}`, `DELETE /delete/{id}`, `PATCH /<action>/{id}`.
   - Get the user with `@AuthenticationPrincipal PrincipalUser user` → `user.getUserId()`. Request bodies use `@Valid @RequestBody`. Return DTOs or `Page<Dto>`, never entities.
   - No business logic in the controller.
-  - Inject the service by its **interface** (`I<Entity>Service`), per `clean-code.md`. Some existing controllers inject the concrete class. Don't change those unless asked.
+  - Inject the **concrete** service class (`<Entity>Service`), not the `I<Entity>Service` interface, per `clean-code.md`. The service still `implements I<Entity>Service`.
 - **Exceptions:** use `shared/exceptions/` (`NotFoundException`, `UnauthorizedException`, `InvalidInputException`, `FoundException`). Add a new one only if none fits, and register it in `GlobalExceptionHandler`.
 - **Security:** if the new path must be public, it needs a change in `SecurityConfig`. Ask first.
 - **Tests (only if asked):** `src/test/java/com/backend/appliboard/<Entity>ServiceTest.java`, JUnit 5 + Mockito, in the style of `JobApplicationServiceTest`.

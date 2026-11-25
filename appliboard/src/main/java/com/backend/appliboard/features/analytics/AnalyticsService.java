@@ -23,9 +23,18 @@ import java.util.UUID;
 public class AnalyticsService implements IAnalyticsService {
 
     private final JobApplicationRepository jobApplicationRepository;
+    private final AnalyticsCache analyticsCache;
 
+    /**
+     * Cached in Redis per user until the current week or month ends, or for at most 10 minutes.
+     * Creating, deleting or changing the status of an application clears the user's cached analytics.
+     */
     @Override
     public AnalyticsDto getAnalytics(UUID userId) {
+        return analyticsCache.getOrLoad(userId, getNextPeriodBoundary(), () -> loadAnalytics(userId));
+    }
+
+    private AnalyticsDto loadAnalytics(UUID userId) {
         return new AnalyticsDto(
                 getTotalApplicationSent(userId),
                 getWeeklyApplicationsSent(userId),
@@ -87,7 +96,6 @@ public class AnalyticsService implements IAnalyticsService {
         return countByStatus;
     }
 
-    //TODO add cache with redis
     private Map<DayOfWeek, Long> getWeeklyApplicationsByDay(UUID userId) {
         Instant startOfWeek = getStartOfCurrentWeek();
         Instant startOfNextWeek = getStartOfNextWeek(startOfWeek);
@@ -109,6 +117,16 @@ public class AnalyticsService implements IAnalyticsService {
         for (JobApplicationRepository.StatusCount statusCount : jobApplicationRepository.countByStatusForUser(userId)) {
             countByStatus.put(statusCount.getStatus(), statusCount.getCount());
         }
+    }
+
+    /**
+     * The earlier of the next week start and the next month start: the moment the weekly or monthly figures reset.
+     */
+    private Instant getNextPeriodBoundary() {
+        Instant startOfNextWeek = getStartOfNextWeek(getStartOfCurrentWeek());
+        Instant startOfNextMonth = getStartOfNextMonth(getStartOfCurrentMonth());
+
+        return startOfNextWeek.isBefore(startOfNextMonth) ? startOfNextWeek : startOfNextMonth;
     }
 
     private Instant getStartOfCurrentWeek() {

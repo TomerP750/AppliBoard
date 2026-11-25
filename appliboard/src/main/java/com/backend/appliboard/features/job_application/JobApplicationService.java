@@ -13,6 +13,7 @@ import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +31,7 @@ public class JobApplicationService implements IJobApplicationService {
     private final JobApplicationPageCache jobApplicationPageCache;
     private final UserService userService;
     private final ActivityService activityService;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     /**
@@ -76,6 +78,7 @@ public class JobApplicationService implements IJobApplicationService {
 
         activityService.createActivity(user, jobApplication.getName(), ActivityType.CREATED);
         jobApplicationPageCache.evictUser(userId);
+        publishApplicationsChanged(userId);
     }
 
     @Override
@@ -115,6 +118,9 @@ public class JobApplicationService implements IJobApplicationService {
         User user = userService.fetchUserEntity(userId);
         activityService.createActivity(user, jobApplication.getName(), ActivityType.UPDATED);
         jobApplicationPageCache.evictUser(userId);
+        if (dto.status() != null) {
+            publishApplicationsChanged(userId);
+        }
     }
 
     @Override
@@ -136,6 +142,7 @@ public class JobApplicationService implements IJobApplicationService {
         User user = userService.fetchUserEntity(userId);
         activityService.createActivity(user, jobApplication.getName(), ActivityType.DELETED);
         jobApplicationPageCache.evictUser(userId);
+        publishApplicationsChanged(userId);
     }
 
     @Override
@@ -154,6 +161,13 @@ public class JobApplicationService implements IJobApplicationService {
         log.info("Toggled");
         jobApplicationPageCache.evictUser(userId);
         return jobApplication.getIsFavorite();
+    }
+
+    /**
+     * Tells listeners (such as the analytics cache) that the user's aggregated figures may have changed.
+     */
+    private void publishApplicationsChanged(UUID userId) {
+        eventPublisher.publishEvent(new JobApplicationsChangedEvent(userId));
     }
 
     private JobApplication fetchJobApplicationEntity(UUID jobApplicationId) throws NotFoundException {

@@ -19,7 +19,7 @@ public class WeeklyReviewController {
 
     private static final int MAX_PAGE_SIZE = 50;
 
-    private final IWeeklyReviewService weeklyReviewService;
+    private final WeeklyReviewService weeklyReviewService;
 
     @GetMapping("/current")
     public WeeklyReviewStatusDto getCurrentReview(@AuthenticationPrincipal PrincipalUser user) {

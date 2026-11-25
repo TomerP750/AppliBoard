@@ -10,9 +10,9 @@ These apply to all code in this repo, backend and frontend. Apply them in propor
 | **Open/closed** | Add behavior by adding code, not by growing `if`/`switch` chains on a type. Prefer a lookup map (`Record<Status, string>`, an `EnumMap`) or a strategy/interface when a third or later case appears. Example: `EmailSender` with `LoggingEmailSender`, so a real sender can be added without changing callers. |
 | **Liskov substitution** | Every implementation of an interface (`I*Service`, `EmailSender`) must honor the same contract: same inputs, same meaning of the result, no surprise exceptions. |
 | **Interface segregation** | Keep interfaces and component props small and focused. Don't make a component take a big object when it needs two fields, and don't add methods to an interface that only one caller needs. |
-| **Dependency inversion** | Depend on interfaces, not implementations: inject `I*Service` / `EmailSender` through constructor injection (`@RequiredArgsConstructor` + `final` fields), never `new` a service or call a concrete class directly. On the frontend, components use the service only through React Query hooks. |
+| **Dependency inversion** | Let Spring provide dependencies through constructor injection (`@RequiredArgsConstructor` + `final` fields), and never `new` a service. Services keep their `I*Service` interface as the documented contract (`implements I*Service`), but callers inject the concrete `*Service` class. Depend on an interface only when it has several implementations (e.g. `EmailSender` with `LoggingEmailSender`). On the frontend, components use the service only through React Query hooks. |
 
-Don't create an interface or abstraction for something that has one implementation and no realistic second one, unless the existing pattern requires it (the `I*Service` + implementation convention does).
+Don't create an interface or abstraction for something that has one implementation and no realistic second one, unless the existing pattern requires it (the `I*Service` + implementation convention does, but inject the implementation, not the interface).
 
 ## DRY
 

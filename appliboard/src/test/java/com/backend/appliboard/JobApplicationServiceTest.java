@@ -7,6 +7,7 @@ import com.backend.appliboard.features.job_application.JobApplicationMapper;
 import com.backend.appliboard.features.job_application.JobApplicationPageCache;
 import com.backend.appliboard.features.job_application.JobApplicationRepository;
 import com.backend.appliboard.features.job_application.JobApplicationService;
+import com.backend.appliboard.features.job_application.JobApplicationsChangedEvent;
 import com.backend.appliboard.features.job_application.Position;
 import com.backend.appliboard.features.job_application.Status;
 import com.backend.appliboard.features.job_application.dto.CreateJobApplicationDto;
@@ -31,6 +32,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -76,6 +78,9 @@ public class JobApplicationServiceTest {
 
     @Mock
     private ActivityService activityService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private JobApplicationService jobApplicationService;
@@ -199,6 +204,7 @@ public class JobApplicationServiceTest {
         assertFalse(savedApplication.getIsFavorite());
         verify(activityService).createActivity(user, dto.name(), ActivityType.CREATED);
         verify(jobApplicationPageCache).evictUser(USER_ID);
+        verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
     }
 
     @Test
@@ -206,7 +212,7 @@ public class JobApplicationServiceTest {
         when(userService.fetchUserEntity(USER_ID)).thenThrow(new NotFoundException("User not found"));
 
         assertThrows(NotFoundException.class, () -> jobApplicationService.createJobApplication(USER_ID, createDto()));
-        verifyNoInteractions(jobApplicationPageCache);
+        verifyNoInteractions(jobApplicationPageCache, eventPublisher);
     }
 
     @Test
@@ -233,6 +239,21 @@ public class JobApplicationServiceTest {
         verify(jobApplicationRepository).save(jobApplication);
         verify(activityService).createActivity(user, "Updated Company", ActivityType.UPDATED);
         verify(jobApplicationPageCache).evictUser(USER_ID);
+        verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
+    }
+
+    @Test
+    public void updateJobApplication_ShouldNotPublishApplicationsChanged_WhenStatusIsNotUpdated()
+            throws NotFoundException, UnauthorizedException {
+        UpdateJobApplicationDto dto = new UpdateJobApplicationDto("Renamed Company", null, null, null, null, null);
+        when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
+        when(userService.fetchUserEntity(USER_ID)).thenReturn(user);
+
+        jobApplicationService.updateJobApplication(USER_ID, JOB_APPLICATION_ID, dto);
+
+        assertEquals(Status.PENDING, jobApplication.getStatus());
+        verify(jobApplicationPageCache).evictUser(USER_ID);
+        verifyNoInteractions(eventPublisher);
     }
 
     @Test
@@ -245,6 +266,7 @@ public class JobApplicationServiceTest {
         verify(jobApplicationRepository).deleteById(JOB_APPLICATION_ID);
         verify(activityService).createActivity(user, jobApplication.getName(), ActivityType.DELETED);
         verify(jobApplicationPageCache).evictUser(USER_ID);
+        verify(eventPublisher).publishEvent(new JobApplicationsChangedEvent(USER_ID));
     }
 
     @ParameterizedTest(name = "isFavorite {0} -> {1}")
@@ -260,6 +282,7 @@ public class JobApplicationServiceTest {
         assertEquals(!initiallyFavorite, jobApplication.getIsFavorite());
         verify(jobApplicationRepository).save(jobApplication);
         verify(jobApplicationPageCache).evictUser(USER_ID);
+        verifyNoInteractions(eventPublisher);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -268,7 +291,7 @@ public class JobApplicationServiceTest {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> call.execute(jobApplicationService, USER_ID));
-        verifyNoInteractions(jobApplicationPageCache);
+        verifyNoInteractions(jobApplicationPageCache, eventPublisher);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -277,7 +300,7 @@ public class JobApplicationServiceTest {
         when(jobApplicationRepository.findById(JOB_APPLICATION_ID)).thenReturn(Optional.of(jobApplication));
 
         assertThrows(UnauthorizedException.class, () -> call.execute(jobApplicationService, OTHER_USER_ID));
-        verifyNoInteractions(jobApplicationPageCache);
+        verifyNoInteractions(jobApplicationPageCache, eventPublisher);
     }
 
     /**

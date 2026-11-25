@@ -35,7 +35,7 @@ public class StaleApplicationReminderService {
             List.of(Status.PENDING, Status.IN_PROGRESS, Status.INTERVIEW_SCHEDULED);
 
     private final JobApplicationRepository jobApplicationRepository;
-    private final INotificationService notificationService;
+    private final NotificationService notificationService;
     private final StaleApplicationEmailService staleApplicationEmailService;
 
     /**

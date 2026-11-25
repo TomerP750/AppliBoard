@@ -5,7 +5,7 @@ paths:
 
 # Backend rules (Spring Boot, Java 17)
 
-- A feature lives in `features/<feature>/`: controller → `I<Name>Service` interface → `<Name>Service` impl → repository, plus entity, `<Name>Mapper`, and `dto/`. To create a new feature, follow the `new-feature` skill.
+- A feature lives in `features/<feature>/`: controller → `I<Name>Service` interface → `<Name>Service` impl → repository, plus entity, `<Name>Mapper`, and `dto/`. Controllers and other callers inject the concrete `<Name>Service`, not the interface. To create a new feature, follow the `new-feature` skill.
 - Controllers expose DTOs, never entities. Map with the feature's mapper.
 - Throw the existing exceptions in `shared/exceptions/` (`NotFoundException`, `InvalidInputException`, `UnauthorizedException`, ...) and let `GlobalExceptionHandler` shape the response. Don't build error responses in controllers.
 - Every query for user data must be scoped to the authenticated user (`PrincipalUser`).
