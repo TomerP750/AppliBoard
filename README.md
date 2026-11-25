@@ -48,14 +48,14 @@ A weekly AI review of the user's application consistency, built with **Spring AI
 
 ### Redis caching
 
-The application list is cached in **Redis** with cache-aside (`@Cacheable`): on a hit the cached page is returned, on a miss MySQL filters, sorts and pages with JPA Specifications and the result is cached.
+The application list is cached in **Redis** with cache-aside, written with `StringRedisTemplate`: on a hit the cached page is returned, on a miss MySQL filters, sorts and pages with JPA Specifications and the page is cached.
 
-- **One entry per user, filters and page**: `appliboard::jobApplications::<userId>:<filters>:<page>`. Keys start with the user ID, so one user can never read another user's cached data.
-- **Per-user invalidation**: create, update, delete and favorite clear only that user's pages with a pattern delete (`<userId>:*`), after the DB transaction commits. Other users keep their cached pages, and a failed write leaves the cache as it was.
-- **`SCAN`, never `KEYS`**: the cache writer deletes by pattern with `SCAN` in batches of 1000, so Redis keeps serving other requests during a delete. `KEYS` is avoided because it blocks Redis while it goes through every key.
-- **Why `SCAN` and not per-user version numbers**: the app reads far more than it writes, and the keyspace is small. `SCAN` costs a little on each (rare) write and nothing extra on reads, while a version number adds a Redis lookup to every read. If the app became write-heavy or the keyspace grew large, I'd switch to a per-user version number in the cache key: one `INCR` per write (O(1)), with old entries expiring through the TTL.
-- **JSON values** with type info limited to the app's own classes, and a 5-minute TTL. Pages are cached as a `PageResponse` record because Spring's `Page` can't be read back from JSON. Its JSON shape matches the API's normal page format, so clients see no difference.
-- **Fails safe**: if Redis is down during a write, the eviction is logged and the stale pages expire through the TTL.
+- **One Redis hash per user**: `appliboard::jobApplications::<userId>`, with one field per filters + page combination. The key is the user ID, so one user can never read another user's cached data.
+- **O(1) invalidation**: create, update, delete and favorite remove the user's whole hash with a single `DEL`, after the DB transaction commits. No key scans or pattern deletes, other users keep their cached pages, and a failed write leaves the cache as it was.
+- **Typed JSON**: pages are stored as JSON and read back with a typed `TypeReference`, so no class names are stored in Redis. Pages are cached as a `PageResponse` record because Spring's `Page` can't be read back from JSON. Its JSON shape matches the API's normal page format, so clients see no difference.
+- **Atomic write + TTL**: a page is stored with a small Lua script that runs `HSET` and `EXPIRE ... NX` as one Redis command, so the user's hash can never exist without a TTL. It expires 5 minutes after its first page was cached, so cached data (including the time-based "stale" flag) is never older than that. `EXPIRE ... NX` needs Redis 7 or later.
+- **Fails safe**: short Redis timeouts (1 s connect, 500 ms per command). If Redis is down or slow, reads fall back to MySQL and errors are only logged. A failed eviction is logged too, and the stale pages expire through the TTL.
+- **Known limit**: a list read that runs at the same moment as a write can store the pre-write page after the eviction (the usual cache-aside race). That page is stale for at most the 5-minute TTL. A per-user version number in the key would close this gap if it ever mattered.
 
 ### Accounts and UI
 
@@ -98,6 +98,7 @@ Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifica
 The backend has JUnit 5 and Mockito unit tests for the core services and the weekly review logic:
 
 - `JobApplicationServiceTest` and `UserServiceTest`
+- `JobApplicationPageCacheTest`: cache hits, misses, TTL, eviction after commit, and falling back when Redis is down
 - `WeeklyReviewServiceTest`: generation, duplicate prevention and history
 - `WeeklyReviewWindowTest`: window boundaries, tested with a fixed `Clock`
 - `WeeklyConsistencyStatsTest`: totals, active days, streaks and trend
