@@ -6,10 +6,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.annotation.Order;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -28,36 +30,41 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         try {
-
-            String token = parseJwt(request);
-
-            if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                if (jwtService.isValidToken(token)) {
-
-                    UUID userId = jwtService.extractUserId(token);
-
-                    PrincipalUser principalUser = principalUserService.loadByUserId(userId);
-
-                    Authentication auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    principalUser,
-                                    null,
-                                    principalUser.getAuthorities()
-                            );
-
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-
-                }
-
-            }
-            filterChain.doFilter(request, response);
-
-        } catch (JwtException e) {
+            authenticateWithAccessToken(request);
+        } catch (JwtException | UsernameNotFoundException e) {
+            // Expired tokens are routine (every 15 minutes per user), so this is debug, not an error.
+            log.debug("Rejected access token: {}", e.getMessage());
+            // 401 (not 500) so the frontend refreshes the session or logs the user out.
             SecurityContextHolder.clearContext();
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired access token");
+            return;
         }
 
+        filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Signs the request in when it carries a valid access token. Without a token the request stays anonymous,
+     * and protected endpoints answer 401 (see the entry point in {@link SecurityConfig}).
+     *
+     * @throws JwtException when the token is malformed, expired, badly signed or not an access token
+     * @throws UsernameNotFoundException when the token is valid but its user was deleted
+     */
+    private void authenticateWithAccessToken(HttpServletRequest request) throws UsernameNotFoundException {
+        String token = parseJwt(request);
+        if (token == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+            return;
+        }
+
+        UUID userId = jwtService.extractUserIdFromAccessToken(token);
+        PrincipalUser principalUser = principalUserService.loadByUserId(userId);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                principalUser,
+                null,
+                principalUser.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Override

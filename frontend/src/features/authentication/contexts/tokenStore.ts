@@ -1,12 +1,16 @@
-const ACCESS_TOKEN_STORAGE_KEY = "accessToken";
+let accessToken: string | null = null;
 
 /**
- * Keeps the JWT access token in localStorage so a reload or a new tab stays
- * logged in until the token expires. There is no refresh token: once the
- * backend rejects the token, the user has to log in again.
+ * Keeps the short-lived JWT access token in memory only, so other scripts on
+ * the page can't read it from storage. A reload loses it; the app then gets a
+ * new one from the httpOnly refresh cookie (see `refreshSession`).
  */
 export const tokenStore = {
-    get: () => localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY),
-    set: (token: string) => localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token),
-    clear: () => localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY),
+    get: () => accessToken,
+    set: (token: string) => {
+        accessToken = token;
+    },
+    clear: () => {
+        accessToken = null;
+    },
 };

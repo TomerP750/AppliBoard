@@ -6,15 +6,16 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AuthResponseDto } from "../models/AuthResponseDto";
 import type { UserDto } from "../../../shared/models/UserDto";
 import { tokenStore } from "./tokenStore";
+import { sessionHint } from "./sessionHint";
 import { registerAuthInterceptor } from "../api/registerAuthInterceptor";
-import userService from "../../dashboard/settings/api/userService";
+import { refreshSession } from "../api/refreshSession";
 import axios from "axios";
 
 const USER_QUERY_KEY = ["auth", "user"] as const;
 
 type AuthState = {
     user: UserDto | null;
-    /** True while the initial user fetch (from the stored token) is in flight. */
+    /** True while the session restore (refresh on app start) is in flight. */
     isLoading: boolean;
 }
 
@@ -35,25 +36,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const queryClient = useQueryClient();
 
     /**
-     * Whether a token was saved when the app started, read once on mount. Later
+     * Whether this browser was logged in last time, read once on mount. Later
      * logins seed the cache directly, so this only decides if the app starts by
      * trying to restore a session.
      */
-    const [hasStoredToken] = useState(() => tokenStore.get() !== null);
+    const [hadSession] = useState(() => sessionHint.exists());
 
     /**
-     * Restores the user from the stored token when the app starts, so a reload
-     * or a new tab keeps the session until the token expires.
+     * Restores the session when the app starts: the access token lives in memory
+     * only, so a reload or a new tab gets a new one from the refresh cookie.
      * Login/signup seed this same cache key, so consumers read one source of truth.
      *
-     * A 401 means the stored token expired or is invalid: the auth interceptor
-     * clears it, and the user starts logged out.
+     * A 401 means the refresh cookie expired or was revoked: the user starts logged out.
      */
     const { data: user = null, isLoading } = useQuery<UserDto | null>({
         queryKey: USER_QUERY_KEY,
         queryFn: async () => {
             try {
-                return await userService.me();
+                return (await refreshSession()).userDto;
             } catch (error) {
                 if (axios.isAxiosError(error) && error.response?.status === 401) {
                     return null;
@@ -61,23 +61,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 throw error;
             }
         },
-        enabled: hasStoredToken,
+        enabled: hadSession,
         retry: false,
         staleTime: Infinity,
     });
 
     useEffect(() => {
         return registerAuthInterceptor(() => {
+            sessionHint.clear();
             queryClient.setQueryData(USER_QUERY_KEY, null);
         });
     }, [queryClient]);
 
     /**
-     * Persists the returned JWT and seeds the user cache from an auth response,
-     * keeping login and signup in sync.
+     * Keeps the returned JWT in memory and seeds the user cache from an auth response,
+     * keeping login and signup in sync. The refresh token arrives as an httpOnly cookie.
      */
     const applyAuthResponse = useCallback(({ accessToken, userDto }: AuthResponseDto) => {
         tokenStore.set(accessToken);
+        sessionHint.set();
         queryClient.setQueryData(USER_QUERY_KEY, userDto);
     }, [queryClient]);
 
@@ -96,13 +98,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }, [applyAuthResponse]);
 
     /**
-     * Logs the user out locally by removing the token and clearing cached user data.
+     * Ends the session on the server (which deletes the refresh cookie), then
+     * removes the token and cached user data locally.
      */
     const logout = useCallback(async () => {
         try {
             await authService.logout();
         } finally {
             tokenStore.clear();
+            sessionHint.clear();
             queryClient.setQueryData(USER_QUERY_KEY, null);
         }
     }, [queryClient]);
