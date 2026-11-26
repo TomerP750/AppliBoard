@@ -18,6 +18,7 @@ import org.testcontainers.mysql.MySQLContainer;
  * Testcontainers removes them when the test run (the JVM) ends.
  * <p>
  * {@link ServiceConnection} points Spring at the containers, so no datasource or Redis URL is configured by hand.
+ * The image versions match {@code docker-compose.yml}; keep them in sync when one changes.
  * Requires Docker to be running.
  */
 @SpringBootTest
@@ -35,7 +36,7 @@ public abstract class IntegrationTestBase {
     static final MySQLContainer MYSQL = new MySQLContainer("mysql:8.4");
 
     @ServiceConnection(name = "redis")
-    static final GenericContainer<?> REDIS = new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
+    static final GenericContainer<?> REDIS = new GenericContainer<>("redis:8.8.3-alpine").withExposedPorts(6379);
 
     static {
         MYSQL.start();
