@@ -12,7 +12,7 @@ The project focuses on clean, production-style engineering:
 
 - Feature-based modules on both the frontend and the backend.
 - A layered REST API (controller → service interface → implementation → repository) with DTOs and mappers at the boundary.
-- Secure token-based authentication with short-lived JWT access tokens.
+- Secure token-based authentication: short-lived JWT access tokens plus rotating refresh tokens in Redis.
 - Relational persistence with MySQL and Spring Data JPA.
 - AI integration that is validated, fails safely, and never invents the numbers it reports.
 
@@ -65,10 +65,34 @@ A user's analytics are cached in **Redis** with cache-aside, written with `Strin
 
 ## Security and Session Management
 
-- Short-lived JWT access tokens are kept in memory on the client.
-- Refresh tokens and session restore are being moved to an external identity provider (e.g. AWS Cognito). Until then, a session ends when the access token expires or the page reloads.
-- Logout clears the client session state.
+### Tokens
+
+| Token | Lifetime | Where it lives | Used for |
+| --- | --- | --- | --- |
+| **Access token** (JWT) | 15 minutes | In memory in the browser, never in storage | The `Authorization: Bearer` header on every API call |
+| **Refresh token** (random, not a JWT) | 7 days per login | An `HttpOnly`, `SameSite=Strict` cookie, sent only to `/api/auth` | Getting a new access token |
+
+- **Rotating refresh tokens in Redis.** A token is `<familyId>.<secret>`. Redis stores only a SHA-256 hash of the secret, so a Redis dump can't be replayed. Every refresh swaps the secret for a new one.
+- **Reuse detection.** One login is one token "family". If an older secret of a family is used again, the token was copied, so the whole family is revoked.
+- **Fixed session length.** Rotation keeps the original TTL, so a session ends at most 7 days after login, however often it's refreshed.
+- **Access tokens are checked strictly.** Each one is verified once per request: signature, expiry, issuer and an `ACCESS` type claim. The signing key is built at startup, so a secret that is too short stops the app instead of failing every request.
+
+### Session flow
+
+- **Login and signup** return the access token in the body and set the refresh cookie.
+- **`POST /api/auth/refresh`** rotates the cookie and returns a new access token.
+- **Page reload:** the access token is in memory only, so the app restores the session by calling refresh once.
+- **Expired access token:** the Axios interceptor catches the `401`, refreshes once, and retries the request. Requests that fail at the same time share **one** refresh, and a browser lock (`navigator.locks`) stops two tabs from refreshing at once. Without that, the backend would see the same token twice and end the session. If the refresh fails, the user is logged out.
+- **Logout** revokes the session in Redis and clears the cookie.
+- **Password change** ends every session of the user; the device that made the change gets a new one and stays signed in.
+- **Account deletion** revokes all of the user's sessions once the deletion has committed.
+
+### Other measures
+
 - Passwords are hashed with BCrypt, and Spring Security scopes every resource to the authenticated user.
+- An unknown email at login gets the same "Bad credentials" answer as a wrong password, so the login form doesn't reveal which emails are registered.
+- Unauthenticated requests, expired tokens and tokens of deleted users all return `401`, so the client always knows when to refresh.
+- Redis errors on sessions fail closed: unlike the analytics cache, there's no database to fall back to.
 - A global exception handler maps domain exceptions to consistent HTTP responses (400, 401, 404, 409, 503).
 
 ## Architecture
@@ -78,6 +102,7 @@ React SPA (Vite, TypeScript)
         │  Axios + TanStack Query
         ▼
 Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifications, weekly reviews)
+        ├── Redis                 (refresh-token sessions, analytics cache)
         ├── @Scheduled job        (stale applications → notification + email reminder)
         └── Spring AI (Anthropic) (weekly review, CV adjustment)
 ```
@@ -88,7 +113,7 @@ Spring Boot REST API ──▶ MySQL    (applications, users, activity, notifica
 | --- | --- |
 | **Frontend** | React 19, TypeScript, Vite, React Router, TanStack Query, React Hook Form, Axios, Tailwind CSS, Recharts, Lucide React |
 | **Backend** | Java 17, Spring Boot 4, Spring MVC, Spring Security, Spring Data JPA, Spring Validation, Spring AI, JWT, Lombok, Maven |
-| **Data** | MySQL, Redis (cache) |
+| **Data** | MySQL, Redis (refresh-token sessions and analytics cache) |
 | **Testing** | JUnit 5, Mockito |
 | **CI** | GitHub Actions (backend unit tests and build, triggered manually) |
 
@@ -98,6 +123,7 @@ The backend has JUnit 5 and Mockito unit tests for the core services and the wee
 
 - `JobApplicationServiceTest` and `UserServiceTest`
 - `AnalyticsServiceTest` and `AnalyticsCacheTest`: analytics figures, cache hits, misses, period-aware TTL, eviction, and falling back when Redis is down
+- `RefreshTokenStoreTest`: refresh token creation, rotation, reuse detection and revocation
 - `WeeklyReviewServiceTest`: generation, duplicate prevention and history
 - `WeeklyReviewWindowTest`: window boundaries, tested with a fixed `Clock`
 - `WeeklyConsistencyStatsTest`: totals, active days, streaks and trend
@@ -116,7 +142,7 @@ AppliBoard/
 │   ├── src/main/java/com/backend/appliboard/
 │   │   ├── features/                   # authentication, user, job_application, analytics,
 │   │   │                               # activity, notification, weekly_review, cv_helper
-│   │   ├── infrastructures/            # JWT, Spring Security and AI configuration
+│   │   ├── infrastructures/            # JWT, refresh tokens, Spring Security and AI configuration
 │   │   └── shared/                     # exceptions and global error handling
 │   ├── src/main/resources/             # configuration and AI prompt templates
 │   └── src/test/java/                  # unit tests
@@ -135,6 +161,7 @@ AppliBoard/
 | Area | Status |
 | --- | --- |
 | Authentication, application management, search and pagination | Done |
+| Rotating refresh tokens, session restore and automatic refresh on `401` | Done: not yet tested end to end; `AuthService` and `JwtFilter` have no tests yet |
 | Dashboard, activity feed and analytics | Done |
 | Account settings, theming and responsive navigation | Done |
 | AI weekly review and history | Done |

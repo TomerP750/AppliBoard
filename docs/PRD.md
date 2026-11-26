@@ -33,20 +33,20 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 
 | # | Feature | Status | Requirements |
 | --- | --- | --- | --- |
-| F1 | **Authentication** | In progress | Sign up, log in, log out (done). Short-lived JWT access token in memory; BCrypt passwords. Remaining: refresh tokens and session restore through an external identity provider (e.g. AWS Cognito); the previous MongoDB refresh-token store was removed. |
+| F1 | **Authentication** | Done | Sign up, log in, log out; BCrypt passwords. Short-lived JWT access token (15 min) kept in memory. Rotating refresh token (7-day session) in an `HttpOnly` cookie, stored hashed in Redis with reuse detection. The client refreshes once on `401` (one shared refresh across requests and tabs) and restores the session on reload. Logout, password change and account deletion revoke sessions. Remaining: tests for `AuthService` and `JwtFilter`. |
 | F2 | **Application management** | Done | Create, edit, delete, favorite. Fields: company, location, position, status, date, notes. |
 | F3 | **Search, filter, sort, paginate** | Done | Search by company; filter by status, position, favorites; sort by date; configurable page size. |
 | F4 | **Dashboard & activity** | Done | Quick actions and recent create/update/delete activity feed. |
 | F5 | **Analytics** | Done | Totals, weekly submissions, status distribution, daily/monthly activity charts. |
 | F6 | **Account settings** | Done | Update profile, change password, delete account, light/dark theme. |
 | F7 | **Notifications** | In progress | Paginated list, unread count, mark as read (done). A daily scheduled job finds stale applications and creates an in-app notification and an email reminder for each. Remaining: real email sender (currently `LoggingEmailSender`), live frontend integration. |
-| F8 | **CV helper (AI)** | In progress | Upload CV (PDF, ≤5 MB), adjust it to a job description, create a new CV with a chosen layout, using Spring AI (OpenAI / Anthropic). |
-| F9 | **AI summary** | Planned | AI summary of the job search with trends and history (frontend currently uses dummy data). |
+| F8 | **CV helper (AI)** | In progress | Upload CV (PDF, ≤5 MB), adjust it to a job description, create a new CV with a chosen layout, using Spring AI (OpenAI / Anthropic). Remaining: connect the adjust page to the existing `/api/cv-helper/adjust` endpoint; build the create-from-scratch endpoint and flow. |
+| F9 | **AI weekly review** | Done | Weekly AI review of application consistency: stats computed in code, summary and notes written by the AI, validated output, one review per week, and a paginated history. Remaining: delete the unused sample data files in the frontend. |
 | F10 | **Responsive UI** | Done | Desktop sidebar, mobile bottom menu, accessible light/dark themes. |
 
 ## Non-functional requirements
 
-- **Security:** users may access only their own resources; no secrets in code or logs; validate all input on the server.
+- **Security:** users may access only their own resources; no secrets in code or logs; validate all input on the server. Expired or missing logins return `401`; login errors don't reveal which emails are registered; session storage fails closed when Redis is down.
 - **Reliability:** scheduled jobs must not send the same reminder twice, and one failing item must not stop the rest of the run.
 - **Performance:** list endpoints are paginated; no unbounded queries.
 - **Accessibility:** WCAG AA contrast, keyboard support, labeled controls (see `frontend/AGENTS.md`).
@@ -56,6 +56,7 @@ Job seekers apply to many positions across many sites and quickly lose track of 
 
 ```text
 React SPA (Vite, TS) ──Axios/TanStack Query──▶ Spring Boot REST API ──▶ MySQL   (app data, JPA)
+                                                      ├── Redis (refresh-token sessions, analytics cache)
                                                       ├── @Scheduled job (stale applications → notification & email)
                                                       └── Spring AI (OpenAI / Anthropic) for CV features
 ```
@@ -63,7 +64,6 @@ React SPA (Vite, TS) ──Axios/TanStack Query──▶ Spring Boot REST API �
 ## Roadmap
 
 1. **Notifications:** connect the notification menu to the live API; add a real email sender.
-2. **CV helper:** complete the adjust and create flows end to end.
-3. **AI summary:** replace dummy data with a real backend endpoint.
-4. **Tests and CI:** broaden coverage (notifications, analytics, auth); run CI on push/PR.
-5. **Authentication:** add refresh tokens and session restore through an external identity provider (e.g. AWS Cognito).
+2. **Tests and CI:** add tests for auth (`AuthService`, `JwtService`, `JwtFilter`), notifications, activity and controllers; run CI on push/PR with all backend tests plus frontend lint and build.
+3. **CV helper:** complete the adjust and create flows end to end.
+4. **Before going live:** read the allowed CORS origin from config instead of `localhost:5173`; set `AUTH_COOKIE_SECURE=true` behind HTTPS.
