@@ -1,5 +1,5 @@
 import { Status } from "../../applications/models/Status";
-import { Loader2 } from "lucide-react";
+import { Hourglass } from "lucide-react";
 import { ActivityIcon } from "lucide-react";
 import { CheckCircle } from "lucide-react";
 import { XCircle } from "lucide-react";
@@ -8,7 +8,7 @@ import { Briefcase } from "lucide-react";
 export function getIconByStatus(status: Status) {
     switch (status) {
         case Status.PENDING:
-            return Loader2;
+            return Hourglass;
         case Status.IN_PROGRESS:
             return ActivityIcon;
         case Status.ACCEPTED:
