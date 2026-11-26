@@ -25,6 +25,7 @@ These are also enforced in `.claude/settings.json`.
 - Stay in scope: change only what the request needs. Mention unrelated issues instead of fixing them.
 - Follow existing patterns in neighboring code before inventing new ones.
 - If a request is ambiguous or has several reasonable designs, ask before writing a lot of code.
+- **After every code change, run the `code-reviewer` skill** on the changed files before you report. It checks naming, readability, maintainability, modularity, correctness and edge cases, and you fix what it finds. For frontend UI changes, also run `ui-validator`.
 - Report honestly: what changed, what was checked, and what was not verified.
 
 ## Commit suggestion (end of every answer that changed files)
