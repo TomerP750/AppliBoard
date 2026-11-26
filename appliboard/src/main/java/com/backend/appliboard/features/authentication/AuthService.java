@@ -7,17 +7,17 @@ import com.backend.appliboard.features.user.Role;
 import com.backend.appliboard.features.user.User;
 import com.backend.appliboard.features.user.UserMapper;
 import com.backend.appliboard.features.user.UserRepository;
-import com.backend.appliboard.features.user.dto.UserDto;
 import com.backend.appliboard.infrastructures.security.JwtService;
-import com.backend.appliboard.infrastructures.security.PrincipalUser;
+import com.backend.appliboard.infrastructures.security.RefreshTokenStore;
+import com.backend.appliboard.infrastructures.security.RotatedRefreshToken;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
+import com.backend.appliboard.shared.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,32 +31,28 @@ public class AuthService implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final RefreshTokenStore refreshTokenStore;
 
     @Override
     @Transactional
-    public AuthResponseDto login(LoginRequestDto dto) throws NotFoundException {
+    public AuthSession login(LoginRequestDto dto) throws NotFoundException {
 
         log.info("Entering Login");
 
-        Authentication auth = authenticationManager.authenticate(
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
         );
 
-        PrincipalUser principal = (PrincipalUser) auth.getPrincipal();
-
-        String accessToken = jwtService.generateAccessToken(principal.getUserId(), principal.getEmail(), principal.getRole());
+        User user = userRepository.findByEmail(dto.email()).orElseThrow(() -> new NotFoundException("User not found"));
 
         log.info("Logged In Successfully");
 
-        User user = userRepository.findByEmail(dto.email()).orElseThrow(() -> new NotFoundException("User not found"));
-        UserDto userDto = UserMapper.toUserDto(user);
-
-        return new AuthResponseDto(accessToken, userDto);
+        return startSession(user);
     }
 
     @Override
     @Transactional
-    public AuthResponseDto signup(SignupRequestDto dto) throws InvalidInputException, FoundException {
+    public AuthSession signup(SignupRequestDto dto) throws InvalidInputException, FoundException {
 
         log.info("Signing User Up");
 
@@ -78,13 +74,38 @@ public class AuthService implements IAuthService {
 
         userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), Role.USER);
-
-        UserDto userDto = UserMapper.toUserDto(user);
-
         log.info("User Signed Up Successfully");
 
-        return new AuthResponseDto(accessToken, userDto);
+        return startSession(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthSession refresh(String refreshToken) throws UnauthorizedException {
+        RotatedRefreshToken rotatedToken = refreshTokenStore.rotateRefreshToken(refreshToken);
+
+        User user = userRepository.findById(rotatedToken.userId()).orElse(null);
+        if (user == null) {
+            refreshTokenStore.revokeRefreshToken(rotatedToken.token());
+            throw new UnauthorizedException("Refresh token expired or revoked");
+        }
+
+        return new AuthSession(buildAuthResponse(user), rotatedToken.token());
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+        refreshTokenStore.revokeRefreshToken(refreshToken);
+    }
+
+    private AuthSession startSession(User user) {
+        String refreshToken = refreshTokenStore.createRefreshToken(user.getId());
+        return new AuthSession(buildAuthResponse(user), refreshToken);
+    }
+
+    private AuthResponseDto buildAuthResponse(User user) {
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
+        return new AuthResponseDto(accessToken, UserMapper.toUserDto(user));
     }
 
 }
