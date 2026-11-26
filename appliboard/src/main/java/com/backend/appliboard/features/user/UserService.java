@@ -3,6 +3,7 @@ package com.backend.appliboard.features.user;
 import com.backend.appliboard.features.user.dto.ChangePasswordDto;
 import com.backend.appliboard.features.user.dto.UpdateUserDto;
 import com.backend.appliboard.features.user.dto.UserDto;
+import com.backend.appliboard.infrastructures.security.RefreshTokenStore;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
@@ -26,6 +27,7 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
+    private final RefreshTokenStore refreshTokenStore;
 
     @Override
     public Page<UserDto> allUsers(Pageable pageable) {
@@ -82,9 +84,18 @@ public class UserService implements IUserService {
         eventPublisher.publishEvent(new UserDeletedEvent(userId));
     }
 
+    /**
+     * Changes the password and ends every session of the user, so a stolen session can't outlive the old password.
+     * The device that made the change gets a new session right away instead of being logged out.
+     * <p>
+     * Redis errors propagate and roll the password change back, so the password never changes while old
+     * sessions stay valid.
+     *
+     * @return the refresh token of the new session for this device
+     */
     @Override
     @Transactional
-    public void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
+    public String changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
 
         User user = fetchUserEntity(userId);
 
@@ -100,6 +111,8 @@ public class UserService implements IUserService {
 
         userRepository.save(user);
 
+        refreshTokenStore.revokeAllRefreshTokens(userId);
+        return refreshTokenStore.createRefreshToken(userId);
     }
 
     public User fetchUserEntity(UUID userId) throws NotFoundException {

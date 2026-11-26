@@ -22,6 +22,7 @@ public interface IUserService {
 
     void deleteUser(UUID userId) throws NotFoundException, UnauthorizedException;
 
-    void changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException;
+    /** Changes the password, ends all sessions of the user, and returns the refresh token of a new session. */
+    String changePassword(UUID userId, ChangePasswordDto dto) throws NotFoundException, InvalidInputException;
 
 }

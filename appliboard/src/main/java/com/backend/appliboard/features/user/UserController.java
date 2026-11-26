@@ -4,6 +4,7 @@ import com.backend.appliboard.features.user.dto.ChangePasswordDto;
 import com.backend.appliboard.features.user.dto.UpdateUserDto;
 import com.backend.appliboard.features.user.dto.UserDto;
 import com.backend.appliboard.infrastructures.security.PrincipalUser;
+import com.backend.appliboard.infrastructures.security.RefreshTokenCookie;
 import com.backend.appliboard.shared.exceptions.FoundException;
 import com.backend.appliboard.shared.exceptions.InvalidInputException;
 import com.backend.appliboard.shared.exceptions.NotFoundException;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final RefreshTokenCookie refreshTokenCookie;
 
     @GetMapping("/me")
     public UserDto me(@AuthenticationPrincipal PrincipalUser principalUser) throws NotFoundException {
@@ -52,10 +56,14 @@ public class UserController {
         userService.deleteUser(userId);
     }
 
+    /** Other devices are logged out; this one gets a new refresh token cookie so it stays signed in. */
     @PatchMapping("change-password")
-    public void changePassword(@AuthenticationPrincipal PrincipalUser principalUser, @RequestBody ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal PrincipalUser principalUser, @RequestBody ChangePasswordDto dto) throws NotFoundException, InvalidInputException {
         UUID userId = principalUser.getUserId();
-        userService.changePassword(userId, dto);
+        String newRefreshToken = userService.changePassword(userId, dto);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.buildRefreshTokenCookie(newRefreshToken).toString())
+                .build();
     }
 
 }
