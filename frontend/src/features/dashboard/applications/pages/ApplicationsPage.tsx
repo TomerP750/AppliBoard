@@ -48,12 +48,12 @@ export default function ApplicationsPage() {
     const { currentPage, totalPages, canGoToPreviousPage, canGoToNextPage } = usePaginationMetadata(applications, requestedPage);
 
     return (
-        <section className="min-h-screen bg-zinc-50 p-6 pb-28 md:pb-6 dark:bg-dark-background">
+        <section className="flex h-dvh flex-col bg-zinc-50 p-6 pb-28 md:pb-6 dark:bg-dark-background">
 
             <DashboardHeader Icon={Briefcase} title={"Your Applications"} />
 
-            <div className="mt-8 max-w-7xl">
-                <div className="flex flex-wrap items-center gap-2">
+            <div className="mt-6 flex min-h-0 w-full max-w-7xl flex-1 flex-col">
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
 
                     <Button
                         className="rounded-none!"
@@ -102,6 +102,15 @@ export default function ApplicationsPage() {
                             </div>
                         )}
                     </div>
+
+                    {applications && !empty && (
+                        <p className="ml-auto text-sm text-zinc-500 dark:text-zinc-400">
+                            <span className="font-semibold text-zinc-800 dark:text-zinc-100">
+                                {applications.page.totalElements}
+                            </span>
+                            {applications.page.totalElements === 1 ? " application" : " applications"}
+                        </p>
+                    )}
                 </div>
 
                 <CreateModal
@@ -109,43 +118,44 @@ export default function ApplicationsPage() {
                     onClose={() => setAddModalOpen(false)}
                 />
 
-                {isLoading ? (
-                    <LoadingPage title="Loading applications..."/>
-                ) : isError ? (
-                    <p className="mt-6 text-sm text-rose-600 dark:text-rose-400">Could not load applications.</p>
-                ) : empty ? (
-                    <EmptyApplications />
-                ) : (
-                    <>
-                        <p className="mt-6 text-xs text-indigo-200 uppercase tracking-[0.16em]">
-                            Total applications: 
-                            <span className="ml-1 font-semibold">
-                                {applications?.page.totalElements}
-                            </span>
-                        </p>
-                        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3 ">
-                            {applicationsList.map((application) => (
-                                <ApplicationCard
-                                    key={application.id}
-                                    application={application} />
-                            ))}
+                <div className="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-zinc-200 dark:border-white/10">
+                    {isLoading ? (
+                        <LoadingPage fullScreen={false} className="flex-1" message="Loading applications..." />
+                    ) : isError ? (
+                        <p className="p-6 text-sm text-rose-600 dark:text-rose-400">Could not load applications.</p>
+                    ) : empty ? (
+                        <div className="min-h-0 flex-1 overflow-y-auto">
+                            <EmptyApplications />
                         </div>
+                    ) : (
+                        <>
+                            {/* Keyed by page so the list scrolls back to the top when the page changes. */}
+                            <div key={currentPage} className="min-h-0 flex-1 overflow-y-auto p-4">
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+                                    {applicationsList.map((application) => (
+                                        <ApplicationCard
+                                            key={application.id}
+                                            application={application} />
+                                    ))}
+                                </div>
+                            </div>
 
-                        <Pagination
-                            className="mt-6"
-                            currentPage={currentPage}
-                            currentPageSize={requestedPageSize}
-                            totalPages={totalPages}
-                            canPrevious={canGoToPreviousPage}
-                            canNext={canGoToNextPage}
-                            onPrevious={() => updatePaginationParams(currentPage - 1)}
-                            onNext={() => updatePaginationParams(currentPage + 1)}
-                            onPageChange={updatePaginationParams}
-                            onPageSizeChange={updatePageSizeParam}
-                            pageSizeOptions={APPLICATIONS_PAGE_SIZE_OPTIONS}
-                        />
-                    </>
-                )}
+                            <Pagination
+                                className="shrink-0 px-4 pb-4"
+                                currentPage={currentPage}
+                                currentPageSize={requestedPageSize}
+                                totalPages={totalPages}
+                                canPrevious={canGoToPreviousPage}
+                                canNext={canGoToNextPage}
+                                onPrevious={() => updatePaginationParams(currentPage - 1)}
+                                onNext={() => updatePaginationParams(currentPage + 1)}
+                                onPageChange={updatePaginationParams}
+                                onPageSizeChange={updatePageSizeParam}
+                                pageSizeOptions={APPLICATIONS_PAGE_SIZE_OPTIONS}
+                            />
+                        </>
+                    )}
+                </div>
             </div>
 
         </section>

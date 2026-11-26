@@ -14,12 +14,15 @@
   --color-dark-surface: #0d111d;
 }
 
-/* Chart colors that change with the theme (SVG attributes can't use dark: classes). */
+/* Chart colors that change with the theme (SVG attributes can't use dark: classes).
+   color-scheme makes native UI (scrollbars, form controls) follow the app theme. */
 :root {
+  color-scheme: light;
   --chart-grid: #e4e4e7; /* zinc-200 */
 }
 
 .dark {
+  color-scheme: dark;
   --chart-grid: #3f3f46; /* zinc-700 */
 }
 

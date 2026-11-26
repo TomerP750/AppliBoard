@@ -16,8 +16,9 @@ export function LoadingPage({
 }: LoadingPageProps) {
     const containerClasses = [
         "flex flex-col items-center justify-center gap-4",
-        fullScreen ? "min-h-screen" : "h-full w-full py-16",
-        "bg-dark-background text-white",
+        fullScreen
+            ? "min-h-screen bg-dark-background text-white"
+            : "h-full w-full py-16 text-zinc-600 dark:text-zinc-300",
         className,
     ]
         .filter(Boolean)
@@ -30,7 +31,7 @@ export function LoadingPage({
                 aria-hidden="true"
             />
             {message && (
-                <p className="text-sm font-medium text-white/80">{message}</p>
+                <p className="text-sm font-medium opacity-80">{message}</p>
             )}
             <span className="sr-only">{message}</span>
         </div>

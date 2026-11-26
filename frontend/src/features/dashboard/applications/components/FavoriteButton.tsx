@@ -8,9 +8,11 @@ import type { PageResponse } from "../../../../shared/models/PageResponse";
 interface FavoriteButtonProps {
     applicationId: string;
     isFavorite: boolean;
+    /** Layout and focus classes shared with the card's other icon actions. */
+    className?: string;
 }
 
-export function FavoriteButton({ applicationId, isFavorite }: FavoriteButtonProps) {
+export function FavoriteButton({ applicationId, isFavorite, className = "" }: FavoriteButtonProps) {
 
     const queryClient = useQueryClient();
 
@@ -43,19 +45,19 @@ export function FavoriteButton({ applicationId, isFavorite }: FavoriteButtonProp
         toggleFavorite();
     };
 
+    const stateClassName = isFavorite
+        ? "text-amber-600 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-400/10"
+        : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-100";
+
     return (
         <Button
-            variant="ghost"
-            size="sm"
+            variant="headless"
             onClick={handleToggleFavorite}
-            leftIcon={<StarIcon size={18} className={isFavorite ? "fill-current" : ""} />}
+            leftIcon={<StarIcon size={18} aria-hidden="true" className={isFavorite ? "fill-current" : ""} />}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
             aria-pressed={isFavorite}
-            className={`h-10 w-10 rounded-none p-0 transition outline-none! focus:ring-0!
-                            ${isFavorite
-                    ? "text-yellow-500! hover:bg-yellow-50 hover:text-yellow-500 dark:text-yellow-300 dark:hover:bg-yellow-900/20 dark:hover:text-yellow-200"
-                    : "text-zinc-500 hover:bg-white hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
-                }`}
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            className={`${className} ${stateClassName}`}
         />
     );
 }

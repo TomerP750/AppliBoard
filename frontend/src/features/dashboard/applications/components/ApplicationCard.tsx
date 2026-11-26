@@ -1,55 +1,48 @@
-import { Building2Icon, CalendarIcon, ClockAlertIcon, FileTextIcon, MapPinIcon, MonitorIcon, NotepadText, PencilIcon, Trash2Icon } from "lucide-react";
+import { BriefcaseIcon, CalendarIcon, ClockAlertIcon, MapPinIcon, NotepadText, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../../../../shared/ui/Button";
 import { toTitleCase } from "../../../../shared/util/toTitleCase";
-import { getIconByStatus } from "../../analytics/utils/getIconByStatus";
 import type { JobApplicationDto } from "../models/JobApplicationDto";
 import type { Status } from "../models/Status";
 import { DeleteModal } from "./crud_modals/DeleteModal";
 import { UpdateModal } from "./crud_modals/UpdateModal";
 import { FavoriteButton } from "./FavoriteButton";
 import { NoteModal } from "./NoteModal";
-import { RowCard } from "./RowCard";
 
 type ApplicationCardProps = {
     application: JobApplicationDto;
 };
 
-const statusClasses: Record<Status, string> = {
-    PENDING: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-    IN_PROGRESS: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
-    ACCEPTED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
-    REJECTED: "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300",
+const statusStyles: Record<Status, { pill: string; dot: string }> = {
+    PENDING: {
+        pill: "bg-amber-50 text-amber-800 ring-amber-600/20 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/20",
+        dot: "bg-amber-500 dark:bg-amber-400",
+    },
+    IN_PROGRESS: {
+        pill: "bg-sky-50 text-sky-800 ring-sky-600/20 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/20",
+        dot: "bg-sky-500 dark:bg-sky-400",
+    },
+    ACCEPTED: {
+        pill: "bg-emerald-50 text-emerald-800 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/20",
+        dot: "bg-emerald-500 dark:bg-emerald-400",
+    },
+    REJECTED: {
+        pill: "bg-rose-50 text-rose-800 ring-rose-600/20 dark:bg-rose-400/10 dark:text-rose-300 dark:ring-rose-400/20",
+        dot: "bg-rose-500 dark:bg-rose-400",
+    },
 };
 
-export function ApplicationCard({ application }: ApplicationCardProps) {
+const iconActionClassName =
+    "inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40";
 
-    const accentClasses = {
-        PENDING: {
-            icon: "bg-indigo-400/10 text-yellow-400 ring-indigo-400/20",
-            watermark: "text-yellow-400/30",
-            glow: "bg-yellow-400/25",
-            button: "!bg-yellow-400 hover:!bg-yellow-500 focus:!ring-yellow-400/40",
-        },
-        IN_PROGRESS: {
-            icon: "bg-sky-400/10 text-sky-400 ring-sky-400/20",
-            watermark: "text-sky-400/30",
-            glow: "bg-sky-400/25",
-            button: "!bg-sky-400 hover:!bg-sky-500 focus:!ring-sky-400/40",
-        },
-        ACCEPTED: {
-            icon: "bg-emerald-400/10 text-emerald-400 ring-emerald-400/20",
-            watermark: "text-emerald-400/30",
-            glow: "bg-emerald-400/25",
-            button: "!bg-emerald-400 hover:!bg-emerald-500 focus:!ring-emerald-400/40",
-        },
-        REJECTED: {
-            icon: "bg-rose-400/10 text-rose-400 ring-rose-400/20",
-            watermark: "text-rose-400/30",
-            glow: "bg-rose-400/25",
-            button: "!bg-rose-400 hover:!bg-rose-500 focus:!ring-rose-400/40",
-        },
-    }[application.status];
+const neutralIconActionClassName =
+    `${iconActionClassName} text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-white/5 dark:hover:text-zinc-100`;
+
+const fieldLabelClassName = "flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400";
+
+const fieldValueClassName = "mt-1 truncate text-[15px] font-medium text-zinc-800 dark:text-zinc-100";
+
+export function ApplicationCard({ application }: ApplicationCardProps) {
 
     const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
     const [updateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
@@ -61,116 +54,122 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         day: "numeric",
     });
 
-    const rows = [
-        { Icon: Building2Icon, text: application.name },
-        { Icon: MapPinIcon, text: application.city },
-        { Icon: MonitorIcon, text: toTitleCase(application.position) },
-        { Icon: CalendarIcon, text: `Applied on ${formattedAppliedDate}` },
-    ];
-
-
-    const Icon = getIconByStatus(application.status);
+    const companyInitial = application.name.trim().charAt(0).toUpperCase() || "?";
+    const { pill, dot } = statusStyles[application.status];
 
     return (
-        <article className="relative group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700">
+        <article className="flex flex-col rounded-xl border border-zinc-200 bg-white shadow-xs transition-colors hover:border-zinc-300 dark:border-white/10 dark:bg-dark-surface dark:hover:border-white/20">
 
-            <div className={`absolute right-0 bottom-0 lg:-right-5 lg:-bottom-5 h-28 w-28 rounded-full blur-3xl ${accentClasses.glow}`} />
-            <Icon
-                strokeWidth={1}
-                className={`pointer-events-none absolute bottom-1 right-1 w-15 h-15  ${accentClasses.watermark}`}
-                aria-hidden="true"
-            />
-
-            <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-700">
-
-                <div className="flex items-center gap-2">
-                    <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${statusClasses[application.status]}`}
-                    >
-                        <FileTextIcon size={14} aria-hidden="true" />
-
-                        {toTitleCase(application.status)}
-                    </span>
-                    {application.isStale && (
-                        <span title="This application has been stale for a while">
-                            <ClockAlertIcon
-                                className="text-zinc-500 dark:text-yellow-400"
-                                size={20}
-                                aria-hidden="true"
-                            />
-                        </span>
-                    )}
-
+            <header className="flex items-start gap-4 p-6 pb-5">
+                <div
+                    aria-hidden="true"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-lg font-semibold text-zinc-700 ring-1 ring-inset ring-zinc-200 dark:bg-white/5 dark:text-zinc-200 dark:ring-white/10"
+                >
+                    {companyInitial}
                 </div>
 
-                <div className="inline-flex items-center overflow-hidden rounded-full border border-zinc-200 bg-zinc-50 shadow-sm dark:border-zinc-700 dark:bg-zinc-800/70">
+                <div className="min-w-0 flex-1">
+                    <h3
+                        title={application.name}
+                        className="truncate text-lg font-semibold leading-7 tracking-tight text-zinc-950 dark:text-white"
+                    >
+                        {application.name}
+                    </h3>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+                        <BriefcaseIcon size={15} aria-hidden="true" className="shrink-0" />
+                        <span className="min-w-0 truncate">{toTitleCase(application.position)}</span>
+                    </p>
+                </div>
 
+                <div className="-mr-2 -mt-1 flex shrink-0 items-center">
                     <FavoriteButton
                         applicationId={application.id}
                         isFavorite={application.isFavorite}
+                        className={iconActionClassName}
                     />
-
-                    <span className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" aria-hidden="true" />
-
                     <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="headless"
                         onClick={() => setUpdateModalOpen(true)}
-                        leftIcon={<PencilIcon size={18} />}
+                        leftIcon={<PencilIcon size={18} aria-hidden="true" />}
                         aria-label={`Edit ${application.name}`}
-                        className="h-10 w-10 rounded-none p-0 text-zinc-500 hover:bg-white hover:text-zinc-800 focus:ring-brand-primary/30 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-100"
+                        title="Edit"
+                        className={neutralIconActionClassName}
                     />
-
-                    <span className="h-5 w-px bg-zinc-200 dark:bg-zinc-700" aria-hidden="true" />
-
                     <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="headless"
                         onClick={() => setDeleteModalOpen(true)}
-                        leftIcon={<Trash2Icon size={18} />}
+                        leftIcon={<Trash2Icon size={18} aria-hidden="true" />}
                         aria-label={`Delete ${application.name}`}
-                        className="h-10 w-10 rounded-none p-0 text-zinc-500 hover:bg-rose-50 hover:text-rose-600 focus:ring-rose-500/30 dark:text-zinc-400 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
+                        title="Delete"
+                        className={`${iconActionClassName} text-zinc-500 hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-400 dark:hover:bg-rose-400/10 dark:hover:text-rose-300`}
                     />
                 </div>
+            </header>
 
-                <DeleteModal
-                    applicationId={application.id}
-                    isOpen={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                />
+            <dl className="grid grid-cols-2 gap-6 border-t border-zinc-100 px-6 py-5 dark:border-white/5">
+                <div className="min-w-0">
+                    <dt className={fieldLabelClassName}>
+                        <MapPinIcon size={14} aria-hidden="true" className="shrink-0" />
+                        Location
+                    </dt>
+                    <dd title={application.city} className={fieldValueClassName}>
+                        {application.city || "—"}
+                    </dd>
+                </div>
+                <div className="min-w-0">
+                    <dt className={fieldLabelClassName}>
+                        <CalendarIcon size={14} aria-hidden="true" className="shrink-0" />
+                        Applied
+                    </dt>
+                    <dd className={fieldValueClassName}>
+                        <time dateTime={application.appliedAt}>{formattedAppliedDate}</time>
+                    </dd>
+                </div>
+            </dl>
 
-                <UpdateModal
-                    application={application}
-                    isOpen={updateModalOpen}
-                    onClose={() => setUpdateModalOpen(false)}
-                />
+            <footer className="mt-auto flex items-center justify-between gap-3 border-t border-zinc-100 px-6 py-4 dark:border-white/5">
+                <div className="flex min-w-0 items-center gap-3">
+                    <span className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${pill}`}>
+                        <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                        {toTitleCase(application.status)}
+                    </span>
 
-            </div>
+                    {application.isStale && (
+                        <span
+                            title="No updates on this application for a while"
+                            className="inline-flex items-center gap-1 truncate text-xs font-medium text-amber-700 dark:text-amber-300"
+                        >
+                            <ClockAlertIcon size={14} aria-hidden="true" className="shrink-0" />
+                            Needs follow-up
+                        </span>
+                    )}
+                </div>
 
-            <ul className="mt-5 flex flex-col items-start gap-3">
-
-                {rows.map(({ Icon, text }) => (
-                    <li key={text}>
-                        <RowCard Icon={Icon} text={text} />
-                    </li>
-                ))}
-
-
-                <li>
+                {application.note ? (
                     <button
-                        disabled={!application.note}
+                        type="button"
                         onClick={() => setNoteModalOpen(true)}
+                        className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40 dark:text-zinc-300 dark:hover:bg-white/5 dark:hover:text-white"
                     >
-                        <RowCard
-                            Icon={NotepadText}
-                            text={application.note ? "View Note" : "No Note Added"}
-                            textClassName={`${application.note
-                                ? "hover:underline hover:underline-offset-2 cursor-pointer text-zinc-700 dark:text-zinc-300"
-                                : "cursor-not-allowed text-zinc-500 dark:text-zinc-400/90"}`}
-                        />
+                        <NotepadText size={16} aria-hidden="true" />
+                        View note
                     </button>
-                </li>
-            </ul>
+                ) : (
+                    <span className="shrink-0 text-sm text-zinc-500 dark:text-zinc-400">No note</span>
+                )}
+            </footer>
+
+            <DeleteModal
+                applicationId={application.id}
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+            />
+
+            <UpdateModal
+                application={application}
+                isOpen={updateModalOpen}
+                onClose={() => setUpdateModalOpen(false)}
+            />
 
             <NoteModal
                 title={`${application.name} Note`}
@@ -182,4 +181,3 @@ export function ApplicationCard({ application }: ApplicationCardProps) {
         </article>
     )
 }
-
